@@ -40,6 +40,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 30,
   },
+  scenarioButton: {
+    borderRadius: 50,
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "green",
+  },
+  scenarioButtonIcon: {
+    height: 50,
+    width: 50,
+  },
 });
 
 export default styles;
