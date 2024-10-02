@@ -31,8 +31,10 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={DarkTheme}>
-      <Stack.Screen name="(pages)" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="pages/index" />
+        <Stack.Screen name="+not-found" />
+      </Stack>
     </ThemeProvider>
   );
 }

@@ -51,6 +51,25 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
   },
+  scroller: {
+    flexGrow: 1,
+  },
+  airport: {
+    marginTop: 700,
+    marginLeft: 20,
+  },
+  scenarioTextContainer: {
+    paddingVertical: 20,
+    backgroundColor: "green",
+    borderRadius: 10,
+    borderWidth: 3,
+    borderColor: "white",
+    alignItems: "center",
+    margin: 20,
+  },
+  scenarioText: {
+    color: "white",
+  },
 });
 
 export default styles;

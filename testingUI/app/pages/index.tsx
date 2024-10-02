@@ -1,6 +1,6 @@
 import { ImageBackground, View, Text, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
-import styles from "./styles";
+import styles from "../styles";
 
 export default function Home() {
   return (

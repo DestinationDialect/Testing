@@ -1,14 +1,38 @@
-import { Text, TouchableOpacity, ImageBackground, Image } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+  Image,
+  View,
+  FlatList,
+} from "react-native";
 
-import styles from "./styles";
+import { airportQuestions } from "./airportQuestion";
+
+import styles from "../styles";
 
 export default function airportScenario() {
   return (
-    <ImageBackground>
-      <Text style={styles.titleText}>Airport</Text>
-      <TouchableOpacity>
-        <Image source={require("../../assets/images/airplaneIcon.png")} />
-      </TouchableOpacity>
+    <ImageBackground
+      source={require("../../assets/images/airport.png")}
+      resizeMode="cover"
+      style={styles.imgBackground}
+    >
+      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <View style={styles.scenarioTextContainer}>
+          <Text style={styles.scenarioText}>
+            {airportQuestions[0].question}
+          </Text>
+          <FlatList
+            data={airportQuestions}
+            renderItem={({ item }) => (
+              <Text style={styles.scenarioText}>
+                {airportQuestions[0].answerChoices}
+              </Text>
+            )}
+          />
+        </View>
+      </View>
     </ImageBackground>
   );
 }
