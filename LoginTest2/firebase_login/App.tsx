@@ -5,6 +5,8 @@ import Home from "./app/screens/Index";
 import Route from "./app/screens/Route";
 import Notebook from "./app/screens/Notebook";
 import Settings from "./app/screens/Settings";
+import Minigames from "./app/screens/Minigames";
+import AirportScenario from "./app/screens/AirportScenario";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
@@ -20,6 +22,8 @@ function InsideLayout() {
       <InsideStack.Screen name="Route" component={Route} />
       <InsideStack.Screen name="Settings" component={Settings} />
       <InsideStack.Screen name="Notebook" component={Notebook} />
+      <InsideStack.Screen name="Minigames" component={Minigames} />
+      <InsideStack.Screen name="AirportScenario" component={AirportScenario} />
     </InsideStack.Navigator>
   );
 }

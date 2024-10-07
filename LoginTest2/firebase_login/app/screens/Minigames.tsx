@@ -7,7 +7,7 @@ interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
-const Notebook = ({ navigation }: RouterProps) => {
+const Minigames = ({ navigation }: RouterProps) => {
   return (
     <ImageBackground
       source={require("../../assets/homeScreen.png")}
@@ -15,10 +15,10 @@ const Notebook = ({ navigation }: RouterProps) => {
       style={styles.imgBackground}
     >
       <View style={styles.titleContainer}>
-        <Text style={styles.titleText}>Notebook</Text>
+        <Text style={styles.titleText}>Minigames</Text>
       </View>
     </ImageBackground>
   );
 };
 
-export default Notebook;
+export default Minigames;

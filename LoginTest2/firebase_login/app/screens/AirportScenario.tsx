@@ -23,10 +23,10 @@ const airportQuestions: Question[] = [
 
 import styles from "./Styles";
 
-const airportScenario = () => {
+const AirportScenario = () => {
   return (
     <ImageBackground
-      source={require("../../assets/images/airport.png")}
+      source={require("../../assets/airport.png")}
       resizeMode="cover"
       style={styles.imgBackground}
     >
@@ -49,4 +49,4 @@ const airportScenario = () => {
   );
 };
 
-export default airportScenario;
+export default AirportScenario;
