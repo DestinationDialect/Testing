@@ -1,8 +1,10 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./app/screens/Login";
-import List from "./app/screens/List";
-import Details from "./app/screens/Details";
+import Home from "./app/screens/Index";
+import Route from "./app/screens/Route";
+import Notebook from "./app/screens/Notebook";
+import Settings from "./app/screens/Settings";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
@@ -14,8 +16,10 @@ const InsideStack = createNativeStackNavigator();
 function InsideLayout() {
   return (
     <InsideStack.Navigator>
-      <InsideStack.Screen name="My todos" component={List} />
-      <InsideStack.Screen name="Details" component={Details} />
+      <InsideStack.Screen name="Index" component={Home} />
+      <InsideStack.Screen name="Route" component={Route} />
+      <InsideStack.Screen name="Settings" component={Settings} />
+      <InsideStack.Screen name="Notebook" component={Notebook} />
     </InsideStack.Navigator>
   );
 }
