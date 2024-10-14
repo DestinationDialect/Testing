@@ -122,6 +122,10 @@ const styles = StyleSheet.create({
     marginTop: 700,
     marginLeft: 20,
   },
+  restaurant:{
+    marginTop:700,
+    marginLeft: 50,
+  },
   scenarioTextContainer: {
     paddingVertical: 20,
     backgroundColor: "green",

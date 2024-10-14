@@ -29,6 +29,13 @@ const Route = ({ navigation }: RouterProps) => {
         >
           <Text>Airport</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.restaurant}
+          onPress={() => navigation.navigate("RestaurantScenario")}
+        >
+          <Text>Restaurant</Text>
+        </TouchableOpacity>
       </ScrollView>
     </ImageBackground>
   );
