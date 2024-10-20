@@ -21,12 +21,12 @@ const airportQuestions: Question[] = [
   },
 ];
 
-import styles from "./Styles";
+import styles from "../Styles";
 
 const AirportScenario = () => {
   return (
     <ImageBackground
-      source={require("../../assets/airport.png")}
+      source={require("../../../assets/airport.png")}
       resizeMode="cover"
       style={styles.imgBackground}
     >

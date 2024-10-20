@@ -104,16 +104,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 30,
   },
-  scenarioButton: {
-    borderRadius: 50,
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "green",
-  },
   scenarioButtonIcon: {
-    height: 50,
-    width: 50,
+    height: 100,
+    width: 100,
+    resizeMode: "contain",
+    marginBottom: 80,
+  },
+  backButtonIcon: {
+    margin: 20,
+    height: 30,
+    width: 30,
   },
   scroller: {
     flexGrow: 1,
