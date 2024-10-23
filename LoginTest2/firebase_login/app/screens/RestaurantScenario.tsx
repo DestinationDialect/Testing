@@ -1,6 +1,9 @@
 import { Image, StyleSheet, Platform } from 'react-native';
 import { Text, SafeAreaView, View, Pressable, Alert, ImageBackground } from 'react-native';
 import { SetStateAction, useEffect, useState} from 'react';
+import { doc, getDoc, setDoc} from 'firebase/firestore';
+import {FIRESTORE_DB, FIREBASE_AUTH } from '../../FirebaseConfig'; //our config file
+
 
 /*
 import { HelloWave } from '@/components/HelloWave';
@@ -24,28 +27,45 @@ const QUESTIONS = [
   }
 ]
 
+
 export default function App() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
-  const [selectedOption, setselectedOption] = useState(null);
+  const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
+  const [score, setScore] = useState(2)
 
-  const checkAnswer = (pressedOption)=>{
+  //Need these for getting the user id to connect to database
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
+
+  const checkAnswer = (pressedOption: string)=>{
     setselectedOption(pressedOption);
 
     const isAnswerCorrect = QUESTIONS[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
 
     if(isAnswerCorrect){
-      
       Alert.alert("Correct!");
     } else{
       Alert.alert("Incorrect :(");
+      setScore(score - 1);
     }
   }
 
   const nextQuestion = () =>{
     if(currentquestionindex === QUESTIONS.length - 1){
       setcurrentquestionindex(0);
+      if(score > 1){
+        if(user){
+          const user_id = user.uid;
+          const ref = doc(FIRESTORE_DB, "user_data", user_id);
+          setDoc(ref, {
+              "RestaurantScenario": {stars: 1, unlocked: true},
+              "AirportScenario": {stars: 0, unlocked: true}
+          }, {merge: true});
+        }
+      }
+      
       return;
     }
     setisCorrect(false);

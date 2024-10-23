@@ -7,9 +7,16 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
+//Just added this for connecting to the database
+import {FIRESTORE_DB } from '../../FirebaseConfig';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+//just added this for creating database documents
+import { doc, getDoc, setDoc} from 'firebase/firestore';
 import styles from "./Styles";
+
+//Function that pulls list of completed scenarios on login to style them
+//Create array variable outside of function to export
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -21,6 +28,7 @@ const Login = () => {
     setLoading(true);
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
+
       console.log(response);
     } catch (error: any) {
       console.log(error);
@@ -38,6 +46,14 @@ const Login = () => {
         email,
         password
       );
+      //This creates a table for the user in the user_data collection
+	    const user = auth.currentUser;
+      if(user){
+          const user_id = user.uid;
+          await setDoc(doc(FIRESTORE_DB, "user_data", user_id), {
+             'RestaurantScenario':  {stars: 0, unlocked: true}
+          });
+ }
       console.log(response);
       alert("Check your emails!");
     } catch (error: any) {
