@@ -6,10 +6,12 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import React, { useState } from "react";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import styles from "./Styles";
+import flattenedRouteData from "./Route";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -38,6 +40,13 @@ const Login = () => {
         email,
         password
       );
+      const user = auth.currentUser;
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(doc(FIRESTORE_DB, "user_data", user_id), {
+          RestaurantScenario: { stars: 0, unlocked: true },
+        });
+      }
       console.log(response);
       alert("Check your emails!");
     } catch (error: any) {

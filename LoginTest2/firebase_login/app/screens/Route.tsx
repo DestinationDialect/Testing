@@ -20,14 +20,17 @@ import { NavigationProp } from "@react-navigation/native";
 import styles from "./Styles";
 
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
 interface RouteItem {
-  id: string;
+  id: number;
   title: string;
   unlockedIcon: string;
   lockedIcon: string;
@@ -55,13 +58,13 @@ const iconMap: Record<IconKey, any> = {
 
 const initialRouteData: RouteItem[] = [
   {
-    id: "1",
+    id: 1,
     title: "AirportScenario",
     unlockedIcon: "unlockedAirportIcon",
     lockedIcon: "lockedAirportIcon",
     children: [
       {
-        id: "1.1",
+        id: 2,
         title: "RestaurantScenario",
         unlockedIcon: "unlockedRestaurantIcon",
         lockedIcon: "lockedRestaurantIcon",
@@ -69,7 +72,7 @@ const initialRouteData: RouteItem[] = [
         level: 1,
       },
       {
-        id: "1.2",
+        id: 3,
         title: "HotelScenario",
         unlockedIcon: "unlockedHotelIcon",
         lockedIcon: "lockedHotelIcon",
@@ -81,6 +84,7 @@ const initialRouteData: RouteItem[] = [
     level: 0,
   },
 ];
+
 const RouteItemComponent: React.FC<{
   item: RouteItem;
   navigation: NavigationProp<any, any>;
@@ -164,7 +168,7 @@ const Route: React.FC<{
 const RouteScreen = ({ navigation }: RouterProps) => {
   const [routeData, setRouteData] = useState<RouteItem[]>(initialRouteData);
 
-  const unlockLevel = (id: string, data: RouteItem[]): RouteItem[] => {
+  const unlockLevel = (id: number, data: RouteItem[]): RouteItem[] => {
     return data.map((item) => {
       if (item.id === id) {
         return { ...item, isUnlocked: true };
@@ -176,10 +180,56 @@ const RouteScreen = ({ navigation }: RouterProps) => {
     });
   };
 
-  const handleLevelCompletion = (id: string) => {
-    const updatedData = unlockLevel(id, routeData);
+  const unlockNextLevel = (id: number, data: RouteItem[]): RouteItem[] => {
+    return data.map((item) => {
+      if (item.id === id && item.children && item.children.length > 0) {
+        const updatedChildren = item.children.map((child, index) => {
+          const childId = id + (index + 1);
+          return unlockLevel(childId, [child])[index];
+        });
+        return { ...item, children: updatedChildren };
+      }
+      if (item.id === id && !item.children) {
+        return unlockLevel(id + 1, data)[id];
+      }
+      if (item.children) {
+        return { ...item, children: unlockNextLevel(id, item.children) };
+      }
+      return item;
+    });
+  };
+
+  const handleLevelCompletion = (id: number) => {
+    const updatedData = unlockNextLevel(id, routeData);
     setRouteData(updatedData); // Update state to trigger re-render
   };
+
+  useEffect(() => {
+    const getData = async () => {
+      const user = FIREBASE_AUTH.currentUser;
+      if (user) {
+        const user_id = user.uid;
+        const ref = doc(FIRESTORE_DB, "user_data", user_id);
+        const docSnap = await getDoc(ref);
+        const docData = docSnap.data();
+        let i = 1;
+        let updatedData = [...routeData];
+        if (docData) {
+          let scenarioID = docData[i];
+          while (scenarioID) {
+            if (scenarioID && scenarioID.unlocked) {
+              updatedData = unlockLevel(i, updatedData);
+            }
+            i = i + 1;
+            scenarioID = docData[i];
+          }
+          setRouteData(updatedData);
+        }
+      }
+    };
+    getData();
+    console.log(routeData);
+  }, []);
 
   return (
     <ImageBackground
@@ -199,3 +249,4 @@ const RouteScreen = ({ navigation }: RouterProps) => {
 };
 
 export default RouteScreen;
+export const flattenedRouteData = flattenRouteData(initialRouteData);
