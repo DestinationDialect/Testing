@@ -16,9 +16,9 @@ const QUESTIONS = [
     correctAnswer: "egg",
   },
   {
-    question: "What does caballo mean?",
-    options: ["sandwich", "fish", "eggs", "horse"],
-    correctAnswer: "horse",
+    question: "What does cocina mean?",
+    options: ["sandwich", "fish", "eggs", "kitchen"],
+    correctAnswer: "kitchen",
   },
 ];
 
