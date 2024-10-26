@@ -108,7 +108,9 @@ const styles = StyleSheet.create({
     height: 100,
     width: 100,
     resizeMode: "contain",
-    marginBottom: 80,
+    marginBottom: 60,
+    marginLeft: 20,
+    marginRight: 10,
   },
   backButtonIcon: {
     margin: 20,
