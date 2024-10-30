@@ -4,19 +4,17 @@ import {
   ActivityIndicator,
   Button,
   KeyboardAvoidingView,
+  ImageBackground,
+  TouchableOpacity,
+  Text,
 } from "react-native";
 import React, { useState } from "react";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import styles from "./Styles";
-import { View, TextInput, ActivityIndicator, Button, KeyboardAvoidingView, ImageBackground } from 'react-native';
-import React, { useState } from 'react';
-import { FIREBASE_AUTH } from '../../FirebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import styles from "../styles";
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -45,6 +43,13 @@ const Login = () => {
         email,
         password
       );
+      const user = auth.currentUser;
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(doc(FIRESTORE_DB, "user_data", user_id), {
+          RestaurantScenario: { stars: 0, unlocked: true },
+        });
+      }
       console.log(response);
       alert("Check your emails!");
     } catch (error: any) {
@@ -56,55 +61,43 @@ const Login = () => {
   };
 
   return (
-    <View style={styles.loginContainer}>
-      <KeyboardAvoidingView behavior="padding">
-        <TextInput
-          value={email}
-          style={styles.input}
-          placeholder="Email"
-          autoCapitalize="none"
-          onChangeText={(text) => setEmail(text)}
-        ></TextInput>
-        <TextInput
-          secureTextEntry={true}
-          value={password}
-          style={styles.input}
-          placeholder="Password"
-          autoCapitalize="none"
-          onChangeText={(text) => setPassword(text)}
-        ></TextInput>
-    return (
-        <ImageBackground
+    <ImageBackground
             source={require("../../assets/LoginScreen.png")}
             resizeMode='cover'
             style={styles.imgBackground}
-        >
-            <View style={styles.container}>
-                <KeyboardAvoidingView behavior='padding'>
-                    <TextInput value={email} style={styles.input} placeholder='Email' autoCapitalize='none' onChangeText={(text)=>setEmail(text)}></TextInput>
-                    <TextInput secureTextEntry={true} value={password} style={styles.input} placeholder='Password' autoCapitalize='none' onChangeText={(text)=>setPassword(text)}></TextInput>
-
-        {loading ? (
-          <ActivityIndicator size="large" color="0000ff" />
-        ) : (
-          <>
-            <Button title="Login" onPress={signIn} />
-            <Button title="Create Account" onPress={signUp} />
-          </>
-        )}
-      </KeyboardAvoidingView>
-    </View>
-  );
-                    { loading ? (<ActivityIndicator size='large' color='0000ff' />
-                    ) : (
-                        <>
-                        <Button title="Login"  onPress={signIn} /> 
-                        <Button title="Create Account"  onPress={signUp} /> 
-                    </>)}
-                </KeyboardAvoidingView>
-            </View>
-        </ImageBackground>
-    ); 
+    >
+      <View style={styles.loginContainer}>
+        <KeyboardAvoidingView behavior="padding">
+          <TextInput
+            value={email}
+            style={styles.input}
+            placeholder="Email"
+            autoCapitalize="none"
+            onChangeText={(text) => setEmail(text)}
+          ></TextInput>
+          <TextInput
+            secureTextEntry={true}
+            value={password}
+            style={styles.input}
+            placeholder="Password"
+            autoCapitalize="none"
+            onChangeText={(text) => setPassword(text)}
+          ></TextInput>
+    
+          {loading ? (
+            <ActivityIndicator size="large" color="0000ff" />
+          ) : (
+            <>
+              <TouchableOpacity style={styles.Button} onPress={signIn} ><Text style={styles.Text}>Login</Text>
+                </TouchableOpacity>
+              <TouchableOpacity style={styles.Button} onPress={signIn} ><Text style={styles.Text}>Sign Up</Text>
+                </TouchableOpacity>            
+            </>
+          )}
+        </KeyboardAvoidingView>
+      </View>
+    </ImageBackground>
+  ); 
 };
 
 export default Login;
