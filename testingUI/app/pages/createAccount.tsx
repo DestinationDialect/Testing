@@ -1,5 +1,6 @@
 import {
   ImageBackground,
+  StyleSheet,
   View,
   SafeAreaView,
   Text,
@@ -8,10 +9,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import styles from "./styles";
+import styles from "../styles";
 
-export default function LogIn() {
-  const handleLogin = () => {};
+export default function RegisterOrLogin() {
+  const handleCreateAccount = () => {};
   return (
     <SafeAreaView>
       <ImageBackground
@@ -21,15 +22,19 @@ export default function LogIn() {
         <View style={styles.titleContainer}>
           <Text style={styles.titleText}>Destination Dialect</Text>
         </View>
+        <Text>First Name:</Text>
+        <TextInput placeholder="Enter your first name" />
+        <Text>Last Name:</Text>
+        <TextInput placeholder="Enter your last name" />
         <Text>Email:</Text>
         <TextInput placeholder="Enter your email" />
         <Text>Password:</Text>
-        <TextInput placeholder="Enter your password" />
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Log In</Text>
+        <TextInput placeholder="Create a password" />
+        <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
+          <Text style={styles.buttonText}>Create account</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Switch to create an account</Text>
+          <Text style={styles.buttonText}>Switch to log in</Text>
         </TouchableOpacity>
       </ImageBackground>
     </SafeAreaView>
