@@ -20,17 +20,45 @@ const InsideStack = createNativeStackNavigator();
 function InsideLayout() {
   return (
     <InsideStack.Navigator>
-      <InsideStack.Screen name="Home" component={Home} />
-      <InsideStack.Screen name="Route" component={Route} />
-      <InsideStack.Screen name="Settings" component={Settings} />
-      <InsideStack.Screen name="Notebook" component={Notebook} />
-      <InsideStack.Screen name="Minigames" component={Minigames} />
-      <InsideStack.Screen name="AirportScenario" component={AirportScenario} />
+      <InsideStack.Screen
+        name="Home"
+        component={Home}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="Route"
+        component={Route}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="Settings"
+        component={Settings}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="Notebook"
+        component={Notebook}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="Minigames"
+        component={Minigames}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="AirportScenario"
+        component={AirportScenario}
+        options={{ headerShown: false }}
+      />
       <InsideStack.Screen
         name="RestaurantScenario"
         component={RestaurantScenario}
       />
-      <InsideStack.Screen name="HotelScenario" component={HotelScenario} />
+      <InsideStack.Screen
+        name="HotelScenario"
+        component={HotelScenario}
+        options={{ headerShown: false }}
+      />
     </InsideStack.Navigator>
   );
 }

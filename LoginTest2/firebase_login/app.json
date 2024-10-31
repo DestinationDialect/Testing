@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/airport.png",
+      "image": "./assets/routeScreen.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

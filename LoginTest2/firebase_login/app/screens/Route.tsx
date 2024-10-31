@@ -148,7 +148,7 @@ const Route: React.FC<{
         <View
           style={{
             flexDirection: "row",
-            justifyContent: "space-around",
+            justifyContent: "space-between",
             marginVertical: 10,
           }}
         >

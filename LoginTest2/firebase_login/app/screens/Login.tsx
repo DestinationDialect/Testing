@@ -14,6 +14,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import styles from "./Styles";
+import { flattenedRouteData } from "./Route";
 
 
 const Login = () => {
@@ -46,9 +47,22 @@ const Login = () => {
       const user = auth.currentUser;
       if (user) {
         const user_id = user.uid;
-        await setDoc(doc(FIRESTORE_DB, "user_data", user_id), {
-          RestaurantScenario: { stars: 0, unlocked: true },
-        });
+        await setDoc(doc(FIRESTORE_DB, "user_data", user_id), {});
+        let i = 0;
+        while (flattenedRouteData[i]) {
+          setDoc(
+            doc(FIRESTORE_DB, "user_data", user_id),
+            {
+              [flattenedRouteData[i].id]: {
+                name: flattenedRouteData[i].title,
+                stars: 0,
+                unlocked: flattenedRouteData[i].isUnlocked,
+              },
+            },
+            { merge: true }
+          );
+          i = i + 1;
+        }
       }
       console.log(response);
       alert("Check your emails!");
