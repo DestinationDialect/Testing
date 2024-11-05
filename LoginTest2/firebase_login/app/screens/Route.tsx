@@ -214,10 +214,11 @@ const RouteScreen = ({ navigation }: RouterProps) => {
         const docData = docSnap.data();
         let i = 1;
         let updatedData = [...routeData];
+        console.log("user found")
         if (docData) {
           let scenarioID = docData[i];
           while (scenarioID) {
-            if (scenarioID && scenarioID.unlocked) {
+            if (scenarioID && scenarioID.unlocked == true) {
               updatedData = unlockLevel(i, updatedData);
             }
             i = i + 1;

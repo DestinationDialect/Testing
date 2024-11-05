@@ -8,6 +8,9 @@ import {
   ImageBackground,
 } from "react-native";
 import { SetStateAction, useEffect, useState } from "react";
+import { flattenedRouteData } from "../../screens/Route";
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../../../FirebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import RouteScreen from "../Route";
 
 const QUESTIONS = [
@@ -27,6 +30,10 @@ export default function RestaurantScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
+
+  const name = 'RestaurantScenario';
+  const currentRouteLocation = flattenedRouteData.find(item => item.title === name);
+
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
@@ -47,10 +54,36 @@ export default function RestaurantScenario() {
     }
   };
 
-  const nextQuestion = () => {
+
+  const nextQuestion = async () => {
     if(isCorrect){
       setScores([...scores, score]);
       if(currentquestionindex === QUESTIONS.length - 1){
+        const user = FIREBASE_AUTH.currentUser;
+        if (user) {
+          const user_id = user.uid;
+          const ref = doc(FIRESTORE_DB, "user_data", user_id);
+          const docSnap = await getDoc(ref);
+          const docData = docSnap.data();
+          let i = 0
+
+          if (currentRouteLocation && docData) {
+            let i = currentRouteLocation.id;
+            let scenarioID = docData[i+1];
+            if (scenarioID) {
+              setDoc(
+                doc(FIRESTORE_DB, "user_data", user_id),
+                {
+                  [flattenedRouteData[i].id]: {
+                    name: flattenedRouteData[i].title,
+                    stars: 0,
+                    unlocked: true,
+                  },
+                },
+                { merge: true });
+            }
+          }
+        }
         setcurrentquestionindex(0);
         setVisible(true);
         return;
@@ -58,6 +91,7 @@ export default function RestaurantScenario() {
       setisCorrect(false);
       setscore(90);
       setcurrentquestionindex(currentquestionindex + 1);
+
     }
   };
 

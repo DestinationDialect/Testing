@@ -7,6 +7,7 @@ import {
   FlatList,
 } from "react-native";
 
+
 type Question = {
   question: string;
   answerChoices: string[];
