@@ -6,6 +6,32 @@ const styles = StyleSheet.create({
     width: null,
     height: null,
   },
+  loginContainer: {
+    marginHorizontal: 20,
+    flex: 1,
+    justifyContent: "center",
+  },
+  Button: {
+    padding: 10,
+    margin: 10,
+    borderRadius: 10,
+    borderColor: "white",
+    borderWidth: 3,
+    backgroundColor: "green",
+    alignItems: "center",
+  },
+  Text: {
+    color: "white", 
+  },
+  input: {
+    padding: 10,
+    margin: 10,
+    borderRadius: 10,
+    borderColor: "white",
+    borderWidth: 3,
+    backgroundColor: "white",
+    alignItems: "center",
+  },
   container: {
     paddingVertical: 24,
   },
@@ -135,20 +161,6 @@ const styles = StyleSheet.create({
   },
   scenarioText: {
     color: "white",
-  },
-  loginContainer: {
-    marginHorizontal: 20,
-    flex: 1,
-    justifyContent: "center",
-  },
-
-  input: {
-    marginVertical: 4,
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 4,
-    padding: 10,
-    backgroundColor: "#fff",
   },
 });
 export default styles;

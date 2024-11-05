@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform } from "react-native";
+import { Image, StyleSheet, Platform, Modal } from "react-native";
 import {
   Text,
   SafeAreaView,
@@ -11,6 +11,7 @@ import { SetStateAction, useEffect, useState } from "react";
 import { flattenedRouteData } from "../../screens/Route";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import RouteScreen from "../Route";
 
 const QUESTIONS = [
   {
@@ -19,9 +20,9 @@ const QUESTIONS = [
     correctAnswer: "egg",
   },
   {
-    question: "What does caballo mean?",
-    options: ["sandwich", "fish", "eggs", "horse"],
-    correctAnswer: "horse",
+    question: "What does cocina mean?",
+    options: ["sandwich", "fish", "eggs", "kitchen"],
+    correctAnswer: "kitchen",
   },
 ];
 
@@ -29,8 +30,13 @@ export default function RestaurantScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
+
   const name = 'RestaurantScenario';
   const currentRouteLocation = flattenedRouteData.find(item => item.title === name);
+
+  const [score, setscore] = useState(90);
+  const [isVisible, setVisible] = useState(false);
+  const [scores, setScores] = useState<number[]>([]);
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
@@ -43,45 +49,68 @@ export default function RestaurantScenario() {
       Alert.alert("Correct!");
     } else {
       Alert.alert("Incorrect :(");
+      if(score>0)
+        setscore(score - 30);
     }
   };
 
+
   const nextQuestion = async () => {
-    if (currentquestionindex === QUESTIONS.length - 1) {
-      const user = FIREBASE_AUTH.currentUser;
-      if (user) {
-        const user_id = user.uid;
-        const ref = doc(FIRESTORE_DB, "user_data", user_id);
-        const docSnap = await getDoc(ref);
-        const docData = docSnap.data();
-        let i = 0
-          
-        if (currentRouteLocation && docData) {
-          let i = currentRouteLocation.id;
-          let scenarioID = docData[i+1];
-          if (scenarioID) {
-            setDoc(
-              doc(FIRESTORE_DB, "user_data", user_id),
-              {
-                [flattenedRouteData[i].id]: {
-                  name: flattenedRouteData[i].title,
-                  stars: 0,
-                  unlocked: true,
+    if(isCorrect){
+      setScores([...scores, score]);
+      if(currentquestionindex === QUESTIONS.length - 1){
+        const user = FIREBASE_AUTH.currentUser;
+        if (user) {
+          const user_id = user.uid;
+          const ref = doc(FIRESTORE_DB, "user_data", user_id);
+          const docSnap = await getDoc(ref);
+          const docData = docSnap.data();
+          let i = 0
+
+          if (currentRouteLocation && docData) {
+            let i = currentRouteLocation.id;
+            let scenarioID = docData[i+1];
+            if (scenarioID) {
+              setDoc(
+                doc(FIRESTORE_DB, "user_data", user_id),
+                {
+                  [flattenedRouteData[i].id]: {
+                    name: flattenedRouteData[i].title,
+                    stars: 0,
+                    unlocked: true,
+                  },
                 },
-              },
-              { merge: true });
+                { merge: true });
+            }
           }
         }
+        setcurrentquestionindex(0);
+        setVisible(true);
+        return;
       }
-      setcurrentquestionindex(0);
-      return;
+      setisCorrect(false);
+      setscore(90);
+      setcurrentquestionindex(currentquestionindex + 1);
+
     }
-    setisCorrect(false);
-    setcurrentquestionindex(currentquestionindex + 1);
   };
+
+  const averageScore = scores.length > 0 ? 
+    Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0;
 
   return (
     <SafeAreaView style={styles.container}>
+
+<Modal visible={isVisible} transparent={true}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalView}>
+          <Text style={styles.score}>You got {averageScore/30} stars!</Text>
+          <Pressable onPress={() => setVisible(false)} style={styles.closeButton}>
+            <Text style={styles.buttonText}>Review Lesson</Text>
+          </Pressable>
+        </View>
+      </View>
+      </Modal>
       <ImageBackground
         source={require("../../../assets/insideRestaurant.png")}
         style={styles.imageBackground}
@@ -112,6 +141,7 @@ export default function RestaurantScenario() {
         </Pressable>
       </View>
     </SafeAreaView>
+    
   );
 }
 
@@ -177,5 +207,35 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontSize: 18,
+  },
+  score:{
+    fontSize:36,
+    justifyContent: 'center',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent background
+  },
+modalView: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
   },
 });
