@@ -1,10 +1,10 @@
 import {
-  SafeAreaView,
   Text,
   ScrollView,
   View,
   TouchableOpacity,
   Switch,
+  ImageBackground,
 } from "react-native";
 import { useState } from "react";
 import styles from "./Styles";
@@ -75,74 +75,79 @@ export default function Settings() {
   });
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#f6f6f6" }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Settings</Text>
-          <Text style={styles.subtitle}>Update your Preferences Here</Text>
-        </View>
-
-        {SECTIONS.map(({ header, items }) => (
-          <View style={styles.section} key={header}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionHeaderText}>{header}</Text>
-            </View>
-
-            <View style={styles.sectionBody}>
-              {items.map(({ label, id, type, icon }, index) => (
-                <View
-                  style={[
-                    styles.rowWrapper,
-                    index === 0 && { borderTopWidth: 0 },
-                  ]}
-                >
-                  <TouchableOpacity
-                    onPress={() => {
-                      //handle onPress
-                    }}
-                    key={id}
-                  >
-                    <View style={styles.row}>
-                      <FeatherIcon
-                        name={icon}
-                        color="#a61616"
-                        size={22}
-                        style={{ marginRight: 12 }}
-                      />
-                      <Text style={styles.rowLabel}>{label}</Text>
-
-                      <View style={styles.rowSpacer} />
-
-                      {type === "select" && (
-                        <Text style={styles.rowValue}>
-                          {form[id as keyof FormState]}
-                        </Text>
-                      )}
-
-                      {type === "toggle" && (
-                        <Switch
-                          value={Boolean(form[id as keyof FormState])}
-                          onValueChange={(value) =>
-                            setForm({ ...form, [id as keyof FormState]: value })
-                          }
-                        />
-                      )}
-
-                      {["select", "link"].includes(type) && (
-                        <FeatherIcon
-                          name="chevron-right"
-                          color="#ababab"
-                          size={22}
-                        />
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
+    // <SafeAreaView style={{ flex: 1, backgroundColor: "#f6f6f6" }}>
+      <ImageBackground
+      source={require("../../assets/SettingsPage.png")}
+      resizeMode='cover'
+      style={styles.imgBackground}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Settings</Text>
+            <Text style={styles.subtitle}>Update your Preferences Here</Text>
           </View>
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+
+          {SECTIONS.map(({ header, items }) => (
+            <View style={styles.section} key={header}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionHeaderText}>{header}</Text>
+              </View>
+
+              <View style={styles.sectionBody}>
+                {items.map(({ label, id, type, icon }, index) => (
+                  <View
+                    style={[
+                      styles.rowWrapper,
+                      index === 0 && { borderTopWidth: 0 },
+                    ]}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {
+                        //handle onPress
+                      }}
+                      key={id}
+                    >
+                      <View style={styles.row}>
+                        <FeatherIcon
+                          name={icon}
+                          color="black"
+                          size={22}
+                          style={{ marginRight: 12 }}
+                        />
+                        <Text style={styles.rowLabel}>{label}</Text>
+
+                        <View style={styles.rowSpacer} />
+
+                        {type === "select" && (
+                          <Text style={styles.rowValue}>
+                            {form[id as keyof FormState]}
+                          </Text>
+                        )}
+
+                        {type === "toggle" && (
+                          <Switch
+                            value={Boolean(form[id as keyof FormState])}
+                            onValueChange={(value) =>
+                              setForm({ ...form, [id as keyof FormState]: value })
+                            }
+                          />
+                        )}
+
+                        {["select", "link"].includes(type) && (
+                          <FeatherIcon
+                            name="chevron-right"
+                            color="black"
+                            size={22}
+                          />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      </ImageBackground>  
   );
 }

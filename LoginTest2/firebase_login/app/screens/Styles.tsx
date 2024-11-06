@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
+  // Login styles ------------------------------------------
   imgBackground: {
     justifyContent: "center",
     flex: 1,
@@ -34,6 +35,7 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingVertical: 24,
+  // Settings Styles -------------------------------------
   },
   header: {
     paddingHorizontal: 24,
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#929292",
+    color: "#1d1d1d", 
   },
   section: {
     paddingTop: 32,
@@ -60,15 +62,19 @@ const styles = StyleSheet.create({
   sectionHeaderText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#a7a7a7",
+    color: "#1d1d1d",
     textTransform: "uppercase",
     letterSpacing: 1.2,
   },
   rowWrapper: {
     paddingLeft: 24,
     borderTopWidth: 1,
-    borderColor: "#e3e3e3",
-    backgroundColor: "#ffffff",
+    borderColor: "white",
+    backgroundColor: "green",
+    padding: 3,
+    margin: 1,
+    borderRadius: 10,
+    borderWidth: 1,
   },
   row: {
     height: 50,
@@ -80,21 +86,22 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 17,
     fontWeight: "500",
-    color: "#000",
+    color: "white",
   },
   rowSpacer: {
     flex: 1,
   },
   rowValue: {
     fontSize: 17,
-    color: "#616161",
+    color: "black",
     marginRight: 4,
   },
   sectionBody: {
-    paddingLeft: 24,
+    // paddingLeft: 24,
     borderTopWidth: 1,
     borderColor: "#e3e3e3",
     backgroundColor: "#ffffff",
+  // ----------------------------------------------------------
   },
   titleText: {
     color: "white",
