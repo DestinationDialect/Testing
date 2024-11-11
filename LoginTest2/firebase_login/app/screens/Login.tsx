@@ -16,7 +16,6 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import styles from "./Styles";
 import { flattenedRouteData } from "./Route";
 
-
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,9 +75,9 @@ const Login = () => {
 
   return (
     <ImageBackground
-            source={require("../../assets/LoginScreen.png")}
-            resizeMode='cover'
-            style={styles.imgBackground}
+      source={require("../../assets/LoginScreen.png")}
+      resizeMode="cover"
+      style={styles.imgBackground}
     >
       <View style={styles.loginContainer}>
         <KeyboardAvoidingView behavior="padding">
@@ -97,22 +96,23 @@ const Login = () => {
             autoCapitalize="none"
             onChangeText={(text) => setPassword(text)}
           ></TextInput>
-    
+
           {loading ? (
             <ActivityIndicator size="large" color="0000ff" />
           ) : (
             <>
-              <TouchableOpacity style={styles.Button} onPress={signIn} ><Text style={styles.Text}>Login</Text>
-                </TouchableOpacity>
-              <TouchableOpacity style={styles.Button} onPress={signIn} ><Text style={styles.Text}>Sign Up</Text>
-                </TouchableOpacity>            
+              <TouchableOpacity style={styles.Button} onPress={signIn}>
+                <Text style={styles.Text}>Login</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.Button} onPress={signUp}>
+                <Text style={styles.Text}>Sign Up</Text>
+              </TouchableOpacity>
             </>
           )}
         </KeyboardAvoidingView>
       </View>
     </ImageBackground>
-  ); 
+  );
 };
 
 export default Login;
-
