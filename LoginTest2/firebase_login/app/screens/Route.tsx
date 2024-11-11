@@ -68,7 +68,7 @@ const initialRouteData: RouteItem[] = [
         title: "RestaurantScenario",
         unlockedIcon: "unlockedRestaurantIcon",
         lockedIcon: "lockedRestaurantIcon",
-        isUnlocked: false,
+        isUnlocked: true,
         level: 1,
       },
       {
@@ -111,6 +111,8 @@ const flattenRouteData = (data: RouteItem[]): RouteItem[] => {
     return acc;
   }, []);
 };
+
+export const flattenedRouteData = flattenRouteData(initialRouteData);
 
 const groupByLevel = (data: RouteItem[]): Record<number, RouteItem[]> => {
   return data.reduce<Record<number, RouteItem[]>>((acc, item) => {
@@ -214,7 +216,7 @@ const RouteScreen = ({ navigation }: RouterProps) => {
         const docData = docSnap.data();
         let i = 1;
         let updatedData = [...routeData];
-        console.log("user found")
+        console.log("user found");
         if (docData) {
           let scenarioID = docData[i];
           while (scenarioID) {
@@ -230,6 +232,7 @@ const RouteScreen = ({ navigation }: RouterProps) => {
     };
     getData();
     console.log(routeData);
+    console.log(flattenedRouteData);
   }, []);
 
   return (
@@ -250,4 +253,3 @@ const RouteScreen = ({ navigation }: RouterProps) => {
 };
 
 export default RouteScreen;
-export const flattenedRouteData = flattenRouteData(initialRouteData);

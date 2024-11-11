@@ -62,7 +62,7 @@ const QUESTIONS = [
     question:
       "Sí, tenemos jugo de naranja fresco. ¿Te gustaría un vaso grande o pequeño?",
     options: [
-      " Un vaso grande, por favor.",
+      "Un vaso grande, por favor.",
       "Un vaso pequeño, gracias.",
       "No quiero jugo, solo agua está bien.",
     ],
@@ -91,7 +91,7 @@ const QUESTIONS = [
     question:
       "Aquí están tus tacos de carne asada y tu jugo de naranja. ¡Buen provecho!",
     options: [
-      " ¡Gracias! Se ve delicioso.",
+      "¡Gracias! Se ve delicioso.",
       "¡Gracias! Pero esto no es lo que pedí.",
       "No me gusta mucho, pero gracias.",
     ],
@@ -142,6 +142,13 @@ export default function RestaurantScenario() {
     if (isCorrect) {
       setScores([...scores, score]);
       if (currentquestionindex === QUESTIONS.length - 1) {
+        const averageScore =
+          scores.length > 0
+            ? Math.round(
+                scores.reduce((sum, score) => sum + score, 0) / scores.length
+              )
+            : 0;
+        const stars = averageScore / 30;
         const user = FIREBASE_AUTH.currentUser;
         if (user) {
           const user_id = user.uid;
@@ -159,7 +166,7 @@ export default function RestaurantScenario() {
                 {
                   [flattenedRouteData[i].id]: {
                     name: flattenedRouteData[i].title,
-                    stars: 0,
+                    stars: stars,
                     unlocked: true,
                   },
                 },
