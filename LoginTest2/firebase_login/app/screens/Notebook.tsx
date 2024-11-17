@@ -1,4 +1,11 @@
-import { ImageBackground, View, Text, TouchableOpacity } from "react-native";
+import { 
+  ImageBackground, 
+  View, 
+  Text, 
+  TouchableOpacity,
+  Pressable, 
+  Image,
+} from "react-native";
 import styles from "./Styles";
 import React from "react";
 import { NavigationProp } from "@react-navigation/native";
@@ -14,6 +21,13 @@ const Notebook = ({ navigation }: RouterProps) => {
       resizeMode="cover"
       style={styles.imgBackground}
     >
+      <Pressable onPress={() => navigation.goBack()}>
+        <Image
+          style={styles.backButtonIcon}
+          source={require("../../assets/backArrow.png")}
+        />
+      </Pressable>
+
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>Notebook</Text>
       </View>
