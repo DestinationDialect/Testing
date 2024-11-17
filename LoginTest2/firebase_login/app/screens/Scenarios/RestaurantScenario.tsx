@@ -12,6 +12,7 @@ import { flattenedRouteData } from "../../screens/Route";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import RouteScreen from "../Route";
+import { useNavigation } from "@react-navigation/native";
 
 const QUESTIONS = [
   {
@@ -113,6 +114,7 @@ export default function RestaurantScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
+  const navigation = useNavigation();
 
   const name = "RestaurantScenario";
   const currentRouteLocation = flattenedRouteData.find(
@@ -212,6 +214,12 @@ export default function RestaurantScenario() {
         style={styles.imageBackground}
         resizeMode="cover"
       ></ImageBackground>
+      <Pressable onPress={() => navigation.goBack()}>
+        <Image
+          style={styles.backButtonIcon}
+          source={require("../../../assets/backArrow.png")}
+        />
+      </Pressable>
       <View style={styles.overlay}>
         <Text style={styles.question}>
           {QUESTIONS[currentquestionindex].question}
@@ -332,5 +340,10 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
+  },
+  backButtonIcon: {
+    margin: 20,
+    height: 30,
+    width: 30,
   },
 });

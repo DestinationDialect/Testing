@@ -5,7 +5,10 @@ import {
   Image,
   View,
   FlatList,
+  Pressable,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
 
 
 type Question = {
@@ -25,12 +28,20 @@ const airportQuestions: Question[] = [
 import styles from "../Styles";
 
 const AirportScenario = () => {
+  const navigation = useNavigation();
+
   return (
     <ImageBackground
       source={require("../../../assets/airport.png")}
       resizeMode="cover"
       style={styles.imgBackground}
     >
+      <Pressable onPress={() => navigation.goBack()}>
+          <Image
+            style={styles.backButtonIcon}
+            source={require("../../../assets/backArrow.png")}
+          />
+        </Pressable>
       <View style={{ flex: 1, justifyContent: "flex-end" }}>
         <View style={styles.scenarioTextContainer}>
           <Text style={styles.scenarioText}>
