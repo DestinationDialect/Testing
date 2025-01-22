@@ -5,10 +5,13 @@ import {
   TouchableOpacity,
   Switch,
   ImageBackground,
+  Pressable,
+  Image, 
 } from "react-native";
 import { useState } from "react";
 import styles from "./Styles";
 import FeatherIcon from "react-native-vector-icons/Feather";
+import { useNavigation } from "@react-navigation/native";
 
 interface SettingItem {
   id: string;
@@ -66,6 +69,8 @@ interface FormState {
 }
 
 export default function Settings() {
+  const navigation = useNavigation();
+
   const [form, setForm] = useState<FormState>({
     darkMode: true,
     language: "English",
@@ -77,10 +82,16 @@ export default function Settings() {
   return (
     // <SafeAreaView style={{ flex: 1, backgroundColor: "#f6f6f6" }}>
       <ImageBackground
-      source={require("../../assets/SettingsPage.png")}
-      resizeMode='cover'
-      style={styles.imgBackground}
+        source={require("../../assets/SettingsPage.png")}
+        resizeMode='cover'
+        style={styles.imgBackground}
       >
+        <Pressable onPress={() => navigation.goBack()}>
+          <Image
+            style={styles.backButtonIcon}
+            source={require("../../assets/backArrow.png")}
+          />
+        </Pressable>
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>Settings</Text>
