@@ -12,6 +12,7 @@ import { flattenedRouteData } from "../../screens/Route";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import RouteScreen from "../Route";
+import Tts from "react-native-tts";
 
 const QUESTIONS = [
   {
@@ -123,6 +124,32 @@ export default function RestaurantScenario() {
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
 
+
+  const speak = () => {
+    const currentQuestion = QUESTIONS[currentquestionindex].question; // Get the current question text
+
+    if (Platform.OS === 'web') {
+      // Use Web Speech API for web
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(currentQuestion);
+        utterance.lang = 'es-ES';
+        window.speechSynthesis.speak(utterance);
+      } else {
+        console.error('Text-to-Speech is not supported in this browser.');
+      }
+    } else {
+      // Use react-native-tts for mobile
+      Tts.getInitStatus()
+      .then(() => {
+        Tts.setDefaultLanguage('es-ES');
+        Tts.speak(currentQuestion); // Read the current question
+      })
+      .catch((err) => {
+        console.error('TTS Initialization Error:', err);
+      });
+    }
+  };
+
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
 
@@ -232,6 +259,10 @@ export default function RestaurantScenario() {
           //</View>
         ))}
 
+        <Pressable onPress={speak} style={styles.ttsButton}>
+          <Text style={styles.buttonText}>TTS Testing</Text>
+          </Pressable>
+
         <Pressable onPress={nextQuestion} style={styles.nextButton}>
           <Text style={styles.buttonText}>Next Question</Text>
         </Pressable>
@@ -332,5 +363,14 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
+  },
+  ttsButton: {
+    padding: 10,
+    backgroundColor: "blue",
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: "center",
+    borderColor: "white",
+    borderWidth: 3,
   },
 });
