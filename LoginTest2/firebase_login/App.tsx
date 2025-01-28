@@ -9,6 +9,8 @@ import Minigames from "./app/screens/Minigames";
 import AirportScenario from "./app/screens/Scenarios/AirportScenario";
 import RestaurantScenario from "./app/screens/Scenarios/RestaurantScenario";
 import HotelScenario from "./app/screens/Scenarios/HotelScenario";
+import Flashcards from "./app/screens/Minigames/Flashcards";
+import Matching from "./app/screens/Minigames/Matching";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
@@ -57,6 +59,16 @@ function InsideLayout() {
       <InsideStack.Screen
         name="HotelScenario"
         component={HotelScenario}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="Flashcards"
+        component={Flashcards}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="Matching"
+        component={Matching}
         options={{ headerShown: false }}
       />
     </InsideStack.Navigator>
