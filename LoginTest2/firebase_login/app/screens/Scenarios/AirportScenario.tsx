@@ -8,8 +8,7 @@ import {
   Pressable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-
-
+import * as Speech from "expo-speech";
 
 type Question = {
   question: string;
@@ -19,9 +18,9 @@ type Question = {
 
 const airportQuestions: Question[] = [
   {
-    question: "Hola, bienvenida! adonde vas?",
-    answerChoices: ["tu madre", "mi casa", "un nuevo pais"],
-    correctAnswer: "un nuevo pais",
+    question: "Hello! Where are you going?",
+    answerChoices: ["your mom", "my house", "a new country"],
+    correctAnswer: "a new country",
   },
 ];
 
@@ -30,6 +29,10 @@ import styles from "../Styles";
 const AirportScenario = () => {
   const navigation = useNavigation();
 
+  const speak = (text: string) => {
+    Speech.speak(text);
+  };
+
   return (
     <ImageBackground
       source={require("../../../assets/airport.png")}
@@ -37,11 +40,11 @@ const AirportScenario = () => {
       style={styles.imgBackground}
     >
       <Pressable onPress={() => navigation.goBack()}>
-          <Image
-            style={styles.backButtonIcon}
-            source={require("../../../assets/backArrow.png")}
-          />
-        </Pressable>
+        <Image
+          style={styles.backButtonIcon}
+          source={require("../../../assets/backArrow.png")}
+        />
+      </Pressable>
       <View style={{ flex: 1, justifyContent: "flex-end" }}>
         <View style={styles.scenarioTextContainer}>
           <Text style={styles.scenarioText}>

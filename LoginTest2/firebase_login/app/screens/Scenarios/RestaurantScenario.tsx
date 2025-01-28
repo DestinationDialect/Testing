@@ -127,9 +127,8 @@ export default function RestaurantScenario() {
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
 
-  const speak = () => {
-    const currentQuestion = QUESTIONS[currentquestionindex].question; // Get the current question text
-    Speech.speak(currentQuestion);
+  const speak = (text: string) => {
+    Speech.speak(text);
 
     /*
     if (Platform.OS === 'web') {
@@ -154,9 +153,13 @@ export default function RestaurantScenario() {
     }*/
   };
 
+  useEffect(() => {
+    speak(QUESTIONS[currentquestionindex].question);
+  }, [currentquestionindex]);
+
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
-
+    speak(pressedOption);
     const isAnswerCorrect =
       QUESTIONS[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
@@ -268,10 +271,6 @@ export default function RestaurantScenario() {
           </Pressable>
           //</View>
         ))}
-
-        <Pressable onPress={speak} style={styles.ttsButton}>
-          <Text style={styles.buttonText}>TTS Testing</Text>
-        </Pressable>
 
         <Pressable onPress={nextQuestion} style={styles.nextButton}>
           <Text style={styles.buttonText}>Next Question</Text>
