@@ -13,7 +13,8 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from "../../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import RouteScreen from "../Route";
 import { useNavigation } from "@react-navigation/native";
-import Tts from "react-native-tts";
+import * as Speech from "expo-speech";
+//import Tts from "react-native-tts";
 
 const QUESTIONS = [
   {
@@ -126,10 +127,11 @@ export default function RestaurantScenario() {
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
 
-
   const speak = () => {
     const currentQuestion = QUESTIONS[currentquestionindex].question; // Get the current question text
+    Speech.speak(currentQuestion);
 
+    /*
     if (Platform.OS === 'web') {
       // Use Web Speech API for web
       if ('speechSynthesis' in window) {
@@ -149,7 +151,7 @@ export default function RestaurantScenario() {
       .catch((err) => {
         console.error('TTS Initialization Error:', err);
       });
-    }
+    }*/
   };
 
   const checkAnswer = (pressedOption: string) => {
@@ -269,7 +271,7 @@ export default function RestaurantScenario() {
 
         <Pressable onPress={speak} style={styles.ttsButton}>
           <Text style={styles.buttonText}>TTS Testing</Text>
-          </Pressable>
+        </Pressable>
 
         <Pressable onPress={nextQuestion} style={styles.nextButton}>
           <Text style={styles.buttonText}>Next Question</Text>
