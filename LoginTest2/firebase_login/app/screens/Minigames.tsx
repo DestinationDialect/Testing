@@ -31,6 +31,20 @@ const Minigames = ({ navigation }: RouterProps) => {
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>Minigames</Text>
       </View>
+      <View style={styles.menu}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("Flashcards")}
+        >
+          <Text style={styles.buttonText}>Flashcards</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("Matching")}
+        >
+          <Text style={styles.buttonText}>Matching</Text>
+        </TouchableOpacity>
+      </View>
     </ImageBackground>
   );
 };
