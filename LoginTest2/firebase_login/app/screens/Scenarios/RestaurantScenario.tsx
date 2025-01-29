@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, Modal } from "react-native";
+import { Image, StyleSheet, Modal } from "react-native";
 import {
   Text,
   SafeAreaView,
@@ -7,14 +7,24 @@ import {
   Alert,
   ImageBackground,
 } from "react-native";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { flattenedRouteData } from "../../screens/Route";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import RouteScreen from "../Route";
 import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 //import Tts from "react-native-tts";
+interface Language {
+  name: string;
+  tag: string;
+}
+
+const languages: { [key: string]: Language } = {};
+languages["English"] = { name: "English", tag: "en" };
+languages["Spanish"] = { name: "Spanish", tag: "es" };
+languages["French"] = { name: "French", tag: "fr" };
+languages["German"] = { name: "German", tag: "de" };
 
 const QUESTIONS = [
   {
@@ -126,9 +136,31 @@ export default function RestaurantScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
+  const [language, setLanguage] = useState("English");
+  const [languageStored, setLanguageStored] = useState(false);
+
+  const getLanguage = async () => {
+    // attempts to get language from async storage
+    try {
+      const lang = await AsyncStorage.getItem("newLanguage");
+      return lang;
+    } catch (error) {
+      console.error("Error retrieving data from AsyncStorage:", error);
+      return null; // Return null in case of an error
+    }
+  };
+
+  const storeLanguage = async () => {
+    // stores result of attempt to get language in variable and sets language to that if successful
+    const lang = await getLanguage();
+    if (lang) {
+      setLanguage(lang);
+    }
+  };
 
   const speak = (text: string) => {
-    Speech.speak(text);
+    Speech.stop();
+    Speech.speak(text, { language: languages[language].tag });
 
     /*
     if (Platform.OS === 'web') {
@@ -154,12 +186,23 @@ export default function RestaurantScenario() {
   };
 
   useEffect(() => {
-    speak(QUESTIONS[currentquestionindex].question);
-  }, [currentquestionindex]);
+    const setLanguageAndSpeak = async () => {
+      // gets language from async storage before speaking first question (on render)
+      if (currentquestionindex === 0 && !languageStored) {
+        await storeLanguage();
+        setLanguageStored(true);
+      }
+      // speak question on render and every time question index changes
+      if (languageStored) {
+        speak(QUESTIONS[currentquestionindex].question);
+      }
+    };
+    setLanguageAndSpeak();
+  }, [currentquestionindex, languageStored]);
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
-    speak(pressedOption);
+    speak(pressedOption); // speaks the selected answer
     const isAnswerCorrect =
       QUESTIONS[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
