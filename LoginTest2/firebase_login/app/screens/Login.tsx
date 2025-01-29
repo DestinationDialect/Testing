@@ -15,12 +15,30 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import styles from "./Styles";
 import { flattenedRouteData } from "./Route";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState(false);
   const auth = FIREBASE_AUTH;
+
+  const setLanguage = async () => {
+    // function to fetch user languages from database and save in async storage
+
+    // replace "English" definitions with database call data
+    let originLanguage = "English";
+    let newLanguage = "Spanish";
+
+    // store data from variables in async storage
+    try {
+      await AsyncStorage.setItem("originLanguage", originLanguage);
+      await AsyncStorage.setItem("newLanguage", newLanguage);
+    } catch (error) {
+      console.error("Error storing languages in AsyncStorage:", error);
+    }
+  };
 
   const signIn = async () => {
     setLoading(true);
@@ -30,7 +48,11 @@ const Login = () => {
     } catch (error: any) {
       console.log(error);
       alert("Sign in failed" + error.message);
+      setLoginError(true);
     } finally {
+      if (!loginError) {
+        setLanguage(); // function to fetch user languages from database and save in async storage
+      }
       setLoading(false);
     }
   };
