@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, Modal } from "react-native";
+import { Image, StyleSheet, Modal } from "react-native";
 import {
   Text,
   SafeAreaView,
@@ -7,106 +7,124 @@ import {
   Alert,
   ImageBackground,
 } from "react-native";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { flattenedRouteData } from "../../screens/Route";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import RouteScreen from "../Route";
 import { useNavigation } from "@react-navigation/native";
+import * as Speech from "expo-speech";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+//import Tts from "react-native-tts";
+interface Language {
+  name: string;
+  tag: string;
+}
+
+const languages: { [key: string]: Language } = {};
+languages["English"] = { name: "English", tag: "en" };
+languages["Spanish"] = { name: "Spanish", tag: "es" };
+languages["French"] = { name: "French", tag: "fr" };
+languages["German"] = { name: "German", tag: "de" };
 
 const QUESTIONS = [
   {
-    question: "What does juevos mean?",
-    options: ["egg", "sun", "dog", "house"],
-    correctAnswer: "egg",
-  },
-  {
-    question: "¡Hola! Buenas tardes. ¿Cómo estás?",
+    question: "Hello! Good afternoon. How are you?",
     options: [
-      "¡Hola! Buenas tardes. Estoy bien, gracias. ¿Y tú?",
-      "¡Hola! ¿Qué tal? Estoy mal.",
-      " ¡Hola! No sé, ¿cómo estás tú?",
+      "Hello! Good afternoon. I'm fine, thank you. And you?",
+      "Hello! How are you? I'm feeling bad.",
+      "Hello! I don't know, how are you?",
     ],
-    correctAnswer: "¡Hola! Buenas tardes. Estoy bien, gracias. ¿Y tú?",
+    correctAnswer: "Hello! Good afternoon. I'm fine, thank you. And you?",
   },
   {
     question:
-      "Estoy bien, gracias. Bienvenido a nuestro restaurante. ¿Es tu primera vez aquí?",
+      "I'm fine, thank you. Welcome to our restaurant. Is this your first time here?",
     options: [
-      " No, ya he venido antes. Me gusta mucho este lugar.",
-      "Sí, es mi primera vez.",
-      " No, ya he estado en otro restaurante.",
+      "No, I've been here before. I really like this place.",
+      "Yes, it's my first time.",
+      "No, I've already been to another restaurant.",
     ],
-    correctAnswer: "Sí, es mi primera vez.",
+    correctAnswer: "Yes, it's my first time.",
   },
   {
     question:
-      "¡Qué bueno! ¿Ya sabes qué vas a pedir o te gustaría ver el menú?",
+      "Great! Do you know already know what you're going to order or would you like to see the menu?",
     options: [
-      "Me gustaría ver el menú, por favor.",
-      "Ya sé qué quiero, traeme lo que siempre pido.",
-      "No, gracias, ya no quiero nada.",
+      "I would like to see the menu please.",
+      "I know what I want, bring me what I always ask for.",
+      "No, thanks, I don't want anything else.",
     ],
-    correctAnswer: "Me gustaría ver el menú, por favor.",
+    correctAnswer: "I would like to see the menu please.",
   },
   {
     question:
-      "Claro, aquí tienes el menú. ¿Te gustaría algo de beber mientras decides?",
+      "Sure, here's the menu. Would you like something to drink while you decide?",
     options: [
-      "Sí, por favor. ¿Tienen jugo de naranja?",
-      "No, solo quiero agua.",
-      "No sé, ¿qué tienes para beber?",
+      "I don't know, what do you have to drink?",
+      "No, I just want water.",
+      "Yes, please. Do you have orange juice?",
     ],
-    correctAnswer: "Sí, por favor. ¿Tienen jugo de naranja?",
+    correctAnswer: "Yes, please. Do you have orange juice?",
   },
   {
     question:
-      "Sí, tenemos jugo de naranja fresco. ¿Te gustaría un vaso grande o pequeño?",
+      "Yes, we have fresh orange juice. Would you like a small or large glass?",
     options: [
-      "Un vaso grande, por favor.",
-      "Un vaso pequeño, gracias.",
-      "No quiero jugo, solo agua está bien.",
+      "A large glass, please.",
+      "A small glass, please.",
+      "I don't want juice, just water is fine.",
     ],
-    correctAnswer: "Un vaso grande, por favor.",
+    correctAnswer: "A large glass, please.",
   },
   {
-    question: "Perfecto. ¿Deseas algo más?",
+    question: "Perfect. Would you like anything else?",
     options: [
-      "No, eso está bien.",
-      "Sí, también quiero una sopa.",
-      "No, no quiero más comida.",
+      "Yes, I would like some carne asada tacos.",
+      "No, that's fine.",
+      "No, I don't want anymore food.",
     ],
-    correctAnswer: "No, eso está bien.",
-  },
-  {
-    question:
-      "Perfecto. Entonces, un jugo de naranja grande y unos tacos de carne asada. ¿Algo más para acompañar?",
-    options: [
-      "No, está perfecto así.",
-      "Sí, quiero una bebida alcohólica también.",
-      "No, solo eso.",
-    ],
-    correctAnswer: "No, está perfecto así.",
+    correctAnswer: "Yes, I would like some carne asada tacos.",
   },
   {
     question:
-      "Aquí están tus tacos de carne asada y tu jugo de naranja. ¡Buen provecho!",
+      "Perfect. So, a large orange juice and some carne asada tacos. Anything else to go with it?",
     options: [
-      "¡Gracias! Se ve delicioso.",
-      "¡Gracias! Pero esto no es lo que pedí.",
-      "No me gusta mucho, pero gracias.",
+      "No, I don't want anything else.",
+      "Yes, I want an alcoholic drink too.",
+      "No, just that. Thank you.",
     ],
-    correctAnswer: "¡Gracias! Se ve delicioso.",
+    correctAnswer: "No, just that. Thank you.",
   },
   {
     question:
-      "¡Qué bueno que te guste! Si necesitas algo más, no dudes en pedírmelo.",
+      "Here are your carne asada tacos and your orange juice. Enjoy!",
     options: [
-      "Claro, gracias.",
-      "Sí, quiero más salsa, por favor.",
-      "No, no necesito nada más.",
+      "Thank you! It looks delicious.",
+      "Thanks! But this is not what I ordered.",
+      "I don't like it very much, but thanks.",
     ],
-    correctAnswer: "Claro, gracias.",
+    correctAnswer: "Thank you! It looks delicious.",
+  },
+  {
+    question:
+      "I'm glad you like it! If you need anything else, don't hesitate to ask me.",
+    options: [
+      "Yes, I want more salsa, please.",
+      "Sure, thanks.",
+      "No, I don't need anything else.",
+    ],
+    correctAnswer: "Sure, thanks.",
+  },
+  {
+    question:
+      "Here is your check whenever you're ready. Thank you for dining with us today!",
+    options: [
+      "Thank you.",
+      "Yes, thank you, please.",
+      "No, I don't need anything else.",
+    ],
+    correctAnswer: "Thank you.",
   },
 ];
 
@@ -124,10 +142,51 @@ export default function RestaurantScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
+  const [language, setLanguage] = useState("English");
+  const [languageStored, setLanguageStored] = useState(false);
+
+  const getLanguage = async () => {
+    // attempts to get language from async storage
+    try {
+      const lang = await AsyncStorage.getItem("newLanguage");
+      return lang;
+    } catch (error) {
+      console.error("Error retrieving data from AsyncStorage:", error);
+      return null; // Return null in case of an error
+    }
+  };
+
+  const storeLanguage = async () => {
+    // stores result of attempt to get language in variable and sets language to that if successful
+    const lang = await getLanguage();
+    if (lang) {
+      setLanguage(lang);
+    }
+  };
+
+  const speak = (text: string) => {
+    Speech.stop();
+    Speech.speak(text, { language: languages[language].tag });
+  };
+
+  useEffect(() => {
+    const setLanguageAndSpeak = async () => {
+      // gets language from async storage before speaking first question (on render)
+      if (currentquestionindex === 0 && !languageStored) {
+        await storeLanguage();
+        setLanguageStored(true);
+      }
+      // speak question on render and every time question index changes
+      if (languageStored) {
+        speak(QUESTIONS[currentquestionindex].question);
+      }
+    };
+    setLanguageAndSpeak();
+  }, [currentquestionindex, languageStored]);
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
-
+    speak(pressedOption); // speaks the selected answer
     const isAnswerCorrect =
       QUESTIONS[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
@@ -345,5 +404,14 @@ const styles = StyleSheet.create({
     margin: 20,
     height: 30,
     width: 30,
+  },
+  ttsButton: {
+    padding: 10,
+    backgroundColor: "blue",
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: "center",
+    borderColor: "white",
+    borderWidth: 3,
   },
 });
