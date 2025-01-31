@@ -271,13 +271,14 @@ export default function RestaurantScenario() {
         source={require("../../../assets/insideRestaurant.png")}
         style={styles.imageBackground}
         resizeMode="cover"
-      ></ImageBackground>
-      <Pressable onPress={() => navigation.goBack()}>
-        <Image
-          style={styles.backButtonIcon}
-          source={require("../../../assets/backArrow.png")}
-        />
-      </Pressable>
+      >
+        <Pressable onPress={() => navigation.goBack()}>
+          <Image
+            style={styles.backButtonIcon}
+            source={require("../../../assets/backArrow.png")}
+          />
+        </Pressable>
+      </ImageBackground>
       <View style={styles.overlay}>
         <Text style={styles.question}>
           {QUESTIONS[currentquestionindex].question}

@@ -55,6 +55,7 @@ function InsideLayout() {
       <InsideStack.Screen
         name="RestaurantScenario"
         component={RestaurantScenario}
+        options={{ headerShown: false }}
       />
       <InsideStack.Screen
         name="HotelScenario"

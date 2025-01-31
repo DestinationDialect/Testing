@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, Modal } from "react-native";
+import { Image, StyleSheet, Modal } from "react-native";
 import {
   Text,
   SafeAreaView,
@@ -7,13 +7,24 @@ import {
   Alert,
   ImageBackground,
 } from "react-native";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { flattenedRouteData } from "../../screens/Route";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import RouteScreen from "../Route";
 import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+//import Tts from "react-native-tts";
+interface Language {
+  name: string;
+  tag: string;
+}
+
+const languages: { [key: string]: Language } = {};
+languages["English"] = { name: "English", tag: "en" };
+languages["Spanish"] = { name: "Spanish", tag: "es" };
+languages["French"] = { name: "French", tag: "fr" };
+languages["German"] = { name: "German", tag: "de" };
 
 const QUESTIONS = [
   {
@@ -98,13 +109,13 @@ const QUESTIONS = [
   },
 ];
 
-export default function HotelScenario() {
+export default function AirportScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
   const navigation = useNavigation();
 
-  const name = "HotelScenario";
+  const name = "AirportScenario";
   const currentRouteLocation = flattenedRouteData.find(
     (item) => item.title === name
   );
@@ -112,10 +123,51 @@ export default function HotelScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
+  const [language, setLanguage] = useState("English");
+  const [languageStored, setLanguageStored] = useState(false);
+
+  const getLanguage = async () => {
+    // attempts to get language from async storage
+    try {
+      const lang = await AsyncStorage.getItem("newLanguage");
+      return lang;
+    } catch (error) {
+      console.error("Error retrieving data from AsyncStorage:", error);
+      return null; // Return null in case of an error
+    }
+  };
+
+  const storeLanguage = async () => {
+    // stores result of attempt to get language in variable and sets language to that if successful
+    const lang = await getLanguage();
+    if (lang) {
+      setLanguage(lang);
+    }
+  };
+
+  const speak = (text: string) => {
+    Speech.stop();
+    Speech.speak(text, { language: languages[language].tag });
+  };
+
+  useEffect(() => {
+    const setLanguageAndSpeak = async () => {
+      // gets language from async storage before speaking first question (on render)
+      if (currentquestionindex === 0 && !languageStored) {
+        await storeLanguage();
+        setLanguageStored(true);
+      }
+      // speak question on render and every time question index changes
+      if (languageStored) {
+        speak(QUESTIONS[currentquestionindex].question);
+      }
+    };
+    setLanguageAndSpeak();
+  }, [currentquestionindex, languageStored]);
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
-
+    speak(pressedOption); // speaks the selected answer
     const isAnswerCorrect =
       QUESTIONS[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
@@ -334,5 +386,14 @@ const styles = StyleSheet.create({
     margin: 20,
     height: 30,
     width: 30,
+  },
+  ttsButton: {
+    padding: 10,
+    backgroundColor: "blue",
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: "center",
+    borderColor: "white",
+    borderWidth: 3,
   },
 });
