@@ -9,6 +9,10 @@ import Minigames from "./app/screens/Minigames";
 import AirportScenario from "./app/screens/Scenarios/AirportScenario";
 import RestaurantScenario from "./app/screens/Scenarios/RestaurantScenario";
 import HotelScenario from "./app/screens/Scenarios/HotelScenario";
+import MuseumScenario from "./app/screens/Scenarios/MuseumScenario"; 
+import ZooScenario from "./app/screens/Scenarios/ZooScenario";
+import FarmersMarketScenario from "./app/screens/Scenarios/FarmersMarketScenario";
+import HospitalScenario from "./app/screens/Scenarios/HospitalScenario";
 import Flashcards from "./app/screens/Minigames/Flashcards";
 import Matching from "./app/screens/Minigames/Matching";
 import { useEffect, useState } from "react";
@@ -60,6 +64,26 @@ function InsideLayout() {
       <InsideStack.Screen
         name="HotelScenario"
         component={HotelScenario}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="MuseumScenario"
+        component={MuseumScenario}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="ZooScenario"
+        component={ZooScenario}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="FarmersMarketScenario"
+        component={FarmersMarketScenario}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="HospitalScenario"
+        component={HospitalScenario}
         options={{ headerShown: false }}
       />
       <InsideStack.Screen
