@@ -13,6 +13,7 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from "../../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import RouteScreen from "../Route";
 import { useNavigation } from "@react-navigation/native";
+import * as Speech from "expo-speech";
 
 const QUESTIONS = [
   {
@@ -201,12 +202,12 @@ export default function HotelScenario() {
         style={styles.imageBackground}
         resizeMode="cover"
       >
-      <Pressable onPress={() => navigation.goBack()}>
-        <Image
-          style={styles.backButtonIcon}
-          source={require("../../../assets/backArrow.png")}
-        />
-      </Pressable>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Image
+            style={styles.backButtonIcon}
+            source={require("../../../assets/backArrow.png")}
+          />
+        </Pressable>
       </ImageBackground>
       <View style={styles.overlay}>
         <Text style={styles.question}>

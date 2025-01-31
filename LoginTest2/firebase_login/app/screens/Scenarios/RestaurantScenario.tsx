@@ -14,7 +14,6 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
