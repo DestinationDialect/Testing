@@ -2,7 +2,6 @@ import {
   View,
   TextInput,
   ActivityIndicator,
-  Button,
   KeyboardAvoidingView,
   ImageBackground,
   TouchableOpacity,
@@ -27,7 +26,7 @@ const Login = () => {
   const setLanguage = async () => {
     // function to fetch user languages from database and save in async storage
 
-    // replace "English" definitions with database call data
+    // replace language definitions with database call data
     let originLanguage = "English";
     let newLanguage = "Spanish";
 
