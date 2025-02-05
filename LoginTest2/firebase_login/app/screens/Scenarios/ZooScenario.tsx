@@ -14,7 +14,6 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { translateText } from "../../../translate";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -28,113 +27,65 @@ languages["French"] = { name: "French", tag: "fr" };
 languages["German"] = { name: "German", tag: "de" };
 
 const QUESTIONS = [
-  {
-    question: "Hello! Good afternoon. How are you?",
-    options: [
-      "Hello! Good afternoon. I'm fine, thank you. And you?",
-      "Hello! How are you? I'm feeling bad.",
-      "Hello! I don't know, how are you?",
-    ],
-    correctAnswer: "Hello! Good afternoon. I'm fine, thank you. And you?",
-  },
-  {
-    question:
-      "I'm fine, thank you. Welcome to our restaurant. Is this your first time here?",
-    options: [
-      "No, I've been here before. I really like this place.",
-      "Yes, it's my first time.",
-      "No, I've already been to another restaurant.",
-    ],
-    correctAnswer: "Yes, it's my first time.",
-  },
-  {
-    question:
-      "Great! Do you know already know what you're going to order or would you like to see the menu?",
-    options: [
-      "I would like to see the menu please.",
-      "I know what I want, bring me what I always ask for.",
-      "No, thanks, I don't want anything else.",
-    ],
-    correctAnswer: "I would like to see the menu please.",
-  },
-  {
-    question:
-      "Sure, here's the menu. Would you like something to drink while you decide?",
-    options: [
-      "I don't know, what do you have to drink?",
-      "No, I just want water.",
-      "Yes, please. Do you have orange juice?",
-    ],
-    correctAnswer: "Yes, please. Do you have orange juice?",
-  },
-  {
-    question:
-      "Yes, we have fresh orange juice. Would you like a small or large glass?",
-    options: [
-      "A large glass, please.",
-      "A small glass, please.",
-      "I don't want juice, just water is fine.",
-    ],
-    correctAnswer: "A large glass, please.",
-  },
-  {
-    question: "Perfect. Would you like anything else?",
-    options: [
-      "Yes, I would like some carne asada tacos.",
-      "No, that's fine.",
-      "No, I don't want anymore food.",
-    ],
-    correctAnswer: "Yes, I would like some carne asada tacos.",
-  },
-  {
-    question:
-      "Perfect. So, a large orange juice and some carne asada tacos. Anything else to go with it?",
-    options: [
-      "No, I don't want anything else.",
-      "Yes, I want an alcoholic drink too.",
-      "No, just that. Thank you.",
-    ],
-    correctAnswer: "No, just that. Thank you.",
-  },
-  {
-    question:
-      "Here are your carne asada tacos and your orange juice. Enjoy!",
-    options: [
-      "Thank you! It looks delicious.",
-      "Thanks! But this is not what I ordered.",
-      "I don't like it very much, but thanks.",
-    ],
-    correctAnswer: "Thank you! It looks delicious.",
-  },
-  {
-    question:
-      "I'm glad you like it! If you need anything else, don't hesitate to ask me.",
-    options: [
-      "Yes, I want more salsa, please.",
-      "Sure, thanks.",
-      "No, I don't need anything else.",
-    ],
-    correctAnswer: "Sure, thanks.",
-  },
-  {
-    question:
-      "Here is your check whenever you're ready. Thank you for dining with us today!",
-    options: [
-      "Thank you.",
-      "Yes, thank you, please.",
-      "No, I don't need anything else.",
-    ],
-    correctAnswer: "Thank you.",
-  },
+   {  
+     question: "",
+     answerChoices: [""],
+     correctAnswer: "",
+   },
+   {
+     question: "",
+     answerChoices: [""],
+     correctAnswer: "",
+   },
+   {
+     question: "",
+     answerChoices: ["", "", ""],
+     correctAnswer: "",
+   },
+   {
+     question: "",
+     answerChoices: ["", "", ""],
+     correctAnswer: "",
+   },
+   {
+     question: "",
+     answerChoices: ["", "", ""],
+     correctAnswer: "",
+   },
+   {
+     question: "",
+     answerChoices: ["", "", ""],
+     correctAnswer: "",
+   },
+   {
+     question: "",
+     answerChoices: ["", "", ""],
+     correctAnswer: "",
+   },
+   {
+     question: "",
+     answerChoices: ["", "", ""],
+     correctAnswer: "",
+   },
+   {
+     question: "",
+     answerChoices: ["", "", ""],
+     correctAnswer: "",
+   },
+   {
+     question: "",
+     answerChoices: ["", "", ""],
+     correctAnswer: "",
+   },
 ];
 
-export default function RestaurantScenario() {
+export default function ZooScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
   const navigation = useNavigation();
 
-  const name = "RestaurantScenario";
+  const name = "ZooScenario";
   const currentRouteLocation = flattenedRouteData.find(
     (item) => item.title === name
   );
@@ -142,14 +93,11 @@ export default function RestaurantScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
-  const [learningLanguage, setLearningLanguage] = useState("English");
-  const [firstLanguage, setFirstLanguage] = useState("English");
+  const [language, setLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [translatedText, setTranslatedText] = useState("");
 
-  const getLearningLanguage = async () => {
-    // attempts to get target language from async storage
+  const getLanguage = async () => {
+    // attempts to get language from async storage
     try {
       const lang = await AsyncStorage.getItem("newLanguage");
       return lang;
@@ -159,32 +107,17 @@ export default function RestaurantScenario() {
     }
   };
 
-  const getFirstLanguage = async () => {
-    // attempts to get target language from async storage
-    try {
-      const lang = await AsyncStorage.getItem("originLanguage");
-      return lang;
-    } catch (error) {
-      console.error("Error retrieving data from AsyncStorage:", error);
-      return null; // Return null in case of an error
-    }
-  };
-
   const storeLanguage = async () => {
     // stores result of attempt to get language in variable and sets language to that if successful
-    const lang = await getLearningLanguage();
+    const lang = await getLanguage();
     if (lang) {
-      setLearningLanguage(lang);
-    }
-    const firstLang = await getFirstLanguage();
-    if (firstLang) {
-      setFirstLanguage(firstLang);
+      setLanguage(lang);
     }
   };
 
   const speak = (text: string) => {
     Speech.stop();
-    Speech.speak(text, { language: languages[learningLanguage].tag });
+    Speech.speak(text, { language: languages[language].tag });
   };
 
   useEffect(() => {
@@ -201,20 +134,6 @@ export default function RestaurantScenario() {
     };
     setLanguageAndSpeak();
   }, [currentquestionindex, languageStored]);
-
-  const handleTranslate = async () => {
-    setLoading(true);
-    try {
-      const translation = await translateText(
-        QUESTIONS[currentquestionindex].question,
-        languages[firstLanguage].tag
-      );
-      setTranslatedText(translation);
-    } catch (error) {
-      console.error("Translation error:", error);
-    }
-    setLoading(false);
-  };
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
@@ -301,7 +220,7 @@ export default function RestaurantScenario() {
         </View>
       </Modal>
       <ImageBackground
-        source={require("../../../assets/insideRestaurant.png")}
+        source={require("../../../assets/InsideZoo.jpg")}
         style={styles.imageBackground}
         resizeMode="cover"
       >
@@ -316,10 +235,8 @@ export default function RestaurantScenario() {
         <Text style={styles.question}>
           {QUESTIONS[currentquestionindex].question}
         </Text>
-        <Pressable onPress={() => handleTranslate()}>
-          <Text>translate {translatedText}</Text>
-        </Pressable>
-        {QUESTIONS[currentquestionindex].options.map((option, index) => (
+
+        {QUESTIONS[currentquestionindex].answerChoices.map((option, index) => (
           //<View style={styles.option}>
           <Pressable key={index} onPress={() => checkAnswer(option)}>
             <Text

@@ -14,6 +14,14 @@ import unlockedRestaurantIcon from "../../assets/unlockedRestaurantIcon.png";
 import lockedRestaurantIcon from "../../assets/lockedRestaurantIcon.png";
 import unlockedHotelIcon from "../../assets/unlockedHotelIcon.png";
 import lockedHotelIcon from "../../assets/lockedHotelIcon.png";
+import unlockedMuseumIcon from "../../assets/unlockedMuseumIcon.png";
+import lockedMuseumIcon from "../../assets/lockedMuseumIcon.png";
+import unlockedZooIcon from "../../assets/unlockedZooIcon.png";
+import lockedZooIcon from "../../assets/lockedZooIcon.png";
+import unlockedFarmersMarketIcon from "../../assets/unlockedFarmersMarketIcon.png";
+import lockedFarmersMarketIcon from "../../assets/lockedFarmersMarketIcon.png";
+import unlockedHospitalIcon from "../../assets/unlockedHospitalIcon.png";
+import lockedHospitalIcon from "../../assets/lockedHospitalIcon.png";
 
 import { NavigationProp } from "@react-navigation/native";
 
@@ -45,7 +53,15 @@ type IconKey =
   | "unlockedRestaurantIcon"
   | "lockedRestaurantIcon"
   | "unlockedHotelIcon"
-  | "lockedHotelIcon";
+  | "lockedHotelIcon"
+  | "unlockedMuseumIcon"
+  | "lockedMuseumIcon"
+  | "unlockedZooIcon"
+  | "lockedZooIcon"
+  | "unlockedFarmersMarketIcon"
+  | "lockedFarmersMarketIcon"
+  | "unlockedHospitalIcon"
+  | "lockedHospitalIcon";
 
 const iconMap: Record<IconKey, any> = {
   unlockedAirportIcon,
@@ -54,6 +70,14 @@ const iconMap: Record<IconKey, any> = {
   lockedRestaurantIcon,
   unlockedHotelIcon,
   lockedHotelIcon,
+  unlockedMuseumIcon,
+  lockedMuseumIcon,
+  unlockedZooIcon,
+  lockedZooIcon,
+  unlockedFarmersMarketIcon,
+  lockedFarmersMarketIcon,
+  unlockedHospitalIcon,
+  lockedHospitalIcon,
 };
 
 const initialRouteData: RouteItem[] = [
@@ -78,6 +102,38 @@ const initialRouteData: RouteItem[] = [
         lockedIcon: "lockedHotelIcon",
         isUnlocked: false,
         level: 1,
+      },
+      {
+        id: 4,
+        title: "MuseumScenario",
+        unlockedIcon: "unlockedMuseumIcon",
+        lockedIcon: "lockedMuseumIcon",
+        isUnlocked: false,
+        level: 2,
+      },
+      {
+        id: 5,
+        title: "ZooScenario",
+        unlockedIcon: "unlockedZooIcon",
+        lockedIcon: "lockedZooIcon",
+        isUnlocked: false,
+        level: 2,
+      },
+      {
+        id: 6,
+        title: "FarmersMarketScenario",
+        unlockedIcon: "unlockedFarmersMarketIcon",
+        lockedIcon: "lockedFarmersMarketIcon",
+        isUnlocked: false,
+        level: 3,
+      },
+      {
+        id: 7,
+        title: "HospitalScenario",
+        unlockedIcon: "unlockedHospitalIcon",
+        lockedIcon: "lockedHospitalIcon",
+        isUnlocked: false,
+        level: 3,
       },
     ],
     isUnlocked: true,
@@ -115,25 +171,22 @@ const flattenRouteData = (data: RouteItem[]): RouteItem[] => {
 export const flattenedRouteData = flattenRouteData(initialRouteData);
 
 const groupByLevel = (data: RouteItem[]): Record<number, RouteItem[]> => {
-  return data.reduce<Record<number, RouteItem[]>>((acc, item) => {
+  const grouped: Record<number, RouteItem[]> = {};
+
+  const addToGroup = (item: RouteItem) => {
     const level = item.level;
-    if (!acc[level]) {
-      acc[level] = [];
+    if (!grouped[level]) {
+      grouped[level] = [];
     }
-    acc[level].push(item);
+    grouped[level].push(item);
 
     if (item.children) {
-      const childGroups = groupByLevel(item.children);
-      Object.entries(childGroups).forEach(([childLevel, items]) => {
-        const parsedLevel = parseInt(childLevel, 10);
-        if (!acc[parsedLevel]) {
-          acc[parsedLevel] = [];
-        }
-        acc[parsedLevel].push(...items);
-      });
+      item.children.forEach(addToGroup);
     }
-    return acc;
-  }, {});
+  };
+
+  data.forEach(addToGroup);
+  return grouped;
 };
 
 const Route: React.FC<{
@@ -151,7 +204,8 @@ const Route: React.FC<{
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            marginVertical: 10,
+            marginVertical: 5,
+            marginHorizontal: 5,
           }}
         >
           {groupedData[parseInt(level)].map((item) => (
