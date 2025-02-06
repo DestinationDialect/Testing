@@ -14,6 +14,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { translateText } from "../../../translate";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -27,56 +28,86 @@ languages["French"] = { name: "French", tag: "fr" };
 languages["German"] = { name: "German", tag: "de" };
 
 const QUESTIONS = [
-   {  
-     question: "",
-     answerChoices: [""],
-     correctAnswer: "",
-   },
-   {
-     question: "",
-     answerChoices: [""],
-     correctAnswer: "",
-   },
-   {
-     question: "",
-     answerChoices: ["", "", ""],
-     correctAnswer: "",
-   },
-   {
-     question: "",
-     answerChoices: ["", "", ""],
-     correctAnswer: "",
-   },
-   {
-     question: "",
-     answerChoices: ["", "", ""],
-     correctAnswer: "",
-   },
-   {
-     question: "",
-     answerChoices: ["", "", ""],
-     correctAnswer: "",
-   },
-   {
-     question: "",
-     answerChoices: ["", "", ""],
-     correctAnswer: "",
-   },
-   {
-     question: "",
-     answerChoices: ["", "", ""],
-     correctAnswer: "",
-   },
-   {
-     question: "",
-     answerChoices: ["", "", ""],
-     correctAnswer: "",
-   },
-   {
-     question: "",
-     answerChoices: ["", "", ""],
-     correctAnswer: "",
-   },
+  {  
+    question: "Welcome everyone to the zoo! I'll be your tour guide today. We will be visiting some of our most fascinating animals and learning about their habitats. If you have any questions, feel free to ask!",
+    answerChoices: ["Cool.", 
+     "This sounds fun, I guess.", 
+     "Awesome! Let's go!",
+   ],
+    correctAnswer: "Awesome! Let's go!",
+  },
+  {
+    question: "Here is our African elephants! They are the largest land animal on Earth, and they can weigh up to 5,443 kilograms which is around 12,000 pounds.",
+    answerChoices: ["That's big!", 
+     "Wow! How much do they eat in a day?", 
+     "That is scary.", 
+   ],
+    correctAnswer: "Wow! How much do they eat in a day?",
+  },
+  {
+    question: "A lot! An adult elephant can eat over 136 kilograms, which is around 300 pounds, of food a day, mostly grasses, fruits, and tree bark.",
+    answerChoices: ["That is a lot!", 
+     "Wow!", 
+     "Can I go into the enclosure?"
+   ],
+    correctAnswer: "That is a lot!",
+  },
+  {
+    question: "Follow me and let's visit our big cats! Here we have our male lion, Simba.",
+    answerChoices: ["Is it a boy or a girl?", 
+     "Wow, he's huge! How much does he weigh?", 
+     "He's gorgeous!"
+   ],
+    correctAnswer: "Wow, he's huge! How much does he weigh?",
+  },
+  {
+    question: "Simba weighs around 195 kilograms, 430 pounds. The females, called lionesses, are a bit smaller but are the primary hunters in the wild.",
+    answerChoices: ["That is cool!", 
+     "I figured the males would be the hunters.", 
+     "That's interesting! I didn't know that the lionesses are the hunters.",
+   ],
+    correctAnswer: "That's interesting! I didn't know that the lionesses are the hunters.",
+  },
+  {
+    question: "Everyone, if you look to your right, you'll see our Bengal tiger, Rajah pacing near the water.",
+    answerChoices: ["I didn't know tigers liked water.", 
+     "Why is he pacing?", 
+     "He's gorgeous.",
+   ],
+    correctAnswer: "I didn't know tigers liked water.",
+  },
+  {
+    question: "Yes, tigers are excellent swimmers. In the wild, tigers use rivers and lakes to cool off and even hunt prey.",
+    answerChoices: ["This has been awesome. What's next?", 
+     "That is so cool!", 
+     "That is scary.",
+   ],
+    correctAnswer: "This has been awesome. What's next?",
+  },
+  {
+    question: "We are now going to head over to our giraffe enclosure. This is one of our interactive enclosures, where you can feed them if you want.",
+    answerChoices: ["Do we have to feed them?", 
+     "Can we move on?", 
+     "What do they eat?",
+   ],
+    correctAnswer: "What do they eat?",
+  },
+  {
+    question: "Giraffes are herbivores, so they only eat plants. We have some specially formulated giraffe biscuits that you can feed them. They contain all the nutrients they need!",
+    answerChoices: ["That sounds fun! Let's do it!", 
+     "I think I'll pass.", 
+     "Can I eat the biscuit?",
+   ],
+    correctAnswer: "That sounds fun! Let's do it!",
+  },
+  {
+    question: "Ok everyone, this has been a fun tour with you all! Come see us again!",
+    answerChoices: ["I don't think I'll be back.", 
+     "The tour was Ok.", 
+     "Thank you! This has been great!",
+   ],
+    correctAnswer: "Thank you! This has been great!",
+  },
 ];
 
 export default function ZooScenario() {
@@ -93,11 +124,14 @@ export default function ZooScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
-  const [language, setLanguage] = useState("English");
+  const [learningLanguage, setLearningLanguage] = useState("English");
+  const [firstLanguage, setFirstLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [translatedText, setTranslatedText] = useState("");
 
-  const getLanguage = async () => {
-    // attempts to get language from async storage
+  const getLearningLanguage = async () => {
+    // attempts to get target language from async storage
     try {
       const lang = await AsyncStorage.getItem("newLanguage");
       return lang;
@@ -107,17 +141,32 @@ export default function ZooScenario() {
     }
   };
 
+  const getFirstLanguage = async () => {
+    // attempts to get target language from async storage
+    try {
+      const lang = await AsyncStorage.getItem("originLanguage");
+      return lang;
+    } catch (error) {
+      console.error("Error retrieving data from AsyncStorage:", error);
+      return null; // Return null in case of an error
+    }
+  };
+
   const storeLanguage = async () => {
     // stores result of attempt to get language in variable and sets language to that if successful
-    const lang = await getLanguage();
+    const lang = await getLearningLanguage();
     if (lang) {
-      setLanguage(lang);
+      setLearningLanguage(lang);
+    }
+    const firstLang = await getFirstLanguage();
+    if (firstLang) {
+      setFirstLanguage(firstLang);
     }
   };
 
   const speak = (text: string) => {
     Speech.stop();
-    Speech.speak(text, { language: languages[language].tag });
+    Speech.speak(text, { language: languages[learningLanguage].tag });
   };
 
   useEffect(() => {
@@ -134,6 +183,20 @@ export default function ZooScenario() {
     };
     setLanguageAndSpeak();
   }, [currentquestionindex, languageStored]);
+
+  const handleTranslate = async () => {
+    setLoading(true);
+    try {
+      const translation = await translateText(
+        QUESTIONS[currentquestionindex].question,
+        languages[firstLanguage].tag
+      );
+      setTranslatedText(translation);
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+    setLoading(false);
+  };
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
@@ -235,7 +298,9 @@ export default function ZooScenario() {
         <Text style={styles.question}>
           {QUESTIONS[currentquestionindex].question}
         </Text>
-
+        <Pressable onPress={() => handleTranslate()}>
+          <Text>translate {translatedText}</Text>
+        </Pressable>
         {QUESTIONS[currentquestionindex].answerChoices.map((option, index) => (
           //<View style={styles.option}>
           <Pressable key={index} onPress={() => checkAnswer(option)}>
@@ -288,7 +353,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 4,
     marginTop: 6,
-    fontSize: 30,
+    fontSize: 25,
   },
   option: {
     color: "white",
@@ -298,7 +363,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 4,
     marginHorizontal: 5,
-    fontSize: 25,
+    fontSize: 20,
     paddingLeft: 10,
   },
   correctAnswer: {

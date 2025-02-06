@@ -14,6 +14,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { translateText } from "../../../translate";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -27,57 +28,87 @@ languages["French"] = { name: "French", tag: "fr" };
 languages["German"] = { name: "German", tag: "de" };
 
 const QUESTIONS = [
-    {  
-       question: "",
-       answerChoices: [""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: [""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-  ];
+  {  
+     question: "Produce vendor: Good morning! Welcome to the farmers market. Let me know if you need any help!",
+     answerChoices: ["Are these tomatoes?", 
+      "Good morning! Your produce looks amazing. Are these tomatoes organic?", 
+      "Do you have any bread?",
+     ],
+     correctAnswer: "Good morning! Your produce looks amazing. Are these tomatoes organic?",
+  },
+  {
+     question: "Yes, they are! We grow them without any pesticides.",
+     answerChoices: ["Nice! I'll take half a kilogram, please.", 
+      "I don't like organic produce.", 
+      "Can I buy just one?", 
+     ],
+     correctAnswer: "Nice! I'll take half a kilogram, please.",
+  },
+  {
+     question: "Great! That will be 4 please. Anything else for you?",
+     answerChoices: ["Actually, I don't think I want these anymore.", 
+      "Thank you!", 
+      "This is it for now, thank you!",
+    ],
+     correctAnswer: "This is it for now, thank you!",
+  },
+  {
+     question: "Vendor: Hi! Would you like to try a sample of our wildflower honey?",
+     answerChoices: ["That sounds gross.", 
+      "I guess.", 
+      "Absolutely! That sounds great!",
+    ],
+     correctAnswer: "Absolutely! That sounds great!",
+  },
+  {
+     question: "Here you go. Our wildflower honey has a rich and complex flavor.",
+     answerChoices: ["I don't think I like it.", 
+      "It tastes great! How much for a small jar?", 
+      "It's ok.",
+    ],
+     correctAnswer: "It tastes great! How much for a small jar?",
+  },
+  {
+     question: "Our small jar is 10, and I'll throw in a sample jar of our clover honey.",
+     answerChoices: ["Thank you! I appreciate it!", 
+      "I don't want to pay extra.", 
+      "Do you have any other samples?",
+    ],
+     correctAnswer: "Thank you! I appreciate it!",
+  },
+  {
+     question: "Bakery Vendor: Welcome in! We have some fresh-baked bread, croissants, and some homemade pies today. Can I interest you in anything?",
+     answerChoices: ["I love bread!", 
+      "What kind of pies do you have?", 
+      "How many pies do you have?",
+    ],
+     correctAnswer: "What kind of pies do you have?",
+  },
+  {
+     question: "We have apple, cherry, and pumpkin.",
+     answerChoices: ["Do you have pumpkin?", 
+      "I'll take an apple pie.", 
+      "Nevermind. Thanks anyways!",
+    ],
+     correctAnswer: "I'll take an apple pie.",
+  },
+  {
+     question: "Craft vendor: Hi there! Everything here is handmade, from pottery to candles and jewelry. Let me know if you have any questions!",
+     answerChoices: ["None of these are my style.", 
+      "I love pottery!", 
+      "These earrings are beautiful! I'll take these!",
+    ],
+     correctAnswer: "These earrings are beautiful! I'll take these!",
+  },
+  {
+     question: "Great choice! That will be 12.",
+     answerChoices: ["Thank you! Have a good day!", 
+      "That's expensive!", 
+      "Here you go, thank you!",
+    ],
+     correctAnswer: "Here you go, thank you!",
+  },
+];
 
 export default function FarmersMarketScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
@@ -93,11 +124,14 @@ export default function FarmersMarketScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
-  const [language, setLanguage] = useState("English");
+  const [learningLanguage, setLearningLanguage] = useState("English");
+  const [firstLanguage, setFirstLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [translatedText, setTranslatedText] = useState("");
 
-  const getLanguage = async () => {
-    // attempts to get language from async storage
+  const getLearningLanguage = async () => {
+    // attempts to get target language from async storage
     try {
       const lang = await AsyncStorage.getItem("newLanguage");
       return lang;
@@ -107,17 +141,32 @@ export default function FarmersMarketScenario() {
     }
   };
 
+  const getFirstLanguage = async () => {
+    // attempts to get target language from async storage
+    try {
+      const lang = await AsyncStorage.getItem("originLanguage");
+      return lang;
+    } catch (error) {
+      console.error("Error retrieving data from AsyncStorage:", error);
+      return null; // Return null in case of an error
+    }
+  };
+
   const storeLanguage = async () => {
     // stores result of attempt to get language in variable and sets language to that if successful
-    const lang = await getLanguage();
+    const lang = await getLearningLanguage();
     if (lang) {
-      setLanguage(lang);
+      setLearningLanguage(lang);
+    }
+    const firstLang = await getFirstLanguage();
+    if (firstLang) {
+      setFirstLanguage(firstLang);
     }
   };
 
   const speak = (text: string) => {
     Speech.stop();
-    Speech.speak(text, { language: languages[language].tag });
+    Speech.speak(text, { language: languages[learningLanguage].tag });
   };
 
   useEffect(() => {
@@ -134,6 +183,20 @@ export default function FarmersMarketScenario() {
     };
     setLanguageAndSpeak();
   }, [currentquestionindex, languageStored]);
+
+  const handleTranslate = async () => {
+    setLoading(true);
+    try {
+      const translation = await translateText(
+        QUESTIONS[currentquestionindex].question,
+        languages[firstLanguage].tag
+      );
+      setTranslatedText(translation);
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+    setLoading(false);
+  };
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
@@ -235,7 +298,9 @@ export default function FarmersMarketScenario() {
         <Text style={styles.question}>
           {QUESTIONS[currentquestionindex].question}
         </Text>
-
+        <Pressable onPress={() => handleTranslate()}>
+          <Text>translate {translatedText}</Text>
+        </Pressable>
         {QUESTIONS[currentquestionindex].answerChoices.map((option, index) => (
           //<View style={styles.option}>
           <Pressable key={index} onPress={() => checkAnswer(option)}>
@@ -288,7 +353,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 4,
     marginTop: 6,
-    fontSize: 30,
+    fontSize: 25,
   },
   option: {
     color: "white",
@@ -298,7 +363,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 4,
     marginHorizontal: 5,
-    fontSize: 25,
+    fontSize: 20,
     paddingLeft: 10,
   },
   correctAnswer: {

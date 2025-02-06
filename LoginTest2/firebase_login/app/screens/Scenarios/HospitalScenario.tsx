@@ -14,6 +14,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { translateText } from "../../../translate";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -27,57 +28,87 @@ languages["French"] = { name: "French", tag: "fr" };
 languages["German"] = { name: "German", tag: "de" };
 
 const QUESTIONS = [
-    {  
-       question: "",
-       answerChoices: [""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: [""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-  ];
+  {  
+     question: "Good afternoon! How can I help you?",
+     answerChoices: ["I'm not from here and I haven't been feeling good.", 
+      "I don't know how to do this.",
+      "I don't feel good.",
+     ],
+     correctAnswer: "I'm not from here and I haven't been feeling good.",
+  },
+  {
+     question: "Do you have travel insurance or any identification with you?",
+     answerChoices: ["I'm not sure.",
+      "I think so.",
+      "Yes, I have my passport and travel insurance card.",
+     ],
+     correctAnswer: "Yes, I have my passport and travel insurance card.",
+  },
+  {
+     question: "Perfect. I'll need you to fill out this form, and then we'll have a doctor see you as soon as possible.",
+     answerChoices: ["Why do I need to fill out a form?", 
+      "I don't want to.", 
+      "Thank you!",
+    ],
+     correctAnswer: "Thank you!",
+  },
+  {
+     question: "Hello, I'm Dr. Alvarez. I see you're not feeling well. Can you tell me your symptoms?",
+     answerChoices: ["I don't know.", 
+      "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.", 
+      "I just don't feel good.",
+    ],
+     correctAnswer: "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.",
+  },
+  {
+     question: "That sounds like food poisoning. We'll give you some fluids to prevent dehydration and some medication to help with the nausea.",
+     answerChoices: ["Sounds good. Do I need to stay overnight?", 
+      "How long is that going to take?", 
+      "I don't want to stay overnight.",
+    ],
+     correctAnswer: "Sounds good. Do I need to stay overnight?",
+  },
+  {
+     question: "If you're able to keep fluids down and start feeling better then, no.",
+     answerChoices: ["Why would I not be able to keep the fluids down?", 
+      "What if I don't feel better?", 
+      "Ok.",
+    ],
+     correctAnswer: "What if I don't feel better?",
+  },
+  {
+     question: "If you feel worse or develop a fever, come back immediately.",
+     answerChoices: ["Will I die?", 
+      "Ok, will do.", 
+      "Why would I develop a fever?",
+    ],
+     correctAnswer: "Ok, will do.",
+  },
+  {
+     question: "Pharmacist: Hi, here is your medication. You have been prescribed anti-nausea tablets and electrolyte packets to mix with water.",
+     answerChoices: ["How often should I take the tablets?", 
+      "Do I have to take these?", 
+      "What are the electrolyte packets for?",
+    ],
+     correctAnswer: "How often should I take the tablets?",
+  },
+  {
+     question: "Once every six hours if needed. Don't take more than four in a day.",
+     answerChoices: ["What happens if I take more than 4?", 
+      "I don't understand.", 
+      "Ok, sounds good.",
+    ],
+     correctAnswer: "Ok, sounds good.",
+  },
+  {
+     question: "Here you go. I hope you feel better soon!",
+     answerChoices: ["Ok.", 
+      "Thank you. I appreciate it!", 
+      "What if I don't feel better?",
+    ],
+     correctAnswer: "Thank you. I appreciate it!",
+  },
+];
 
 export default function HospitalScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
@@ -93,11 +124,14 @@ export default function HospitalScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
-  const [language, setLanguage] = useState("English");
+  const [learningLanguage, setLearningLanguage] = useState("English");
+  const [firstLanguage, setFirstLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [translatedText, setTranslatedText] = useState("");
 
-  const getLanguage = async () => {
-    // attempts to get language from async storage
+  const getLearningLanguage = async () => {
+    // attempts to get target language from async storage
     try {
       const lang = await AsyncStorage.getItem("newLanguage");
       return lang;
@@ -107,17 +141,32 @@ export default function HospitalScenario() {
     }
   };
 
+  const getFirstLanguage = async () => {
+    // attempts to get target language from async storage
+    try {
+      const lang = await AsyncStorage.getItem("originLanguage");
+      return lang;
+    } catch (error) {
+      console.error("Error retrieving data from AsyncStorage:", error);
+      return null; // Return null in case of an error
+    }
+  };
+
   const storeLanguage = async () => {
     // stores result of attempt to get language in variable and sets language to that if successful
-    const lang = await getLanguage();
+    const lang = await getLearningLanguage();
     if (lang) {
-      setLanguage(lang);
+      setLearningLanguage(lang);
+    }
+    const firstLang = await getFirstLanguage();
+    if (firstLang) {
+      setFirstLanguage(firstLang);
     }
   };
 
   const speak = (text: string) => {
     Speech.stop();
-    Speech.speak(text, { language: languages[language].tag });
+    Speech.speak(text, { language: languages[learningLanguage].tag });
   };
 
   useEffect(() => {
@@ -134,6 +183,20 @@ export default function HospitalScenario() {
     };
     setLanguageAndSpeak();
   }, [currentquestionindex, languageStored]);
+
+  const handleTranslate = async () => {
+    setLoading(true);
+    try {
+      const translation = await translateText(
+        QUESTIONS[currentquestionindex].question,
+        languages[firstLanguage].tag
+      );
+      setTranslatedText(translation);
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+    setLoading(false);
+  };
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
@@ -235,7 +298,9 @@ export default function HospitalScenario() {
         <Text style={styles.question}>
           {QUESTIONS[currentquestionindex].question}
         </Text>
-
+        <Pressable onPress={() => handleTranslate()}>
+          <Text>translate {translatedText}</Text>
+        </Pressable>
         {QUESTIONS[currentquestionindex].answerChoices.map((option, index) => (
           //<View style={styles.option}>
           <Pressable key={index} onPress={() => checkAnswer(option)}>
@@ -288,7 +353,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 4,
     marginTop: 6,
-    fontSize: 30,
+    fontSize: 25,
   },
   option: {
     color: "white",
@@ -298,7 +363,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 4,
     marginHorizontal: 5,
-    fontSize: 25,
+    fontSize: 20,
     paddingLeft: 10,
   },
   correctAnswer: {

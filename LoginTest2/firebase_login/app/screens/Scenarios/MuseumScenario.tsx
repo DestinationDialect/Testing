@@ -14,6 +14,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { translateText } from "../../../translate";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -27,57 +28,77 @@ languages["French"] = { name: "French", tag: "fr" };
 languages["German"] = { name: "German", tag: "de" };
 
 const QUESTIONS = [
-    {  
-       question: "",
-       answerChoices: [""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: [""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-    {
-       question: "",
-       answerChoices: ["", "", ""],
-       correctAnswer: "",
-    },
-  ];
+  {  
+     question: "Hello, welcome to the museum. How may I help you today?",
+     answerChoices: ["Hello.", 
+      "Hello, do you offer guided tours?", 
+      "Hello, where do I start?"],
+     correctAnswer: "Hello, do you offer guided tours?",
+  },
+  {
+     question: "Yes we do. Our tours last about 90 minutes.",
+     answerChoices: ["Ok, what does the tour cover?", 
+      "How long is it?", 
+      "Ok, how do I do that?"],
+     correctAnswer: "Ok, what does the tour cover?",
+  },
+  {
+     question: "The tour covers the major highlights of the museum. Does that sound like something you would want to do?",
+     answerChoices: ["I'll have to think about it.", 
+      "Yes but how long is it?", 
+      "Yes it does, sign me up!"],
+     correctAnswer: "Yes it does, sign me up!",
+  },
+  {
+     question: "Ok, you can join that group over there and the tour will begin shortly.",
+     answerChoices: ["Ok, thank you!", 
+      "I don't want to.", 
+      "Thanks but I don't like people."],
+     correctAnswer: "Ok, thank you!",
+  },
+  {
+     question: "Ok, everyone follow me. We're going to start the tour in our Ancient Egyptian exhibit.",
+     answerChoices: ["Can I touch any of this stuff?", 
+      "Let's go!", 
+      "Awesome!"],
+     correctAnswer: "Let's go!",
+  },
+  {
+     question: "Here we have a statue of Pharaoh Ramesses II, one of Egypt's most powerful rulers. Ramesses II was known for his military campaigns and for commissioning grand monuments like this one.",
+     answerChoices: ["How did they transport something this big back then?", 
+      "Can I touch it?", 
+      "Can I take pictures in here?"],
+     correctAnswer: "How did they transport something this big back then?",
+  },
+  {
+     question: "Great question! Ancient Egyptians were brilliant engineers. They used wooden sledges and rolled them over logs or poured water on the sand to make transportation easier.",
+     answerChoices: ["Thank you! That is very insightful.", 
+      "Cool!", 
+      "Awesome!"],
+     correctAnswer: "Thank you! That is very insightful.",
+  },
+  {
+     question: "Ok everyone, let's move onto the next section, our Renaissance painting exhibit!",
+     answerChoices: ["Can I take pictures of these?", 
+      "Wow, this painting looks so detailed! What is the story behind it?", 
+      "These paintings are weird."],
+     correctAnswer: "Wow, this painting looks so detailed! What is the story behind it?",
+  },
+  {
+     question: "This is one of the few surviving portraits by Leonardo da Vinci, painted around 1474-1478.",
+     answerChoices: ["It is so pretty!", 
+      "Why does it look like that?", 
+      "Can I take a picture of it?"],
+     correctAnswer: "It is so pretty!",
+  },
+  {
+     question: "Ok everyone, this concludes our tour. Thank you all for coming!",
+     answerChoices: ["Thanks, bye!", 
+      "This was so cool!", 
+      "Thank you! You were a great tour guide!"],
+     correctAnswer: "Thank you! You were a great tour guide!",
+  },
+];
 
 export default function MuseumScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
@@ -93,11 +114,14 @@ export default function MuseumScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
-  const [language, setLanguage] = useState("English");
+  const [learningLanguage, setLearningLanguage] = useState("English");
+  const [firstLanguage, setFirstLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [translatedText, setTranslatedText] = useState("");
 
-  const getLanguage = async () => {
-    // attempts to get language from async storage
+  const getLearningLanguage = async () => {
+    // attempts to get target language from async storage
     try {
       const lang = await AsyncStorage.getItem("newLanguage");
       return lang;
@@ -107,17 +131,32 @@ export default function MuseumScenario() {
     }
   };
 
+  const getFirstLanguage = async () => {
+    // attempts to get target language from async storage
+    try {
+      const lang = await AsyncStorage.getItem("originLanguage");
+      return lang;
+    } catch (error) {
+      console.error("Error retrieving data from AsyncStorage:", error);
+      return null; // Return null in case of an error
+    }
+  };
+
   const storeLanguage = async () => {
     // stores result of attempt to get language in variable and sets language to that if successful
-    const lang = await getLanguage();
+    const lang = await getLearningLanguage();
     if (lang) {
-      setLanguage(lang);
+      setLearningLanguage(lang);
+    }
+    const firstLang = await getFirstLanguage();
+    if (firstLang) {
+      setFirstLanguage(firstLang);
     }
   };
 
   const speak = (text: string) => {
     Speech.stop();
-    Speech.speak(text, { language: languages[language].tag });
+    Speech.speak(text, { language: languages[learningLanguage].tag });
   };
 
   useEffect(() => {
@@ -134,6 +173,20 @@ export default function MuseumScenario() {
     };
     setLanguageAndSpeak();
   }, [currentquestionindex, languageStored]);
+
+  const handleTranslate = async () => {
+    setLoading(true);
+    try {
+      const translation = await translateText(
+        QUESTIONS[currentquestionindex].question,
+        languages[firstLanguage].tag
+      );
+      setTranslatedText(translation);
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+    setLoading(false);
+  };
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
@@ -235,7 +288,9 @@ export default function MuseumScenario() {
         <Text style={styles.question}>
           {QUESTIONS[currentquestionindex].question}
         </Text>
-
+        <Pressable onPress={() => handleTranslate()}>
+          <Text>translate {translatedText}</Text>
+        </Pressable>
         {QUESTIONS[currentquestionindex].answerChoices.map((option, index) => (
           //<View style={styles.option}>
           <Pressable key={index} onPress={() => checkAnswer(option)}>
@@ -288,7 +343,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 4,
     marginTop: 6,
-    fontSize: 30,
+    fontSize: 25,
   },
   option: {
     color: "white",
@@ -298,7 +353,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 4,
     marginHorizontal: 5,
-    fontSize: 25,
+    fontSize: 20,
     paddingLeft: 10,
   },
   correctAnswer: {

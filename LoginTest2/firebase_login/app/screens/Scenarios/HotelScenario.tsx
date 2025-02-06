@@ -14,6 +14,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { translateText } from "../../../translate";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -109,13 +110,13 @@ const QUESTIONS = [
   },
 ];
 
-export default function AirportScenario() {
+export default function HotelScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
   const navigation = useNavigation();
 
-  const name = "AirportScenario";
+  const name = "HotelScenario";
   const currentRouteLocation = flattenedRouteData.find(
     (item) => item.title === name
   );
@@ -123,11 +124,14 @@ export default function AirportScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
-  const [language, setLanguage] = useState("English");
+  const [learningLanguage, setLearningLanguage] = useState("English");
+  const [firstLanguage, setFirstLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [translatedText, setTranslatedText] = useState("");
 
-  const getLanguage = async () => {
-    // attempts to get language from async storage
+  const getLearningLanguage = async () => {
+    // attempts to get target language from async storage
     try {
       const lang = await AsyncStorage.getItem("newLanguage");
       return lang;
@@ -137,17 +141,32 @@ export default function AirportScenario() {
     }
   };
 
+  const getFirstLanguage = async () => {
+    // attempts to get target language from async storage
+    try {
+      const lang = await AsyncStorage.getItem("originLanguage");
+      return lang;
+    } catch (error) {
+      console.error("Error retrieving data from AsyncStorage:", error);
+      return null; // Return null in case of an error
+    }
+  };
+
   const storeLanguage = async () => {
     // stores result of attempt to get language in variable and sets language to that if successful
-    const lang = await getLanguage();
+    const lang = await getLearningLanguage();
     if (lang) {
-      setLanguage(lang);
+      setLearningLanguage(lang);
+    }
+    const firstLang = await getFirstLanguage();
+    if (firstLang) {
+      setFirstLanguage(firstLang);
     }
   };
 
   const speak = (text: string) => {
     Speech.stop();
-    Speech.speak(text, { language: languages[language].tag });
+    Speech.speak(text, { language: languages[learningLanguage].tag });
   };
 
   useEffect(() => {
@@ -164,6 +183,20 @@ export default function AirportScenario() {
     };
     setLanguageAndSpeak();
   }, [currentquestionindex, languageStored]);
+
+  const handleTranslate = async () => {
+    setLoading(true);
+    try {
+      const translation = await translateText(
+        QUESTIONS[currentquestionindex].question,
+        languages[firstLanguage].tag
+      );
+      setTranslatedText(translation);
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+    setLoading(false);
+  };
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
@@ -265,7 +298,9 @@ export default function AirportScenario() {
         <Text style={styles.question}>
           {QUESTIONS[currentquestionindex].question}
         </Text>
-
+        <Pressable onPress={() => handleTranslate()}>
+          <Text>translate {translatedText}</Text>
+        </Pressable>
         {QUESTIONS[currentquestionindex].options.map((option, index) => (
           //<View style={styles.option}>
           <Pressable key={index} onPress={() => checkAnswer(option)}>
@@ -318,7 +353,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 4,
     marginTop: 6,
-    fontSize: 30,
+    fontSize: 25,
   },
   option: {
     color: "white",
@@ -328,7 +363,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 4,
     marginHorizontal: 5,
-    fontSize: 25,
+    fontSize: 20,
     paddingLeft: 10,
   },
   correctAnswer: {
