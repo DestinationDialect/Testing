@@ -1,37 +1,85 @@
-import React, {useState, useEffect, useRef, use} from 'react'
+import React, {useState, useEffect, useRef, use} from 'react'; 
+import { Text, 
+  TouchableOpacity, 
+  Animated, 
+  View, 
+  StyleSheet 
+} from "react-native";
 
 export default function Flashcard({flashcard}) {
   const [flip, setFlip] = useState(false)
-  const [height, setHeight] = useState('initial')
+  const animatedValue = useRef(new Animated.Value(0)).current;
 
-  const frontEl = useRef()
-  const backEl = useRef()
+  const flipCard = () => {
+    Animated.timing(animatedValue, {
+      toValue: flip ? 0 : 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => setFlip(!flip));
+  };
 
-  function setMaxHeight(){
-    const frontHeight = frontEl.current.getBoundingClientRect().height
-    const backHeight = backEl.current.getBoundingClientRect().height
-    setHeight(Math.max(frontHeight, backHeight, 100))
-  }
+  const frontAnimatedStyle = {
+    transform: [{ rotateY: animatedValue.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "180deg"] }) }],
+  };
 
-  useEffect(setMaxHeight, [flashcard.question, flashcard.answer, flashcard.options])
-  useEffect(() => {
-    window.addEventListener('resize', setMaxHeight)
-    return () => window.removeEventListener('resize', setMaxHeight) 
-  }, [])
+  const backAnimatedStyle = {
+    transform: [{ rotateY: animatedValue.interpolate({ inputRange: [0, 1], outputRange: ["180deg", "360deg"] }) }],
+  };
 
   return (
-    <div className={`card ${flip ? 'flip': ''}`}
-    style={{ height: height }}
-    onClick={() => setFlip(!flip)}>
-      <div className='front' ref={frontEl}>
-        {flashcard.question}
-        <div className='flashcard-options'>
-          {flashcard.options.map(option => {
-            return <div className='flashcard-option'>{option}</div>
-          })}
-        </div>
-      </div>
-      <div className='back' ref={backEl}>{flashcard.answer}</div>
-    </div>
-  )
+    <TouchableOpacity onPress={flipCard}>
+      <View style={styles.cardContainer}>
+        <Animated.View style={[styles.card, frontAnimatedStyle, !flip && { zIndex: 1 }]}>
+          <Text style={styles.text}>{flashcard.question}</Text>
+          {/* {flashcard.options.map((option, index) => (
+            <Text key={index} style={styles.option}>{option}</Text>
+          ))} */}
+        </Animated.View>
+        <Animated.View style={[styles.card, styles.cardBack, backAnimatedStyle, flip && { zIndex: 1 }]}>
+          <Text style={styles.text}>{flashcard.answer}</Text>
+        </Animated.View>
+      </View>
+    </TouchableOpacity>
+  );
 }
+
+const styles = StyleSheet.create({
+  cardContainer: { 
+    width: 250, 
+    height: 150, 
+    marginVertical: 10, 
+    alignItems: "center", 
+    justifyContent: "center", 
+  },
+  card: { 
+    width: 250, 
+    height: 150, 
+    backgroundColor: "green", 
+    justifyContent: "center", 
+    alignItems: "center", 
+    backfaceVisibility: "hidden", 
+    borderRadius: 10, 
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.25, 
+    shadowRadius: 3.84, 
+    elevation: 5, 
+    borderColor: "white",
+    borderWidth: 2,
+  },
+  cardBack: { 
+    position: "absolute", 
+    backgroundColor: "#ffc82c",
+  },
+  text: { 
+    fontSize: 18, 
+    fontWeight: "bold", 
+    textAlign: "center",
+    color: "white",
+  },
+  option: { 
+    fontSize: 14, 
+    color: "white", 
+    marginTop: 5 
+  },
+});
