@@ -27,7 +27,13 @@ languages["Spanish"] = { name: "Spanish", tag: "es" };
 languages["French"] = { name: "French", tag: "fr" };
 languages["German"] = { name: "German", tag: "de" };
 
-const QUESTIONS = [
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+
+const QUESTIONS: Question[] = [
   {
     question: "Hello! Good afternoon. How are you?",
     options: [
@@ -97,8 +103,7 @@ const QUESTIONS = [
     correctAnswer: "No, just that. Thank you.",
   },
   {
-    question:
-      "Here are your carne asada tacos and your orange juice. Enjoy!",
+    question: "Here are your carne asada tacos and your orange juice. Enjoy!",
     options: [
       "Thank you! It looks delicious.",
       "Thanks! But this is not what I ordered.",
@@ -147,6 +152,9 @@ export default function RestaurantScenario() {
   const [languageStored, setLanguageStored] = useState(false);
   const [loading, setLoading] = useState(false);
   const [translatedText, setTranslatedText] = useState("");
+  const [translated, setTranslated] = useState(false);
+  const [translatedQuestions, setTranslatedQuestions] = useState([""]);
+  const [dialogue, setDialogue] = useState(QUESTIONS);
 
   const getLearningLanguage = async () => {
     // attempts to get target language from async storage
@@ -187,6 +195,33 @@ export default function RestaurantScenario() {
     Speech.speak(text, { language: languages[learningLanguage].tag });
   };
 
+  // convert array of question objects to array of strings
+  const flattenData = (data: Question[]): string[] => {
+    return data.reduce<string[]>((acc, item) => {
+      // reduce Questions array to string array
+      acc.push(item.question); // push question
+      item.options.forEach((option) => acc.push(option)); // push each option
+      acc.push(item.correctAnswer); // push correct answer
+      return acc;
+    }, []);
+  };
+
+  // stores array of strings dialogue to send through translation API
+  const flattenedQuestions = flattenData(QUESTIONS); // store questions as array of strings
+
+  // changes array of strings back to array of Question objects
+  const formatTranslation = (data: string[]): Question[] => {
+    const dialogue: Question[] = [];
+    for (let i = 0; i < data.length; i += 5) {
+      const question = data[i];
+      const options = [data[i + 1], data[i + 2], data[i + 3]];
+      const correctAnswer = data[i + 4];
+
+      dialogue.push({ question, options, correctAnswer });
+    }
+    return dialogue;
+  };
+
   useEffect(() => {
     const setLanguageAndSpeak = async () => {
       // gets language from async storage before speaking first question (on render)
@@ -194,33 +229,47 @@ export default function RestaurantScenario() {
         await storeLanguage();
         setLanguageStored(true);
       }
-      // speak question on render and every time question index changes
-      if (languageStored) {
-        speak(QUESTIONS[currentquestionindex].question);
+      // after language is stored, translates questions to language
+      if (currentquestionindex === 0 && languageStored && !translated) {
+        await handleTranslateArray(
+          flattenedQuestions,
+          languages[learningLanguage].tag,
+          "en"
+        );
+        setTranslated(true);
+      }
+      // speak question on render and every time question index changes, after language is stored
+      // and dialogue is translated
+      if (languageStored && translated) {
+        speak(dialogue[currentquestionindex].question);
       }
     };
     setLanguageAndSpeak();
   }, [currentquestionindex, languageStored]);
 
-  const handleTranslate = async () => {
+  const handleTranslateArray = async (
+    text: string[],
+    target: string,
+    source: string
+  ) => {
     setLoading(true);
     try {
-      const translation = await translateText(
-        QUESTIONS[currentquestionindex].question,
-        languages[firstLanguage].tag
-      );
-      setTranslatedText(translation);
+      const translations = await translateText(text, target, source); // call API to translate text
+      const translatedStrings = translations.map((t: any) => t.translatedText);
+      setTranslatedQuestions(translatedStrings); // store translated array of strings
+      setDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
     } catch (error) {
       console.error("Translation error:", error);
+    } finally {
+      setLoading(false); // does not display dialogue until after translation
     }
-    setLoading(false);
   };
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
     speak(pressedOption); // speaks the selected answer
     const isAnswerCorrect =
-      QUESTIONS[currentquestionindex].correctAnswer === pressedOption;
+      dialogue[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
 
     if (isAnswerCorrect) {
@@ -313,26 +362,29 @@ export default function RestaurantScenario() {
         </Pressable>
       </ImageBackground>
       <View style={styles.overlay}>
-        <Text style={styles.question}>
-          {QUESTIONS[currentquestionindex].question}
-        </Text>
-        <Pressable onPress={() => handleTranslate()}>
-          <Text>translate {translatedText}</Text>
-        </Pressable>
-        {QUESTIONS[currentquestionindex].options.map((option, index) => (
-          //<View style={styles.option}>
-          <Pressable key={index} onPress={() => checkAnswer(option)}>
-            <Text
-              style={[
-                styles.option,
-                isCorrect ? styles.correctAnswer : styles.option,
-              ]}
-            >
-              {option}
+        {!loading ? ( //view encasing what displays once page and translation loads
+          <View>
+            <Text style={styles.question}>
+              {dialogue[currentquestionindex].question}
             </Text>
-          </Pressable>
-          //</View>
-        ))}
+            {dialogue[currentquestionindex].options.map((option, index) => (
+              //<View style={styles.option}>
+              <Pressable key={index} onPress={() => checkAnswer(option)}>
+                <Text
+                  style={[
+                    styles.option,
+                    isCorrect ? styles.correctAnswer : styles.option,
+                  ]}
+                >
+                  {option}
+                </Text>
+              </Pressable>
+              //</View>
+            ))}
+          </View>
+        ) : (
+          <Text>LOADING</Text>
+        )}
 
         <Pressable onPress={nextQuestion} style={styles.nextButton}>
           <Text style={styles.buttonText}>Next Question</Text>

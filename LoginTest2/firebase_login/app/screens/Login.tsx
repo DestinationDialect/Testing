@@ -6,6 +6,8 @@ import {
   ImageBackground,
   TouchableOpacity,
   Text,
+  Modal,
+  Pressable,
 } from "react-native";
 import React, { useState } from "react";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
@@ -16,27 +18,35 @@ import styles from "./Styles";
 import { flattenedRouteData } from "./Route";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const availableLanguages = ["English", "Spanish", "French", "German"];
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState(false);
+  const [firstLanguage, setFirstLanguage] = useState("");
+  const [newLanguage, setNewLanguage] = useState("");
+  const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const auth = FIREBASE_AUTH;
 
-  const setLanguage = async () => {
-    // function to fetch user languages from database and save in async storage
-
-    // replace language definitions with database call data
-    let originLanguage = "English";
-    let newLanguage = "Spanish";
-
-    // store data from variables in async storage
+  const asyncLanguageStorage = async () => {
     try {
-      await AsyncStorage.setItem("originLanguage", originLanguage);
+      await AsyncStorage.setItem("originLanguage", firstLanguage);
       await AsyncStorage.setItem("newLanguage", newLanguage);
     } catch (error) {
       console.error("Error storing languages in AsyncStorage:", error);
     }
+  };
+
+  const setLanguage = async () => {
+    // function to fetch user languages from database and save in async storage on sign in
+    // replace language setting with database call data
+    setFirstLanguage("English");
+    setNewLanguage("Spanish");
+
+    // store data from variables in async storage
+    asyncLanguageStorage();
   };
 
   const signIn = async () => {
@@ -57,7 +67,7 @@ const Login = () => {
   };
 
   const signUp = async () => {
-    setLoading(true);
+    setLoading(true); // edit function to add languages to database
     try {
       const response = await createUserWithEmailAndPassword(
         auth,
@@ -94,6 +104,22 @@ const Login = () => {
     }
   };
 
+  const handleLanguageSelection = () => {
+    // store languages in async storage
+    asyncLanguageStorage();
+
+    // close Modal
+    setLanguageModalVisible(false);
+
+    // complete sign up
+    signUp();
+  };
+
+  const handleSignUp = () => {
+    // display modal for language selection
+    setLanguageModalVisible(true);
+  };
+
   return (
     <ImageBackground
       source={require("../../assets/LoginScreen.png")}
@@ -101,6 +127,55 @@ const Login = () => {
       style={styles.imgBackground}
     >
       <View style={styles.loginContainer}>
+        <Modal visible={languageModalVisible} transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalTitle}>
+                Select your language settings
+              </Text>
+              <View style={styles.modalLanguages}>
+                <View style={styles.modalLanguage}>
+                  <Text>First Language:</Text>
+                  {availableLanguages.map((language, index) => (
+                    <Pressable
+                      key={index}
+                      style={
+                        language === firstLanguage
+                          ? styles.selectedModalLanguageButton
+                          : styles.modalLanguageButton
+                      }
+                      onPress={() => setFirstLanguage(language)}
+                    >
+                      <Text>{language}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <View style={styles.modalLanguage}>
+                  <Text>Language to learn:</Text>
+                  {availableLanguages.map((language, index) => (
+                    <Pressable
+                      key={index}
+                      style={
+                        language === newLanguage
+                          ? styles.selectedModalLanguageButton
+                          : styles.modalLanguageButton
+                      }
+                      onPress={() => setNewLanguage(language)}
+                    >
+                      <Text>{language}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+              <Pressable
+                onPress={() => handleLanguageSelection()}
+                style={styles.continueButton}
+              >
+                <Text>Continue to Home</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
         <KeyboardAvoidingView behavior="padding">
           <TextInput
             value={email}
@@ -125,7 +200,7 @@ const Login = () => {
               <TouchableOpacity style={styles.Button} onPress={signIn}>
                 <Text style={styles.Text}>Login</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.Button} onPress={signUp}>
+              <TouchableOpacity style={styles.Button} onPress={handleSignUp}>
                 <Text style={styles.Text}>Sign Up</Text>
               </TouchableOpacity>
             </>

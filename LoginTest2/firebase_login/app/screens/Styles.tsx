@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   Text: {
-    color: "white", 
+    color: "white",
   },
   input: {
     padding: 10,
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingVertical: 24,
-  // Settings Styles -------------------------------------
+    // Settings Styles -------------------------------------
   },
   header: {
     paddingHorizontal: 24,
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#1d1d1d", 
+    color: "#1d1d1d",
   },
   section: {
     paddingTop: 32,
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#e3e3e3",
     backgroundColor: "#ffffff",
-  // ----------------------------------------------------------
+    // ----------------------------------------------------------
   },
   titleText: {
     color: "white",
@@ -168,6 +168,56 @@ const styles = StyleSheet.create({
   },
   scenarioText: {
     color: "white",
+  },
+  //--modal styles--
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
+  },
+  modalView: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  continueButton: {
+    marginTop: 20,
+    backgroundColor: "green",
+    padding: 10,
+    borderRadius: 5,
+  },
+  //---language selection modal styles---------
+  modalLanguages: {
+    flexDirection: "row",
+  },
+  modalLanguage: {
+    margin: 12,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontWeight: "bold",
+  },
+  modalLanguageButton: {
+    borderRadius: 20,
+    backgroundColor: "#d3d3d3",
+    margin: 5,
+    padding: 5,
+  },
+  selectedModalLanguageButton: {
+    borderRadius: 20,
+    backgroundColor: "#d3d3d3",
+    margin: 5,
+    padding: 5,
+    borderWidth: 2,
+    borderColor: "#000",
   },
 });
 export default styles;
