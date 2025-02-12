@@ -219,7 +219,6 @@ export default function RestaurantScenario() {
 
       dialogue.push({ question, options, correctAnswer });
     }
-    console.log("dialogue: ", dialogue);
     return dialogue;
   };
 
@@ -238,7 +237,6 @@ export default function RestaurantScenario() {
           "en"
         );
         setTranslated(true);
-        console.log("Flattened questions: ", flattenedQuestions);
       }
       // speak question on render and every time question index changes, after language is stored
       // and dialogue is translated
@@ -257,10 +255,8 @@ export default function RestaurantScenario() {
     setLoading(true);
     try {
       const translations = await translateText(text, target, source); // call API to translate text
-      console.log("translation response: ", translations);
       const translatedStrings = translations.map((t: any) => t.translatedText);
       setTranslatedQuestions(translatedStrings); // store translated array of strings
-      console.log("Translated questions: ", translatedStrings);
       setDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
     } catch (error) {
       console.error("Translation error:", error);
