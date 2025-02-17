@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: "500",
     color: "#1d1d1d",
   },
@@ -60,21 +60,21 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   sectionHeaderText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#1d1d1d",
+    color: "black",
     textTransform: "uppercase",
     letterSpacing: 1.2,
   },
   rowWrapper: {
     paddingLeft: 24,
-    borderTopWidth: 1,
+    borderTopWidth: 2,
     borderColor: "white",
     backgroundColor: "green",
     padding: 3,
     margin: 1,
     borderRadius: 10,
-    borderWidth: 1,
+    borderWidth: 2,
   },
   row: {
     height: 50,
@@ -93,14 +93,13 @@ const styles = StyleSheet.create({
   },
   rowValue: {
     fontSize: 17,
-    color: "black",
+    color: "white",
     marginRight: 4,
   },
   sectionBody: {
     // paddingLeft: 24,
-    borderTopWidth: 1,
-    borderColor: "#e3e3e3",
-    backgroundColor: "#ffffff",
+    //borderColor: "white",
+    backgroundColor: "transparent",
     // ----------------------------------------------------------
   },
   titleText: {

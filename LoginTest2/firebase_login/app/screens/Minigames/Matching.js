@@ -6,16 +6,15 @@ import {
     View,
     FlatList,
     Pressable,
+    Button,
+    StyleSheet,
+    Animated,
+    Easing,
+    SafeAreaView,
   } from "react-native";
   import { useNavigation } from "@react-navigation/native";
   import React, { useState, useEffect } from 'react';
-import {
-	 Button, StyleSheet,
-	 Animated, Easing
-} from 'react-native';
-  
   import styles from "../Styles";
-
 
   const randomArrFunction = (arr) => {
     for (let i = arr.length - 1; i > 0; i--) {
@@ -105,42 +104,43 @@ import {
         setGameWon(true);
       }
     }, [matches]);
+
   
     const msg = `Matches: ${matches} / ${cards.length / 2}`;
   
 
     return (
-      <ImageBackground
-        source={require("../../../assets/homeScreen.png")}
-        resizeMode="cover"
-        style={styles.imgBackground}
-      >
-        <Pressable onPress={() => navigation.goBack()}>
+      <SafeAreaView style={styles2.container}> 
+        <ImageBackground
+          source={require("../../../assets/homeScreen.png")}
+          resizeMode="cover"
+          style={styles2.imgBackground}
+        >
+          <Pressable onPress={() => navigation.goBack()}>
             <Image
               style={styles.backButtonIcon}
               source={require("../../../assets/backArrow.png")}
             />
           </Pressable>
-      <View style={styles2.container}>
-			<Text style={styles2.header1}>Memory Pair Game</Text>
-			<Text style={styles2.matchText}>{msg}</Text>
-			{gameWon ? (
-				<View style={styles2.winMessage}>
-					<View style={styles2.winMessageContent}>
-						<Text style={styles2.winText}>Congratulations! You Won!</Text>
-					</View>
-					<Button
-						title="Restart"
-						onPress={() => {
-							setCards(gameCardsFunction());
-							setSelectedCards([]);
-							setMatches(0);
-							setWinMessage(new Animated.Value(0));
-							setGameWon(false);
-						}}
-					/>
-				</View>
-			) : (
+        <View style={styles2.container}>
+			    <Text style={styles2.header1}>Memory Pair Game</Text>
+			    <Text style={styles2.matchText}>{msg}</Text>       
+			    {gameWon ? (
+				    <View style={styles2.winMessage}>
+					    {/* <View style={styles2.winMessageContent}></View> */}
+					    <Text style={styles2.winText}>Congratulations! You Won!</Text>
+					  <Button
+						  title="Restart"
+						  onPress={() => {
+							  setCards(gameCardsFunction());
+							  setSelectedCards([]);
+							  setMatches(0);
+							  setWinMessage(new Animated.Value(0));
+							  setGameWon(false);
+						  }}
+					  />  
+            </View> 
+			    ) : (  
 				<View style={styles2.grid}>
 					{cards.map((card) => (
 						<TouchableOpacity
@@ -154,18 +154,25 @@ import {
 						</TouchableOpacity>
 					))}
 				</View>
-			)}
-		</View>
-      </ImageBackground>
+			  )}
+		    </View>
+        </ImageBackground>
+      </SafeAreaView>
     );
   };
 
   const styles2 = StyleSheet.create({
     container: {
       flex: 1,
+      width: "100%",
+      height: "100%", 
       alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'white',
+    },
+    imgBackground: { 
+      flex: 1,
+      width: "100%",
+      height: "100%",
+      resizeMode: "cover",
     },
     header1: {
       fontSize: 36,
@@ -182,22 +189,22 @@ import {
       justifyContent: 'center',
     },
     card: {
-      width: 80,
-      height: 80,
+      width: 90,
+      height: 90,
       margin: 10,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#FFD700',
+      backgroundColor: 'green',
       borderRadius: 10,
-      borderWidth: 1,
-      borderColor: 'black',
+      borderWidth: 2,
+      borderColor: 'white',
     },
     cardFlipped: {
-      backgroundColor: 'white',
+      backgroundColor: '#ffc82c',
     },
     cardText: {
-      fontSize: 24,
-      color: 'blue',
+      fontSize: 20,
+      color: 'white',
       fontWeight: 'bold',
     },
     winMessage: {
@@ -208,6 +215,8 @@ import {
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 1,
+      margin: 0,
+      padding: 0,
     },
     winText: {
       fontSize: 36,
