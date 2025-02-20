@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
+import { Vocab } from "../Notebook";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -147,19 +148,19 @@ export default function RestaurantScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
-  const [learningLanguage, setLearningLanguage] = useState("English");
-  const [firstLanguage, setFirstLanguage] = useState("English");
+  const [learningLanguage, setLearningLanguage] = useState("");
+  const [firstLanguage, setFirstLanguage] = useState("");
   const [languageStored, setLanguageStored] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [translatedText, setTranslatedText] = useState("");
   const [translated, setTranslated] = useState(false);
-  const [translatedQuestions, setTranslatedQuestions] = useState([""]);
   const [dialogue, setDialogue] = useState(QUESTIONS);
+  const [nativeDialogue, setNativeDialogue] = useState(QUESTIONS);
 
   const getLearningLanguage = async () => {
     // attempts to get target language from async storage
     try {
       const lang = await AsyncStorage.getItem("newLanguage");
+      console.log("learningLanguage: ", lang);
       return lang;
     } catch (error) {
       console.error("Error retrieving data from AsyncStorage:", error);
@@ -231,11 +232,20 @@ export default function RestaurantScenario() {
       }
       // after language is stored, translates questions to language
       if (currentquestionindex === 0 && languageStored && !translated) {
-        await handleTranslateArray(
-          flattenedQuestions,
-          languages[learningLanguage].tag,
-          "en"
-        );
+        if (learningLanguage != "English") {
+          await handleTranslateArray(
+            flattenedQuestions,
+            languages[learningLanguage].tag,
+            "en"
+          );
+        }
+        if (firstLanguage != "English") {
+          await vocabTranslate(
+            flattenedQuestions,
+            languages[firstLanguage].tag,
+            "en"
+          );
+        }
         setTranslated(true);
       }
       // speak question on render and every time question index changes, after language is stored
@@ -245,7 +255,7 @@ export default function RestaurantScenario() {
       }
     };
     setLanguageAndSpeak();
-  }, [currentquestionindex, languageStored]);
+  }, [currentquestionindex, languageStored, translated]);
 
   const handleTranslateArray = async (
     text: string[],
@@ -256,12 +266,57 @@ export default function RestaurantScenario() {
     try {
       const translations = await translateText(text, target, source); // call API to translate text
       const translatedStrings = translations.map((t: any) => t.translatedText);
-      setTranslatedQuestions(translatedStrings); // store translated array of strings
       setDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
     } catch (error) {
       console.error("Translation error:", error);
     } finally {
       setLoading(false); // does not display dialogue until after translation
+    }
+  };
+
+  const vocabTranslate = async (
+    text: string[],
+    target: string,
+    source: string
+  ) => {
+    try {
+      const translations = await translateText(text, target, source); // call API to translate text
+      const translatedStrings = translations.map((t: any) => t.translatedText);
+      setNativeDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+  };
+
+  const formatVocab = (
+    data: Question[],
+    translatedData: Question[]
+  ): Vocab[] => {
+    return data.reduce<Vocab[]>((acc, item, index) => {
+      // reduce Questions array to Vocab array
+      const item2 = translatedData[index];
+      // stores question and answer for each question in the language they're learning and their first language
+      acc.push({
+        learnedText: item.question,
+        translation: item2.question,
+      });
+      acc.push({
+        learnedText: item.correctAnswer,
+        translation: item2.correctAnswer,
+      });
+
+      return acc;
+    }, []);
+  };
+
+  const storeVocab = async () => {
+    const vocabulary = formatVocab(dialogue, nativeDialogue);
+    try {
+      const jsonVocab = JSON.stringify(vocabulary);
+      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      console.log("vocab stored: ");
+    } catch (error) {
+      console.error("Error storing vocab: ", error);
     }
   };
 
@@ -284,6 +339,7 @@ export default function RestaurantScenario() {
     if (isCorrect) {
       setScores([...scores, score]);
       if (currentquestionindex === QUESTIONS.length - 1) {
+        storeVocab();
         const averageScore =
           scores.length > 0
             ? Math.round(

@@ -153,7 +153,11 @@ const RouteItemComponent: React.FC<{
     <TouchableOpacity
       onPress={() => item.isUnlocked && navigation.navigate(item.title)}
     >
-      <Image style={styles.scenarioButtonIcon} source={iconSource} />
+      <Image
+        style={styles.scenarioButtonIcon}
+        source={iconSource}
+        resizeMode="contain"
+      />
     </TouchableOpacity>
   );
 };

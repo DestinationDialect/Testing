@@ -28,25 +28,33 @@ const Login = () => {
   const [firstLanguage, setFirstLanguage] = useState("");
   const [newLanguage, setNewLanguage] = useState("");
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const auth = FIREBASE_AUTH;
 
-  const asyncLanguageStorage = async () => {
+  const asyncLanguageStorage = async (firstL: string, newL: string) => {
     try {
-      await AsyncStorage.setItem("originLanguage", firstLanguage);
-      await AsyncStorage.setItem("newLanguage", newLanguage);
+      await AsyncStorage.setItem("originLanguage", firstL);
+      await AsyncStorage.setItem("newLanguage", newL);
     } catch (error) {
       console.error("Error storing languages in AsyncStorage:", error);
+    } finally {
+      console.log(
+        "Stored Languages - firstLanguage: ",
+        firstL,
+        "newLanguage: ",
+        newL
+      );
     }
   };
 
   const setLanguage = async () => {
     // function to fetch user languages from database and save in async storage on sign in
     // replace language setting with database call data
-    setFirstLanguage("English");
-    setNewLanguage("Spanish");
+    const firstL = "English";
+    const newL = "Spanish";
 
     // store data from variables in async storage
-    asyncLanguageStorage();
+    asyncLanguageStorage(firstL, newL);
   };
 
   const signIn = async () => {
@@ -54,14 +62,11 @@ const Login = () => {
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
       console.log(response);
+      setLanguage();
     } catch (error: any) {
       console.log(error);
       alert("Sign in failed" + error.message);
-      setLoginError(true);
     } finally {
-      if (!loginError) {
-        setLanguage(); // function to fetch user languages from database and save in async storage
-      }
       setLoading(false);
     }
   };
@@ -106,13 +111,19 @@ const Login = () => {
 
   const handleLanguageSelection = () => {
     // store languages in async storage
-    asyncLanguageStorage();
+    if (firstLanguage && newLanguage && firstLanguage != newLanguage) {
+      asyncLanguageStorage(firstLanguage, newLanguage);
 
-    // close Modal
-    setLanguageModalVisible(false);
+      // close Modal
+      setLanguageModalVisible(false);
 
-    // complete sign up
-    signUp();
+      // complete sign up
+      signUp();
+    } else if (!firstLanguage || !newLanguage) {
+      setErrorMessage("Must select languages");
+    } else if (firstLanguage == newLanguage) {
+      setErrorMessage("Must select different languages");
+    }
   };
 
   const handleSignUp = () => {
@@ -167,6 +178,7 @@ const Login = () => {
                   ))}
                 </View>
               </View>
+              <Text>{errorMessage}</Text>
               <Pressable
                 onPress={() => handleLanguageSelection()}
                 style={styles.continueButton}
