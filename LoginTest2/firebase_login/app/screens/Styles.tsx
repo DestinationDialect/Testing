@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 const styles = StyleSheet.create({
   // Login styles ------------------------------------------
   imgBackground: {
@@ -139,7 +139,6 @@ const styles = StyleSheet.create({
   scenarioButtonIcon: {
     height: 100,
     width: 100,
-    resizeMode: "contain",
     marginBottom: 60,
     marginLeft: 20,
     marginRight: 10,
@@ -181,11 +180,20 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 15,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 5,
+      },
+      web: {
+        boxShadow: "0px 2px 4px #000",
+      },
+    }),
   },
   continueButton: {
     marginTop: 20,

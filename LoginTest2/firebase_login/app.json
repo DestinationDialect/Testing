@@ -1,5 +1,6 @@
 {
   "expo": {
+    "newArchEnabled": true,
     "name": "firebase_login",
     "slug": "firebase_login",
     "version": "1.0.0",
