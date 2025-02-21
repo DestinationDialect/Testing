@@ -15,6 +15,7 @@ import FarmersMarketScenario from "./app/screens/Scenarios/FarmersMarketScenario
 import HospitalScenario from "./app/screens/Scenarios/HospitalScenario";
 import Flashcards from "./app/screens/Minigames/Flashcards";
 import Matching from "./app/screens/Minigames/Matching";
+import ContactUs from "./app/screens/ContactUs";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
@@ -94,6 +95,11 @@ function InsideLayout() {
       <InsideStack.Screen
         name="Matching"
         component={Matching}
+        options={{ headerShown: false }}
+      />
+      <InsideStack.Screen
+        name="ContactUs"
+        component={ContactUs}
         options={{ headerShown: false }}
       />
     </InsideStack.Navigator>
