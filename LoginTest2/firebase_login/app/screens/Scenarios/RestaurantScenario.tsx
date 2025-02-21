@@ -148,8 +148,8 @@ export default function RestaurantScenario() {
   const [score, setscore] = useState(90);
   const [isVisible, setVisible] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
-  const [learningLanguage, setLearningLanguage] = useState("");
-  const [firstLanguage, setFirstLanguage] = useState("");
+  const [learningLanguage, setLearningLanguage] = useState("English");
+  const [firstLanguage, setFirstLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
   const [loading, setLoading] = useState(false);
   const [translated, setTranslated] = useState(false);

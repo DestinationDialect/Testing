@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
+import { Vocab } from "../Notebook";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -27,73 +28,79 @@ languages["Spanish"] = { name: "Spanish", tag: "es" };
 languages["French"] = { name: "French", tag: "fr" };
 languages["German"] = { name: "German", tag: "de" };
 
-const QUESTIONS = [
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+
+const QUESTIONS: Question[] = [
   {  
      question: "Hello, welcome to the museum. How may I help you today?",
-     answerChoices: ["Hello.", 
+     options: ["Hello.", 
       "Hello, do you offer guided tours?", 
       "Hello, where do I start?"],
      correctAnswer: "Hello, do you offer guided tours?",
   },
   {
      question: "Yes we do. Our tours last about 90 minutes.",
-     answerChoices: ["Ok, what does the tour cover?", 
+     options: ["Ok, what does the tour cover?", 
       "How long is it?", 
       "Ok, how do I do that?"],
      correctAnswer: "Ok, what does the tour cover?",
   },
   {
      question: "The tour covers the major highlights of the museum. Does that sound like something you would want to do?",
-     answerChoices: ["I'll have to think about it.", 
+     options: ["I'll have to think about it.", 
       "Yes but how long is it?", 
       "Yes it does, sign me up!"],
      correctAnswer: "Yes it does, sign me up!",
   },
   {
      question: "Ok, you can join that group over there and the tour will begin shortly.",
-     answerChoices: ["Ok, thank you!", 
+     options: ["Ok, thank you!", 
       "I don't want to.", 
       "Thanks but I don't like people."],
      correctAnswer: "Ok, thank you!",
   },
   {
      question: "Ok, everyone follow me. We're going to start the tour in our Ancient Egyptian exhibit.",
-     answerChoices: ["Can I touch any of this stuff?", 
+     options: ["Can I touch any of this stuff?", 
       "Let's go!", 
       "Awesome!"],
      correctAnswer: "Let's go!",
   },
   {
      question: "Here we have a statue of Pharaoh Ramesses II, one of Egypt's most powerful rulers. Ramesses II was known for his military campaigns and for commissioning grand monuments like this one.",
-     answerChoices: ["How did they transport something this big back then?", 
+     options: ["How did they transport something this big back then?", 
       "Can I touch it?", 
       "Can I take pictures in here?"],
      correctAnswer: "How did they transport something this big back then?",
   },
   {
      question: "Great question! Ancient Egyptians were brilliant engineers. They used wooden sledges and rolled them over logs or poured water on the sand to make transportation easier.",
-     answerChoices: ["Thank you! That is very insightful.", 
+     options: ["Thank you! That is very insightful.", 
       "Cool!", 
       "Awesome!"],
      correctAnswer: "Thank you! That is very insightful.",
   },
   {
      question: "Ok everyone, let's move onto the next section, our Renaissance painting exhibit!",
-     answerChoices: ["Can I take pictures of these?", 
+     options: ["Can I take pictures of these?", 
       "Wow, this painting looks so detailed! What is the story behind it?", 
       "These paintings are weird."],
      correctAnswer: "Wow, this painting looks so detailed! What is the story behind it?",
   },
   {
      question: "This is one of the few surviving portraits by Leonardo da Vinci, painted around 1474-1478.",
-     answerChoices: ["It is so pretty!", 
+     options: ["It is so pretty!", 
       "Why does it look like that?", 
       "Can I take a picture of it?"],
      correctAnswer: "It is so pretty!",
   },
   {
      question: "Ok everyone, this concludes our tour. Thank you all for coming!",
-     answerChoices: ["Thanks, bye!", 
+     options: ["Thanks, bye!", 
       "This was so cool!", 
       "Thank you! You were a great tour guide!"],
      correctAnswer: "Thank you! You were a great tour guide!",
@@ -118,7 +125,9 @@ export default function MuseumScenario() {
   const [firstLanguage, setFirstLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [translatedText, setTranslatedText] = useState("");
+  const [translated, setTranslated] = useState(false);
+  const [dialogue, setDialogue] = useState(QUESTIONS);
+  const [nativeDialogue, setNativeDialogue] = useState(QUESTIONS);
 
   const getLearningLanguage = async () => {
     // attempts to get target language from async storage
@@ -159,6 +168,33 @@ export default function MuseumScenario() {
     Speech.speak(text, { language: languages[learningLanguage].tag });
   };
 
+  // convert array of question objects to array of strings
+  const flattenData = (data: Question[]): string[] => {
+    return data.reduce<string[]>((acc, item) => {
+      // reduce Questions array to string array
+      acc.push(item.question); // push question
+      item.options.forEach((option) => acc.push(option)); // push each option
+      acc.push(item.correctAnswer); // push correct answer
+      return acc;
+    }, []);
+  };
+
+  // stores array of strings dialogue to send through translation API
+  const flattenedQuestions = flattenData(QUESTIONS); // store questions as array of strings
+
+  // changes array of strings back to array of Question objects
+  const formatTranslation = (data: string[]): Question[] => {
+    const dialogue: Question[] = [];
+    for (let i = 0; i < data.length; i += 5) {
+      const question = data[i];
+      const options = [data[i + 1], data[i + 2], data[i + 3]];
+      const correctAnswer = data[i + 4];
+
+      dialogue.push({ question, options, correctAnswer });
+    }
+    return dialogue;
+  };
+
   useEffect(() => {
     const setLanguageAndSpeak = async () => {
       // gets language from async storage before speaking first question (on render)
@@ -166,26 +202,94 @@ export default function MuseumScenario() {
         await storeLanguage();
         setLanguageStored(true);
       }
-      // speak question on render and every time question index changes
-      if (languageStored) {
-        speak(QUESTIONS[currentquestionindex].question);
+      // after language is stored, translates questions to language
+      if (currentquestionindex === 0 && languageStored && !translated) {
+        if (learningLanguage != "English") {
+          await handleTranslateArray(
+            flattenedQuestions,
+            languages[learningLanguage].tag,
+            "en"
+          );
+        }
+        if (firstLanguage != "English") {
+          await vocabTranslate(
+            flattenedQuestions,
+            languages[firstLanguage].tag,
+            "en"
+          );
+        }
+        setTranslated(true);
+      }
+      // speak question on render and every time question index changes, after language is stored
+      // and dialogue is translated
+      if (languageStored && translated) {
+        speak(dialogue[currentquestionindex].question);
       }
     };
     setLanguageAndSpeak();
-  }, [currentquestionindex, languageStored]);
+  }, [currentquestionindex, languageStored, translated]);
 
-  const handleTranslate = async () => {
+  const handleTranslateArray = async (
+    text: string[],
+    target: string,
+    source: string
+  ) => {
     setLoading(true);
     try {
-      const translation = await translateText(
-        QUESTIONS[currentquestionindex].question,
-        languages[firstLanguage].tag
-      );
-      setTranslatedText(translation);
+      const translations = await translateText(text, target, source); // call API to translate text
+      const translatedStrings = translations.map((t: any) => t.translatedText);
+      setDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
+    } catch (error) {
+      console.error("Translation error:", error);
+    } finally {
+      setLoading(false); // does not display dialogue until after translation
+    }
+  };
+
+  const vocabTranslate = async (
+    text: string[],
+    target: string,
+    source: string
+  ) => {
+    try {
+      const translations = await translateText(text, target, source); // call API to translate text
+      const translatedStrings = translations.map((t: any) => t.translatedText);
+      setNativeDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
     } catch (error) {
       console.error("Translation error:", error);
     }
-    setLoading(false);
+  };
+
+  const formatVocab = (
+    data: Question[],
+    translatedData: Question[]
+  ): Vocab[] => {
+    return data.reduce<Vocab[]>((acc, item, index) => {
+      // reduce Questions array to Vocab array
+      const item2 = translatedData[index];
+      // stores question and answer for each question in the language they're learning and their first language
+      acc.push({
+        learnedText: item.question,
+        translation: item2.question,
+      });
+      acc.push({
+        learnedText: item.correctAnswer,
+        translation: item2.correctAnswer,
+      });
+
+      return acc;
+    }, []);
+  };
+
+  const storeVocab = async () => {
+    const vocabulary = formatVocab(dialogue, nativeDialogue);
+    try {
+      const jsonVocab = JSON.stringify(vocabulary);
+      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      console.log("vocab stored: ");
+    } catch (error) {
+      console.error("Error storing vocab: ", error);
+    }
   };
 
   const checkAnswer = (pressedOption: string) => {
@@ -207,6 +311,7 @@ export default function MuseumScenario() {
     if (isCorrect) {
       setScores([...scores, score]);
       if (currentquestionindex === QUESTIONS.length - 1) {
+        storeVocab();
         const averageScore =
           scores.length > 0
             ? Math.round(
@@ -285,26 +390,29 @@ export default function MuseumScenario() {
         </Pressable>
       </ImageBackground>
       <View style={styles.overlay}>
-        <Text style={styles.question}>
-          {QUESTIONS[currentquestionindex].question}
-        </Text>
-        <Pressable onPress={() => handleTranslate()}>
-          <Text>translate {translatedText}</Text>
-        </Pressable>
-        {QUESTIONS[currentquestionindex].answerChoices.map((option, index) => (
-          //<View style={styles.option}>
-          <Pressable key={index} onPress={() => checkAnswer(option)}>
-            <Text
-              style={[
-                styles.option,
-                isCorrect ? styles.correctAnswer : styles.option,
-              ]}
-            >
-              {option}
+        {!loading ? ( //view encasing what displays once page and translation loads
+          <View>
+            <Text style={styles.question}>
+              {dialogue[currentquestionindex].question}
             </Text>
-          </Pressable>
-          //</View>
-        ))}
+            {dialogue[currentquestionindex].options.map((option, index) => (
+              //<View style={styles.option}>
+              <Pressable key={index} onPress={() => checkAnswer(option)}>
+                <Text
+                  style={[
+                    styles.option,
+                    isCorrect ? styles.correctAnswer : styles.option,
+                  ]}
+                >
+                  {option}
+                </Text>
+              </Pressable>
+              //</View>
+            ))}
+          </View>
+        ) : (
+          <Text>LOADING</Text>
+        )}
 
         <Pressable onPress={nextQuestion} style={styles.nextButton}>
           <Text style={styles.buttonText}>Next Question</Text>
@@ -314,7 +422,7 @@ export default function MuseumScenario() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",

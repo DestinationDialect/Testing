@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
+import { Vocab } from "../Notebook";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -27,10 +28,16 @@ languages["Spanish"] = { name: "Spanish", tag: "es" };
 languages["French"] = { name: "French", tag: "fr" };
 languages["German"] = { name: "German", tag: "de" };
 
-const QUESTIONS = [
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+
+const QUESTIONS: Question[] = [
   {  
      question: "Produce vendor: Good morning! Welcome to the farmers market. Let me know if you need any help!",
-     answerChoices: ["Are these tomatoes?", 
+     options: ["Are these tomatoes?", 
       "Good morning! Your produce looks amazing. Are these tomatoes organic?", 
       "Do you have any bread?",
      ],
@@ -38,7 +45,7 @@ const QUESTIONS = [
   },
   {
      question: "Yes, they are! We grow them without any pesticides.",
-     answerChoices: ["Nice! I'll take half a kilogram, please.", 
+     options: ["Nice! I'll take half a kilogram, please.", 
       "I don't like organic produce.", 
       "Can I buy just one?", 
      ],
@@ -46,7 +53,7 @@ const QUESTIONS = [
   },
   {
      question: "Great! That will be 4 please. Anything else for you?",
-     answerChoices: ["Actually, I don't think I want these anymore.", 
+     options: ["Actually, I don't think I want these anymore.", 
       "Thank you!", 
       "This is it for now, thank you!",
     ],
@@ -54,7 +61,7 @@ const QUESTIONS = [
   },
   {
      question: "Vendor: Hi! Would you like to try a sample of our wildflower honey?",
-     answerChoices: ["That sounds gross.", 
+     options: ["That sounds gross.", 
       "I guess.", 
       "Absolutely! That sounds great!",
     ],
@@ -62,7 +69,7 @@ const QUESTIONS = [
   },
   {
      question: "Here you go. Our wildflower honey has a rich and complex flavor.",
-     answerChoices: ["I don't think I like it.", 
+     options: ["I don't think I like it.", 
       "It tastes great! How much for a small jar?", 
       "It's ok.",
     ],
@@ -70,7 +77,7 @@ const QUESTIONS = [
   },
   {
      question: "Our small jar is 10, and I'll throw in a sample jar of our clover honey.",
-     answerChoices: ["Thank you! I appreciate it!", 
+     options: ["Thank you! I appreciate it!", 
       "I don't want to pay extra.", 
       "Do you have any other samples?",
     ],
@@ -78,7 +85,7 @@ const QUESTIONS = [
   },
   {
      question: "Bakery Vendor: Welcome in! We have some fresh-baked bread, croissants, and some homemade pies today. Can I interest you in anything?",
-     answerChoices: ["I love bread!", 
+     options: ["I love bread!", 
       "What kind of pies do you have?", 
       "How many pies do you have?",
     ],
@@ -86,7 +93,7 @@ const QUESTIONS = [
   },
   {
      question: "We have apple, cherry, and pumpkin.",
-     answerChoices: ["Do you have pumpkin?", 
+     options: ["Do you have pumpkin?", 
       "I'll take an apple pie.", 
       "Nevermind. Thanks anyways!",
     ],
@@ -94,7 +101,7 @@ const QUESTIONS = [
   },
   {
      question: "Craft vendor: Hi there! Everything here is handmade, from pottery to candles and jewelry. Let me know if you have any questions!",
-     answerChoices: ["None of these are my style.", 
+     options: ["None of these are my style.", 
       "I love pottery!", 
       "These earrings are beautiful! I'll take these!",
     ],
@@ -102,7 +109,7 @@ const QUESTIONS = [
   },
   {
      question: "Great choice! That will be 12.",
-     answerChoices: ["Thank you! Have a good day!", 
+     options: ["Thank you! Have a good day!", 
       "That's expensive!", 
       "Here you go, thank you!",
     ],
@@ -128,7 +135,9 @@ export default function FarmersMarketScenario() {
   const [firstLanguage, setFirstLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [translatedText, setTranslatedText] = useState("");
+  const [translated, setTranslated] = useState(false);
+  const [dialogue, setDialogue] = useState(QUESTIONS);
+  const [nativeDialogue, setNativeDialogue] = useState(QUESTIONS);
 
   const getLearningLanguage = async () => {
     // attempts to get target language from async storage
@@ -169,6 +178,33 @@ export default function FarmersMarketScenario() {
     Speech.speak(text, { language: languages[learningLanguage].tag });
   };
 
+  // convert array of question objects to array of strings
+  const flattenData = (data: Question[]): string[] => {
+    return data.reduce<string[]>((acc, item) => {
+      // reduce Questions array to string array
+      acc.push(item.question); // push question
+      item.options.forEach((option) => acc.push(option)); // push each option
+      acc.push(item.correctAnswer); // push correct answer
+      return acc;
+    }, []);
+  };
+
+  // stores array of strings dialogue to send through translation API
+  const flattenedQuestions = flattenData(QUESTIONS); // store questions as array of strings
+
+  // changes array of strings back to array of Question objects
+  const formatTranslation = (data: string[]): Question[] => {
+    const dialogue: Question[] = [];
+    for (let i = 0; i < data.length; i += 5) {
+      const question = data[i];
+      const options = [data[i + 1], data[i + 2], data[i + 3]];
+      const correctAnswer = data[i + 4];
+
+      dialogue.push({ question, options, correctAnswer });
+    }
+    return dialogue;
+  };
+
   useEffect(() => {
     const setLanguageAndSpeak = async () => {
       // gets language from async storage before speaking first question (on render)
@@ -176,26 +212,94 @@ export default function FarmersMarketScenario() {
         await storeLanguage();
         setLanguageStored(true);
       }
-      // speak question on render and every time question index changes
-      if (languageStored) {
-        speak(QUESTIONS[currentquestionindex].question);
+      // after language is stored, translates questions to language
+      if (currentquestionindex === 0 && languageStored && !translated) {
+        if (learningLanguage != "English") {
+          await handleTranslateArray(
+            flattenedQuestions,
+            languages[learningLanguage].tag,
+            "en"
+          );
+        }
+        if (firstLanguage != "English") {
+          await vocabTranslate(
+            flattenedQuestions,
+            languages[firstLanguage].tag,
+            "en"
+          );
+        }
+        setTranslated(true);
+      }
+      // speak question on render and every time question index changes, after language is stored
+      // and dialogue is translated
+      if (languageStored && translated) {
+        speak(dialogue[currentquestionindex].question);
       }
     };
     setLanguageAndSpeak();
-  }, [currentquestionindex, languageStored]);
+  }, [currentquestionindex, languageStored, translated]);
 
-  const handleTranslate = async () => {
+  const handleTranslateArray = async (
+    text: string[],
+    target: string,
+    source: string
+  ) => {
     setLoading(true);
     try {
-      const translation = await translateText(
-        QUESTIONS[currentquestionindex].question,
-        languages[firstLanguage].tag
-      );
-      setTranslatedText(translation);
+      const translations = await translateText(text, target, source); // call API to translate text
+      const translatedStrings = translations.map((t: any) => t.translatedText);
+      setDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
+    } catch (error) {
+      console.error("Translation error:", error);
+    } finally {
+      setLoading(false); // does not display dialogue until after translation
+    }
+  };
+
+  const vocabTranslate = async (
+    text: string[],
+    target: string,
+    source: string
+  ) => {
+    try {
+      const translations = await translateText(text, target, source); // call API to translate text
+      const translatedStrings = translations.map((t: any) => t.translatedText);
+      setNativeDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
     } catch (error) {
       console.error("Translation error:", error);
     }
-    setLoading(false);
+  };
+
+  const formatVocab = (
+    data: Question[],
+    translatedData: Question[]
+  ): Vocab[] => {
+    return data.reduce<Vocab[]>((acc, item, index) => {
+      // reduce Questions array to Vocab array
+      const item2 = translatedData[index];
+      // stores question and answer for each question in the language they're learning and their first language
+      acc.push({
+        learnedText: item.question,
+        translation: item2.question,
+      });
+      acc.push({
+        learnedText: item.correctAnswer,
+        translation: item2.correctAnswer,
+      });
+
+      return acc;
+    }, []);
+  };
+
+  const storeVocab = async () => {
+    const vocabulary = formatVocab(dialogue, nativeDialogue);
+    try {
+      const jsonVocab = JSON.stringify(vocabulary);
+      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      console.log("vocab stored: ");
+    } catch (error) {
+      console.error("Error storing vocab: ", error);
+    }
   };
 
   const checkAnswer = (pressedOption: string) => {
@@ -217,6 +321,7 @@ export default function FarmersMarketScenario() {
     if (isCorrect) {
       setScores([...scores, score]);
       if (currentquestionindex === QUESTIONS.length - 1) {
+        storeVocab();
         const averageScore =
           scores.length > 0
             ? Math.round(
@@ -295,26 +400,29 @@ export default function FarmersMarketScenario() {
         </Pressable>
       </ImageBackground>
       <View style={styles.overlay}>
-        <Text style={styles.question}>
-          {QUESTIONS[currentquestionindex].question}
-        </Text>
-        <Pressable onPress={() => handleTranslate()}>
-          <Text>translate {translatedText}</Text>
-        </Pressable>
-        {QUESTIONS[currentquestionindex].answerChoices.map((option, index) => (
-          //<View style={styles.option}>
-          <Pressable key={index} onPress={() => checkAnswer(option)}>
-            <Text
-              style={[
-                styles.option,
-                isCorrect ? styles.correctAnswer : styles.option,
-              ]}
-            >
-              {option}
+        {!loading ? ( //view encasing what displays once page and translation loads
+          <View>
+            <Text style={styles.question}>
+              {dialogue[currentquestionindex].question}
             </Text>
-          </Pressable>
-          //</View>
-        ))}
+            {dialogue[currentquestionindex].options.map((option, index) => (
+              //<View style={styles.option}>
+              <Pressable key={index} onPress={() => checkAnswer(option)}>
+                <Text
+                  style={[
+                    styles.option,
+                    isCorrect ? styles.correctAnswer : styles.option,
+                  ]}
+                >
+                  {option}
+                </Text>
+              </Pressable>
+              //</View>
+            ))}
+          </View>
+        ) : (
+          <Text>LOADING</Text>
+        )}
 
         <Pressable onPress={nextQuestion} style={styles.nextButton}>
           <Text style={styles.buttonText}>Next Question</Text>
@@ -324,7 +432,7 @@ export default function FarmersMarketScenario() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",

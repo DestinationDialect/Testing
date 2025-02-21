@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
+import { Vocab } from "../Notebook";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -27,55 +28,61 @@ languages["Spanish"] = { name: "Spanish", tag: "es" };
 languages["French"] = { name: "French", tag: "fr" };
 languages["German"] = { name: "German", tag: "de" };
 
-const QUESTIONS = [
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+
+const QUESTIONS: Question[] = [
   {  
      question: "Hello, Welcome! Where are you flying to today?",
-     answerChoices: ["Barcelona", "My house", "A new country"],
+     options: ["Barcelona", "My house", "A new country"],
      correctAnswer: "Barcelona",
    },
    {
      question: "May I have your passport and ticket, please?",
-     answerChoices: ["No", "Yes, here you go.", "Why?"],
+     options: ["No", "Yes, here you go.", "Why?"],
      correctAnswer: "Yes, here you go.",
    },
    {
      question: "Are you checking any bags?",
-     answerChoices: ["Yeah, but I want it back.", "Why?", "Yes, just this one."],
+     options: ["Yeah, but I want it back.", "Why?", "Yes, just this one."],
      correctAnswer: "Yes, just this one.",
    },
    {
      question: "Do you have a carry on bag?",
-     answerChoices: ["Yes, here you go.", "No, just this backpack", "What if I do?"],
+     options: ["Yes, here you go.", "No, just this backpack", "What if I do?"],
      correctAnswer: "Yes, here you go.",
    },
    {
      question: "Here is your boarding pass. Your flight leaves from gate 16A and it will begin boarding at 2:20pm. Your seat number is 25E. Now, you will need to head over to the security checkpoint.",
-     answerChoices: ["Thank you.", "Can you say that again?", "Ok, what does that mean?"],
+     options: ["Thank you.", "Can you say that again?", "Ok, what does that mean?"],
      correctAnswer: "Thank you.",
    },
    {
      question: "Welcome to the security checkpoint, please place your bags flat on the conveyor belt, and use the bins for your hat and shoes.",
-     answerChoices: ["Where do I put my stuff?", "Okay, thank you.", "What did you say?"],
+     options: ["Where do I put my stuff?", "Okay, thank you.", "What did you say?"],
      correctAnswer: "Okay, thank you.",
    },
    {
      question: "Please walk through the metal detector.",
-     answerChoices: ["I don't want to.", "Ok.", "Why?"],
+     options: ["I don't want to.", "Ok.", "Why?"],
      correctAnswer: "Ok.",
    },
    {
      question: "Please grab your items and you are all set. Have a nice flight!",
-     answerChoices: ["Thank you, have a good day!", "Ok.", "Why?"],
+     options: ["Thank you, have a good day!", "Ok.", "Why?"],
      correctAnswer: "Thank you, have a good day!",
    },
    {
      question: "Arriving at your destination and going to customs... Hello! Can I see your passport?",
-     answerChoices: ["Excuse me?", "No", "Here you go"],
+     options: ["Excuse me?", "No", "Here you go"],
      correctAnswer: "Here you go",
    },
    {
      question: "Everything looks good. Have a good stay!?",
-     answerChoices: ["No", "Thank you!", "I don't want to"],
+     options: ["No", "Thank you!", "I don't want to"],
      correctAnswer: "Thank you!",
    },
 ];
@@ -98,12 +105,15 @@ export default function AirportScenario() {
   const [firstLanguage, setFirstLanguage] = useState("English");
   const [languageStored, setLanguageStored] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [translatedText, setTranslatedText] = useState("");
+  const [translated, setTranslated] = useState(false);
+  const [dialogue, setDialogue] = useState(QUESTIONS);
+  const [nativeDialogue, setNativeDialogue] = useState(QUESTIONS);
 
   const getLearningLanguage = async () => {
     // attempts to get target language from async storage
     try {
       const lang = await AsyncStorage.getItem("newLanguage");
+      console.log("learningLanguage: ", lang);
       return lang;
     } catch (error) {
       console.error("Error retrieving data from AsyncStorage:", error);
@@ -139,6 +149,33 @@ export default function AirportScenario() {
     Speech.speak(text, { language: languages[learningLanguage].tag });
   };
 
+  // convert array of question objects to array of strings
+  const flattenData = (data: Question[]): string[] => {
+    return data.reduce<string[]>((acc, item) => {
+      // reduce Questions array to string array
+      acc.push(item.question); // push question
+      item.options.forEach((option) => acc.push(option)); // push each option
+      acc.push(item.correctAnswer); // push correct answer
+      return acc;
+    }, []);
+  };
+
+  // stores array of strings dialogue to send through translation API
+  const flattenedQuestions = flattenData(QUESTIONS); // store questions as array of strings
+
+  // changes array of strings back to array of Question objects
+  const formatTranslation = (data: string[]): Question[] => {
+    const dialogue: Question[] = [];
+    for (let i = 0; i < data.length; i += 5) {
+      const question = data[i];
+      const options = [data[i + 1], data[i + 2], data[i + 3]];
+      const correctAnswer = data[i + 4];
+
+      dialogue.push({ question, options, correctAnswer });
+    }
+    return dialogue;
+  };
+
   useEffect(() => {
     const setLanguageAndSpeak = async () => {
       // gets language from async storage before speaking first question (on render)
@@ -146,26 +183,94 @@ export default function AirportScenario() {
         await storeLanguage();
         setLanguageStored(true);
       }
-      // speak question on render and every time question index changes
-      if (languageStored) {
-        speak(QUESTIONS[currentquestionindex].question);
+      // after language is stored, translates questions to language
+      if (currentquestionindex === 0 && languageStored && !translated) {
+        if (learningLanguage != "English") {
+          await handleTranslateArray(
+            flattenedQuestions,
+            languages[learningLanguage].tag,
+            "en"
+          );
+        }
+        if (firstLanguage != "English") {
+          await vocabTranslate(
+            flattenedQuestions,
+            languages[firstLanguage].tag,
+            "en"
+          );
+        }
+        setTranslated(true);
+      }
+      // speak question on render and every time question index changes, after language is stored
+      // and dialogue is translated
+      if (languageStored && translated) {
+        speak(dialogue[currentquestionindex].question);
       }
     };
     setLanguageAndSpeak();
-  }, [currentquestionindex, languageStored]);
+  }, [currentquestionindex, languageStored, translated]);
 
-  const handleTranslate = async () => {
+  const handleTranslateArray = async (
+    text: string[],
+    target: string,
+    source: string
+  ) => {
     setLoading(true);
     try {
-      const translation = await translateText(
-        QUESTIONS[currentquestionindex].question,
-        languages[firstLanguage].tag
-      );
-      setTranslatedText(translation);
+      const translations = await translateText(text, target, source); // call API to translate text
+      const translatedStrings = translations.map((t: any) => t.translatedText);
+      setDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
+    } catch (error) {
+      console.error("Translation error:", error);
+    } finally {
+      setLoading(false); // does not display dialogue until after translation
+    }
+  };
+
+  const vocabTranslate = async (
+    text: string[],
+    target: string,
+    source: string
+  ) => {
+    try {
+      const translations = await translateText(text, target, source); // call API to translate text
+      const translatedStrings = translations.map((t: any) => t.translatedText);
+      setNativeDialogue(formatTranslation(translatedStrings)); // store translation reformatted as array of objects
     } catch (error) {
       console.error("Translation error:", error);
     }
-    setLoading(false);
+  };
+
+  const formatVocab = (
+    data: Question[],
+    translatedData: Question[]
+  ): Vocab[] => {
+    return data.reduce<Vocab[]>((acc, item, index) => {
+      // reduce Questions array to Vocab array
+      const item2 = translatedData[index];
+      // stores question and answer for each question in the language they're learning and their first language
+      acc.push({
+        learnedText: item.question,
+        translation: item2.question,
+      });
+      acc.push({
+        learnedText: item.correctAnswer,
+        translation: item2.correctAnswer,
+      });
+
+      return acc;
+    }, []);
+  };
+
+  const storeVocab = async () => {
+    const vocabulary = formatVocab(dialogue, nativeDialogue);
+    try {
+      const jsonVocab = JSON.stringify(vocabulary);
+      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      console.log("vocab stored: ");
+    } catch (error) {
+      console.error("Error storing vocab: ", error);
+    }
   };
 
   const checkAnswer = (pressedOption: string) => {
@@ -187,6 +292,7 @@ export default function AirportScenario() {
     if (isCorrect) {
       setScores([...scores, score]);
       if (currentquestionindex === QUESTIONS.length - 1) {
+        storeVocab();
         const averageScore =
           scores.length > 0
             ? Math.round(
@@ -265,26 +371,29 @@ export default function AirportScenario() {
         </Pressable>
       </ImageBackground>
       <View style={styles.overlay}>
-        <Text style={styles.question}>
-          {QUESTIONS[currentquestionindex].question}
-        </Text>
-        <Pressable onPress={() => handleTranslate()}>
-          <Text>translate {translatedText}</Text>
-        </Pressable>
-        {QUESTIONS[currentquestionindex].answerChoices.map((option, index) => (
-          //<View style={styles.option}>
-          <Pressable key={index} onPress={() => checkAnswer(option)}>
-            <Text
-              style={[
-                styles.option,
-                isCorrect ? styles.correctAnswer : styles.option,
-              ]}
-            >
-              {option}
+        {!loading ? ( //view encasing what displays once page and translation loads
+          <View>
+            <Text style={styles.question}>
+              {dialogue[currentquestionindex].question}
             </Text>
-          </Pressable>
-          //</View>
-        ))}
+            {dialogue[currentquestionindex].options.map((option, index) => (
+              //<View style={styles.option}>
+              <Pressable key={index} onPress={() => checkAnswer(option)}>
+                <Text
+                  style={[
+                    styles.option,
+                    isCorrect ? styles.correctAnswer : styles.option,
+                  ]}
+                >
+                  {option}
+                </Text>
+              </Pressable>
+              //</View>
+            ))}
+          </View>
+        ) : (
+          <Text>LOADING</Text>
+        )}
 
         <Pressable onPress={nextQuestion} style={styles.nextButton}>
           <Text style={styles.buttonText}>Next Question</Text>
@@ -294,7 +403,7 @@ export default function AirportScenario() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
