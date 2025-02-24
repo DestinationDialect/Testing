@@ -306,7 +306,7 @@ export default function HotelScenario() {
     setselectedOption(pressedOption);
     speak(pressedOption); // speaks the selected answer
     const isAnswerCorrect =
-      QUESTIONS[currentquestionindex].correctAnswer === pressedOption;
+      dialogue[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
 
     if (isAnswerCorrect) {
