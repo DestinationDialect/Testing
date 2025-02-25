@@ -63,6 +63,7 @@ const Personal = () => {
   useEffect(() => {
     const loadPersonalVocab = async () => {
       try {
+        //DATABASE EVENTUALLY
         const savedVocab = await AsyncStorage.getItem("personalVocab");
         if (savedVocab) {
           setPersonalVocab(JSON.parse(savedVocab));
@@ -216,6 +217,7 @@ const Notebook = ({ navigation }: RouterProps) => {
   useEffect(() => {
     const getVocab = async () => {
       try {
+        //pull vocab from database
         const vocabJSON = await AsyncStorage.getItem("vocabulary");
         if (vocabJSON != null) {
           const vocab = JSON.parse(vocabJSON);

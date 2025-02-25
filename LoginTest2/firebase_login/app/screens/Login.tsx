@@ -35,6 +35,7 @@ const Login = () => {
     try {
       await AsyncStorage.setItem("originLanguage", firstL);
       await AsyncStorage.setItem("newLanguage", newL);
+      //Store language
     } catch (error) {
       console.error("Error storing languages in AsyncStorage:", error);
     } finally {
@@ -73,6 +74,7 @@ const Login = () => {
 
   const signUp = async () => {
     setLoading(true); // edit function to add languages to database
+    //Add another collection to store user_languages and change name of user_data to user_route
     try {
       const response = await createUserWithEmailAndPassword(
         auth,

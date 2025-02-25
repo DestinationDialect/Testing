@@ -263,6 +263,7 @@ export default function AirportScenario() {
   };
 
   const storeVocab = async () => {
+    //Make this connect to the database for each user to store their vocab
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
