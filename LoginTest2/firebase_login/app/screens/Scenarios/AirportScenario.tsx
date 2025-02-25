@@ -277,7 +277,7 @@ export default function AirportScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("airportVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);

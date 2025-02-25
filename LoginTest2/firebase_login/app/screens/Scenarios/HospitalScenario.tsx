@@ -35,85 +35,98 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  {  
-     question: "Good afternoon! How can I help you?",
-     options: ["I'm not from here and I haven't been feeling good.", 
+  {
+    question: "Good afternoon! How can I help you?",
+    options: [
+      "I'm not from here and I haven't been feeling good.",
       "I don't know how to do this.",
       "I don't feel good.",
-     ],
-     correctAnswer: "I'm not from here and I haven't been feeling good.",
+    ],
+    correctAnswer: "I'm not from here and I haven't been feeling good.",
   },
   {
-     question: "Do you have travel insurance or any identification with you?",
-     options: ["I'm not sure.",
+    question: "Do you have travel insurance or any identification with you?",
+    options: [
+      "I'm not sure.",
       "I think so.",
       "Yes, I have my passport and travel insurance card.",
-     ],
-     correctAnswer: "Yes, I have my passport and travel insurance card.",
+    ],
+    correctAnswer: "Yes, I have my passport and travel insurance card.",
   },
   {
-     question: "Perfect. I'll need you to fill out this form, and then we'll have a doctor see you as soon as possible.",
-     options: ["Why do I need to fill out a form?", 
-      "I don't want to.", 
+    question:
+      "Perfect. I'll need you to fill out this form, and then we'll have a doctor see you as soon as possible.",
+    options: [
+      "Why do I need to fill out a form?",
+      "I don't want to.",
       "Thank you!",
     ],
-     correctAnswer: "Thank you!",
+    correctAnswer: "Thank you!",
   },
   {
-     question: "Hello, I'm Dr. Alvarez. I see you're not feeling well. Can you tell me your symptoms?",
-     options: ["I don't know.", 
-      "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.", 
+    question:
+      "Hello, I'm Dr. Alvarez. I see you're not feeling well. Can you tell me your symptoms?",
+    options: [
+      "I don't know.",
+      "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.",
       "I just don't feel good.",
     ],
-     correctAnswer: "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.",
+    correctAnswer:
+      "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.",
   },
   {
-     question: "That sounds like food poisoning. We'll give you some fluids to prevent dehydration and some medication to help with the nausea.",
-     options: ["Sounds good. Do I need to stay overnight?", 
-      "How long is that going to take?", 
+    question:
+      "That sounds like food poisoning. We'll give you some fluids to prevent dehydration and some medication to help with the nausea.",
+    options: [
+      "Sounds good. Do I need to stay overnight?",
+      "How long is that going to take?",
       "I don't want to stay overnight.",
     ],
-     correctAnswer: "Sounds good. Do I need to stay overnight?",
+    correctAnswer: "Sounds good. Do I need to stay overnight?",
   },
   {
-     question: "If you're able to keep fluids down and start feeling better then, no.",
-     options: ["Why would I not be able to keep the fluids down?", 
-      "What if I don't feel better?", 
+    question:
+      "If you're able to keep fluids down and start feeling better then, no.",
+    options: [
+      "Why would I not be able to keep the fluids down?",
+      "What if I don't feel better?",
       "Ok.",
     ],
-     correctAnswer: "What if I don't feel better?",
+    correctAnswer: "What if I don't feel better?",
   },
   {
-     question: "If you feel worse or develop a fever, come back immediately.",
-     options: ["Will I die?", 
-      "Ok, will do.", 
-      "Why would I develop a fever?",
-    ],
-     correctAnswer: "Ok, will do.",
+    question: "If you feel worse or develop a fever, come back immediately.",
+    options: ["Will I die?", "Ok, will do.", "Why would I develop a fever?"],
+    correctAnswer: "Ok, will do.",
   },
   {
-     question: "Pharmacist: Hi, here is your medication. You have been prescribed anti-nausea tablets and electrolyte packets to mix with water.",
-     options: ["How often should I take the tablets?", 
-      "Do I have to take these?", 
+    question:
+      "Pharmacist: Hi, here is your medication. You have been prescribed anti-nausea tablets and electrolyte packets to mix with water.",
+    options: [
+      "How often should I take the tablets?",
+      "Do I have to take these?",
       "What are the electrolyte packets for?",
     ],
-     correctAnswer: "How often should I take the tablets?",
+    correctAnswer: "How often should I take the tablets?",
   },
   {
-     question: "Once every six hours if needed. Don't take more than four in a day.",
-     options: ["What happens if I take more than 4?", 
-      "I don't understand.", 
+    question:
+      "Once every six hours if needed. Don't take more than four in a day.",
+    options: [
+      "What happens if I take more than 4?",
+      "I don't understand.",
       "Ok, sounds good.",
     ],
-     correctAnswer: "Ok, sounds good.",
+    correctAnswer: "Ok, sounds good.",
   },
   {
-     question: "Here you go. I hope you feel better soon!",
-     options: ["Ok.", 
-      "Thank you. I appreciate it!", 
+    question: "Here you go. I hope you feel better soon!",
+    options: [
+      "Ok.",
+      "Thank you. I appreciate it!",
       "What if I don't feel better?",
     ],
-     correctAnswer: "Thank you. I appreciate it!",
+    correctAnswer: "Thank you. I appreciate it!",
   },
 ];
 
@@ -295,7 +308,7 @@ export default function HospitalScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("hospitalVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
@@ -431,7 +444,6 @@ export default function HospitalScenario() {
     </SafeAreaView>
   );
 }
-
 
 export const styles = StyleSheet.create({
   container: {

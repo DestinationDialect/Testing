@@ -35,84 +35,97 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  {  
-    question: "Welcome everyone to the zoo! I'll be your tour guide today. We will be visiting some of our most fascinating animals and learning about their habitats. If you have any questions, feel free to ask!",
-    options: ["Cool.", 
-     "This sounds fun, I guess.", 
-     "Awesome! Let's go!",
-   ],
+  {
+    question:
+      "Welcome everyone to the zoo! I'll be your tour guide today. We will be visiting some of our most fascinating animals and learning about their habitats. If you have any questions, feel free to ask!",
+    options: ["Cool.", "This sounds fun, I guess.", "Awesome! Let's go!"],
     correctAnswer: "Awesome! Let's go!",
   },
   {
-    question: "Here is our African elephants! They are the largest land animal on Earth, and they can weigh up to 5,443 kilograms which is around 12,000 pounds.",
-    options: ["That's big!", 
-     "Wow! How much do they eat in a day?", 
-     "That is scary.", 
-   ],
+    question:
+      "Here is our African elephants! They are the largest land animal on Earth, and they can weigh up to 5,443 kilograms which is around 12,000 pounds.",
+    options: [
+      "That's big!",
+      "Wow! How much do they eat in a day?",
+      "That is scary.",
+    ],
     correctAnswer: "Wow! How much do they eat in a day?",
   },
   {
-    question: "A lot! An adult elephant can eat over 136 kilograms, which is around 300 pounds, of food a day, mostly grasses, fruits, and tree bark.",
-    options: ["That is a lot!", 
-     "Wow!", 
-     "Can I go into the enclosure?"
-   ],
+    question:
+      "A lot! An adult elephant can eat over 136 kilograms, which is around 300 pounds, of food a day, mostly grasses, fruits, and tree bark.",
+    options: ["That is a lot!", "Wow!", "Can I go into the enclosure?"],
     correctAnswer: "That is a lot!",
   },
   {
-    question: "Follow me and let's visit our big cats! Here we have our male lion, Simba.",
-    options: ["Is it a boy or a girl?", 
-     "Wow, he's huge! How much does he weigh?", 
-     "He's gorgeous!"
-   ],
+    question:
+      "Follow me and let's visit our big cats! Here we have our male lion, Simba.",
+    options: [
+      "Is it a boy or a girl?",
+      "Wow, he's huge! How much does he weigh?",
+      "He's gorgeous!",
+    ],
     correctAnswer: "Wow, he's huge! How much does he weigh?",
   },
   {
-    question: "Simba weighs around 195 kilograms, 430 pounds. The females, called lionesses, are a bit smaller but are the primary hunters in the wild.",
-    options: ["That is cool!", 
-     "I figured the males would be the hunters.", 
-     "That's interesting! I didn't know that the lionesses are the hunters.",
-   ],
-    correctAnswer: "That's interesting! I didn't know that the lionesses are the hunters.",
+    question:
+      "Simba weighs around 195 kilograms, 430 pounds. The females, called lionesses, are a bit smaller but are the primary hunters in the wild.",
+    options: [
+      "That is cool!",
+      "I figured the males would be the hunters.",
+      "That's interesting! I didn't know that the lionesses are the hunters.",
+    ],
+    correctAnswer:
+      "That's interesting! I didn't know that the lionesses are the hunters.",
   },
   {
-    question: "Everyone, if you look to your right, you'll see our Bengal tiger, Rajah pacing near the water.",
-    options: ["I didn't know tigers liked water.", 
-     "Why is he pacing?", 
-     "He's gorgeous.",
-   ],
+    question:
+      "Everyone, if you look to your right, you'll see our Bengal tiger, Rajah pacing near the water.",
+    options: [
+      "I didn't know tigers liked water.",
+      "Why is he pacing?",
+      "He's gorgeous.",
+    ],
     correctAnswer: "I didn't know tigers liked water.",
   },
   {
-    question: "Yes, tigers are excellent swimmers. In the wild, tigers use rivers and lakes to cool off and even hunt prey.",
-    options: ["This has been awesome. What's next?", 
-     "That is so cool!", 
-     "That is scary.",
-   ],
+    question:
+      "Yes, tigers are excellent swimmers. In the wild, tigers use rivers and lakes to cool off and even hunt prey.",
+    options: [
+      "This has been awesome. What's next?",
+      "That is so cool!",
+      "That is scary.",
+    ],
     correctAnswer: "This has been awesome. What's next?",
   },
   {
-    question: "We are now going to head over to our giraffe enclosure. This is one of our interactive enclosures, where you can feed them if you want.",
-    options: ["Do we have to feed them?", 
-     "Can we move on?", 
-     "What do they eat?",
-   ],
+    question:
+      "We are now going to head over to our giraffe enclosure. This is one of our interactive enclosures, where you can feed them if you want.",
+    options: [
+      "Do we have to feed them?",
+      "Can we move on?",
+      "What do they eat?",
+    ],
     correctAnswer: "What do they eat?",
   },
   {
-    question: "Giraffes are herbivores, so they only eat plants. We have some specially formulated giraffe biscuits that you can feed them. They contain all the nutrients they need!",
-    options: ["That sounds fun! Let's do it!", 
-     "I think I'll pass.", 
-     "Can I eat the biscuit?",
-   ],
+    question:
+      "Giraffes are herbivores, so they only eat plants. We have some specially formulated giraffe biscuits that you can feed them. They contain all the nutrients they need!",
+    options: [
+      "That sounds fun! Let's do it!",
+      "I think I'll pass.",
+      "Can I eat the biscuit?",
+    ],
     correctAnswer: "That sounds fun! Let's do it!",
   },
   {
-    question: "Ok everyone, this has been a fun tour with you all! Come see us again!",
-    options: ["I don't think I'll be back.", 
-     "The tour was Ok.", 
-     "Thank you! This has been great!",
-   ],
+    question:
+      "Ok everyone, this has been a fun tour with you all! Come see us again!",
+    options: [
+      "I don't think I'll be back.",
+      "The tour was Ok.",
+      "Thank you! This has been great!",
+    ],
     correctAnswer: "Thank you! This has been great!",
   },
 ];
@@ -295,7 +308,7 @@ export default function ZooScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("zooVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);

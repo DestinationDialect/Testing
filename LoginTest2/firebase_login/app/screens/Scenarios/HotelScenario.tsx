@@ -37,81 +37,86 @@ interface Question {
 const QUESTIONS: Question[] = [
   {
     question: "Good afternoon. How may I help you?",
-    options: ["I'm supposed to be staying here.", 
-      "I have a room booked under the name Doe.", 
-      "I just want my room.", 
+    options: [
+      "I'm supposed to be staying here.",
+      "I have a room booked under the name Doe.",
+      "I just want my room.",
     ],
     correctAnswer: "I have a room booked under the name Doe.",
   },
   {
     question: "Yes, I have a single king bed for 7 nights. Is that correct?",
-    options: ["Yes, that is correct.", 
-      "I thought I had a queen bed.", 
+    options: [
+      "Yes, that is correct.",
+      "I thought I had a queen bed.",
       "No, it should be for 7 nights.",
     ],
     correctAnswer: "Yes, that is correct.",
   },
   {
-    question: "Ok, we have your credit card information on file, may I see your ID?",
-    options: ["No.", 
-      "Sure, no problem.", 
-      "Why do you need my ID?",
-    ],
+    question:
+      "Ok, we have your credit card information on file, may I see your ID?",
+    options: ["No.", "Sure, no problem.", "Why do you need my ID?"],
     correctAnswer: "Sure, no problem.",
   },
   {
-    question: "Thank you. Here is your key, you are in room 427. Breakfast starts at 7am.",
-    options: ["No, thank you.", 
-      "That's not my room.", 
-      "Great, thank you.",
-    ],
+    question:
+      "Thank you. Here is your key, you are in room 427. Breakfast starts at 7am.",
+    options: ["No, thank you.", "That's not my room.", "Great, thank you."],
     correctAnswer: "Great, thank you.",
   },
   {
     question: "Do you have any questions I can answer for you?",
-    options: ["What room am I in?", 
-      "I don't think so.", 
-      "Actually yes. Where is the pool?", 
+    options: [
+      "What room am I in?",
+      "I don't think so.",
+      "Actually yes. Where is the pool?",
     ],
     correctAnswer: "Actually yes. Where is the pool?",
   },
   {
-    question: "We have an outdoor pool just out the door to your left. It's open from 7AM to 8PM.",
-    options: ["Perfect. Also, is there a place nearby where I can get dinner?", 
-      "I want dinner. Where are the restaurants?", 
-      "I didn't ask.", 
+    question:
+      "We have an outdoor pool just out the door to your left. It's open from 7AM to 8PM.",
+    options: [
+      "Perfect. Also, is there a place nearby where I can get dinner?",
+      "I want dinner. Where are the restaurants?",
+      "I didn't ask.",
     ],
-    correctAnswer: "Perfect. Also, is there a place nearby where I can get dinner?",
+    correctAnswer:
+      "Perfect. Also, is there a place nearby where I can get dinner?",
   },
   {
-    question: "Yes, there are several restaurants within walking distance. Here's a map with some recommendations.",
-    options: ["Thank you. You've been very helpful.", 
-      "Thanks, I'll just go to my room.", 
-      "Ok, cool.", 
+    question:
+      "Yes, there are several restaurants within walking distance. Here's a map with some recommendations.",
+    options: [
+      "Thank you. You've been very helpful.",
+      "Thanks, I'll just go to my room.",
+      "Ok, cool.",
     ],
     correctAnswer: "Thank you. You've been very helpful.",
   },
   {
-    question: "No problem. If you need anything else, please let us know. Enjoy your stay!",
-    options: ["Why do you say that?", 
-      "I will, thank you.", 
-      "I won't.", 
-    ],
+    question:
+      "No problem. If you need anything else, please let us know. Enjoy your stay!",
+    options: ["Why do you say that?", "I will, thank you.", "I won't."],
     correctAnswer: "I will, thank you.",
   },
   {
     question: "Checking out of the hotel... Did you enjoy your stay with us?",
-    options: ["Yes I did. What is the quickest way to get to the airport?", 
-      "I need to get to the airport.", 
-      "Where's the airport?", 
+    options: [
+      "Yes I did. What is the quickest way to get to the airport?",
+      "I need to get to the airport.",
+      "Where's the airport?",
     ],
     correctAnswer: "Yes I did. What is the quickest way to get to the airport?",
   },
   {
-    question: "We have a free airport shuttle service. The next shuttle leaves in 20 minutes.",
-    options: ["Ok, I guess I'll just have to wait.", 
-      "Great, thank you.", 
-      "Why doesn't it leave earlier?", 
+    question:
+      "We have a free airport shuttle service. The next shuttle leaves in 20 minutes.",
+    options: [
+      "Ok, I guess I'll just have to wait.",
+      "Great, thank you.",
+      "Why doesn't it leave earlier?",
     ],
     correctAnswer: "Great, thank you.",
   },
@@ -295,7 +300,7 @@ export default function HotelScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("hotelVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
