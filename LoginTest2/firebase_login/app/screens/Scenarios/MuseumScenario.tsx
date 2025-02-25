@@ -35,75 +35,95 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  {  
-     question: "Hello, welcome to the museum. How may I help you today?",
-     options: ["Hello.", 
-      "Hello, do you offer guided tours?", 
-      "Hello, where do I start?"],
-     correctAnswer: "Hello, do you offer guided tours?",
+  {
+    question: "Hello, welcome to the museum. How may I help you today?",
+    options: [
+      "Hello.",
+      "Hello, do you offer guided tours?",
+      "Hello, where do I start?",
+    ],
+    correctAnswer: "Hello, do you offer guided tours?",
   },
   {
-     question: "Yes we do. Our tours last about 90 minutes.",
-     options: ["Ok, what does the tour cover?", 
-      "How long is it?", 
-      "Ok, how do I do that?"],
-     correctAnswer: "Ok, what does the tour cover?",
+    question: "Yes we do. Our tours last about 90 minutes.",
+    options: [
+      "Ok, what does the tour cover?",
+      "How long is it?",
+      "Ok, how do I do that?",
+    ],
+    correctAnswer: "Ok, what does the tour cover?",
   },
   {
-     question: "The tour covers the major highlights of the museum. Does that sound like something you would want to do?",
-     options: ["I'll have to think about it.", 
-      "Yes but how long is it?", 
-      "Yes it does, sign me up!"],
-     correctAnswer: "Yes it does, sign me up!",
+    question:
+      "The tour covers the major highlights of the museum. Does that sound like something you would want to do?",
+    options: [
+      "I'll have to think about it.",
+      "Yes but how long is it?",
+      "Yes it does, sign me up!",
+    ],
+    correctAnswer: "Yes it does, sign me up!",
   },
   {
-     question: "Ok, you can join that group over there and the tour will begin shortly.",
-     options: ["Ok, thank you!", 
-      "I don't want to.", 
-      "Thanks but I don't like people."],
-     correctAnswer: "Ok, thank you!",
+    question:
+      "Ok, you can join that group over there and the tour will begin shortly.",
+    options: [
+      "Ok, thank you!",
+      "I don't want to.",
+      "Thanks but I don't like people.",
+    ],
+    correctAnswer: "Ok, thank you!",
   },
   {
-     question: "Ok, everyone follow me. We're going to start the tour in our Ancient Egyptian exhibit.",
-     options: ["Can I touch any of this stuff?", 
-      "Let's go!", 
-      "Awesome!"],
-     correctAnswer: "Let's go!",
+    question:
+      "Ok, everyone follow me. We're going to start the tour in our Ancient Egyptian exhibit.",
+    options: ["Can I touch any of this stuff?", "Let's go!", "Awesome!"],
+    correctAnswer: "Let's go!",
   },
   {
-     question: "Here we have a statue of Pharaoh Ramesses II, one of Egypt's most powerful rulers. Ramesses II was known for his military campaigns and for commissioning grand monuments like this one.",
-     options: ["How did they transport something this big back then?", 
-      "Can I touch it?", 
-      "Can I take pictures in here?"],
-     correctAnswer: "How did they transport something this big back then?",
+    question:
+      "Here we have a statue of Pharaoh Ramesses II, one of Egypt's most powerful rulers. Ramesses II was known for his military campaigns and for commissioning grand monuments like this one.",
+    options: [
+      "How did they transport something this big back then?",
+      "Can I touch it?",
+      "Can I take pictures in here?",
+    ],
+    correctAnswer: "How did they transport something this big back then?",
   },
   {
-     question: "Great question! Ancient Egyptians were brilliant engineers. They used wooden sledges and rolled them over logs or poured water on the sand to make transportation easier.",
-     options: ["Thank you! That is very insightful.", 
-      "Cool!", 
-      "Awesome!"],
-     correctAnswer: "Thank you! That is very insightful.",
+    question:
+      "Great question! Ancient Egyptians were brilliant engineers. They used wooden sledges and rolled them over logs or poured water on the sand to make transportation easier.",
+    options: ["Thank you! That is very insightful.", "Cool!", "Awesome!"],
+    correctAnswer: "Thank you! That is very insightful.",
   },
   {
-     question: "Ok everyone, let's move onto the next section, our Renaissance painting exhibit!",
-     options: ["Can I take pictures of these?", 
-      "Wow, this painting looks so detailed! What is the story behind it?", 
-      "These paintings are weird."],
-     correctAnswer: "Wow, this painting looks so detailed! What is the story behind it?",
+    question:
+      "Ok everyone, let's move onto the next section, our Renaissance painting exhibit!",
+    options: [
+      "Can I take pictures of these?",
+      "Wow, this painting looks so detailed! What is the story behind it?",
+      "These paintings are weird.",
+    ],
+    correctAnswer:
+      "Wow, this painting looks so detailed! What is the story behind it?",
   },
   {
-     question: "This is one of the few surviving portraits by Leonardo da Vinci, painted around 1474-1478.",
-     options: ["It is so pretty!", 
-      "Why does it look like that?", 
-      "Can I take a picture of it?"],
-     correctAnswer: "It is so pretty!",
+    question:
+      "This is one of the few surviving portraits by Leonardo da Vinci, painted around 1474-1478.",
+    options: [
+      "It is so pretty!",
+      "Why does it look like that?",
+      "Can I take a picture of it?",
+    ],
+    correctAnswer: "It is so pretty!",
   },
   {
-     question: "Ok everyone, this concludes our tour. Thank you all for coming!",
-     options: ["Thanks, bye!", 
-      "This was so cool!", 
-      "Thank you! You were a great tour guide!"],
-     correctAnswer: "Thank you! You were a great tour guide!",
+    question: "Ok everyone, this concludes our tour. Thank you all for coming!",
+    options: [
+      "Thanks, bye!",
+      "This was so cool!",
+      "Thank you! You were a great tour guide!",
+    ],
+    correctAnswer: "Thank you! You were a great tour guide!",
   },
 ];
 
@@ -285,7 +305,7 @@ export default function MuseumScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("museumVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
