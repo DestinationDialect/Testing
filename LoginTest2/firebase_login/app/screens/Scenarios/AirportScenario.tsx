@@ -35,56 +35,67 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  {  
-     question: "Hello, Welcome! Where are you flying to today?",
-     options: ["Barcelona", "My house", "A new country"],
-     correctAnswer: "Barcelona",
-   },
-   {
-     question: "May I have your passport and ticket, please?",
-     options: ["No", "Yes, here you go.", "Why?"],
-     correctAnswer: "Yes, here you go.",
-   },
-   {
-     question: "Are you checking any bags?",
-     options: ["Yeah, but I want it back.", "Why?", "Yes, just this one."],
-     correctAnswer: "Yes, just this one.",
-   },
-   {
-     question: "Do you have a carry on bag?",
-     options: ["Yes, here you go.", "No, just this backpack", "What if I do?"],
-     correctAnswer: "Yes, here you go.",
-   },
-   {
-     question: "Here is your boarding pass. Your flight leaves from gate 16A and it will begin boarding at 2:20pm. Your seat number is 25E. Now, you will need to head over to the security checkpoint.",
-     options: ["Thank you.", "Can you say that again?", "Ok, what does that mean?"],
-     correctAnswer: "Thank you.",
-   },
-   {
-     question: "Welcome to the security checkpoint, please place your bags flat on the conveyor belt, and use the bins for your hat and shoes.",
-     options: ["Where do I put my stuff?", "Okay, thank you.", "What did you say?"],
-     correctAnswer: "Okay, thank you.",
-   },
-   {
-     question: "Please walk through the metal detector.",
-     options: ["I don't want to.", "Ok.", "Why?"],
-     correctAnswer: "Ok.",
-   },
-   {
-     question: "Please grab your items and you are all set. Have a nice flight!",
-     options: ["Thank you, have a good day!", "Ok.", "Why?"],
-     correctAnswer: "Thank you, have a good day!",
-   },
-   {
-     question: "Arriving at your destination and going to customs... Hello! Can I see your passport?",
-     options: ["Excuse me?", "No", "Here you go"],
-     correctAnswer: "Here you go",
-   },
-   {
-     question: "Everything looks good. Have a good stay!?",
-     options: ["No", "Thank you!", "I don't want to"],
-     correctAnswer: "Thank you!",
-   },
+  {
+    question: "Hello, Welcome! Where are you flying to today?",
+    options: ["Barcelona", "My house", "A new country"],
+    correctAnswer: "Barcelona",
+  },
+  {
+    question: "May I have your passport and ticket, please?",
+    options: ["No", "Yes, here you go.", "Why?"],
+    correctAnswer: "Yes, here you go.",
+  },
+  {
+    question: "Are you checking any bags?",
+    options: ["Yeah, but I want it back.", "Why?", "Yes, just this one."],
+    correctAnswer: "Yes, just this one.",
+  },
+  {
+    question: "Do you have a carry on bag?",
+    options: ["Yes, here you go.", "No, just this backpack", "What if I do?"],
+    correctAnswer: "Yes, here you go.",
+  },
+  {
+    question:
+      "Here is your boarding pass. Your flight leaves from gate 16A and it will begin boarding at 2:20pm. Your seat number is 25E. Now, you will need to head over to the security checkpoint.",
+    options: [
+      "Thank you.",
+      "Can you say that again?",
+      "Ok, what does that mean?",
+    ],
+    correctAnswer: "Thank you.",
+  },
+  {
+    question:
+      "Welcome to the security checkpoint, please place your bags flat on the conveyor belt, and use the bins for your hat and shoes.",
+    options: [
+      "Where do I put my stuff?",
+      "Okay, thank you.",
+      "What did you say?",
+    ],
+    correctAnswer: "Okay, thank you.",
+  },
+  {
+    question: "Please walk through the metal detector.",
+    options: ["I don't want to.", "Ok.", "Why?"],
+    correctAnswer: "Ok.",
+  },
+  {
+    question: "Please grab your items and you are all set. Have a nice flight!",
+    options: ["Thank you, have a good day!", "Ok.", "Why?"],
+    correctAnswer: "Thank you, have a good day!",
+  },
+  {
+    question:
+      "Arriving at your destination and going to customs... Hello! Can I see your passport?",
+    options: ["Excuse me?", "No", "Here you go"],
+    correctAnswer: "Here you go",
+  },
+  {
+    question: "Everything looks good. Have a good stay!?",
+    options: ["No", "Thank you!", "I don't want to"],
+    correctAnswer: "Thank you!",
+  },
 ];
 
 export default function AirportScenario() {
@@ -267,7 +278,7 @@ export default function AirportScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("airportVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
@@ -278,7 +289,7 @@ export default function AirportScenario() {
     setselectedOption(pressedOption);
     speak(pressedOption); // speaks the selected answer
     const isAnswerCorrect =
-      QUESTIONS[currentquestionindex].correctAnswer === pressedOption;
+      dialogue[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
 
     if (isAnswerCorrect) {

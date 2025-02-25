@@ -35,85 +35,102 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  {  
-     question: "Produce vendor: Good morning! Welcome to the farmers market. Let me know if you need any help!",
-     options: ["Are these tomatoes?", 
-      "Good morning! Your produce looks amazing. Are these tomatoes organic?", 
+  {
+    question:
+      "Produce vendor: Good morning! Welcome to the farmers market. Let me know if you need any help!",
+    options: [
+      "Are these tomatoes?",
+      "Good morning! Your produce looks amazing. Are these tomatoes organic?",
       "Do you have any bread?",
-     ],
-     correctAnswer: "Good morning! Your produce looks amazing. Are these tomatoes organic?",
+    ],
+    correctAnswer:
+      "Good morning! Your produce looks amazing. Are these tomatoes organic?",
   },
   {
-     question: "Yes, they are! We grow them without any pesticides.",
-     options: ["Nice! I'll take half a kilogram, please.", 
-      "I don't like organic produce.", 
-      "Can I buy just one?", 
-     ],
-     correctAnswer: "Nice! I'll take half a kilogram, please.",
+    question: "Yes, they are! We grow them without any pesticides.",
+    options: [
+      "Nice! I'll take half a kilogram, please.",
+      "I don't like organic produce.",
+      "Can I buy just one?",
+    ],
+    correctAnswer: "Nice! I'll take half a kilogram, please.",
   },
   {
-     question: "Great! That will be 4 please. Anything else for you?",
-     options: ["Actually, I don't think I want these anymore.", 
-      "Thank you!", 
+    question: "Great! That will be 4 please. Anything else for you?",
+    options: [
+      "Actually, I don't think I want these anymore.",
+      "Thank you!",
       "This is it for now, thank you!",
     ],
-     correctAnswer: "This is it for now, thank you!",
+    correctAnswer: "This is it for now, thank you!",
   },
   {
-     question: "Vendor: Hi! Would you like to try a sample of our wildflower honey?",
-     options: ["That sounds gross.", 
-      "I guess.", 
+    question:
+      "Vendor: Hi! Would you like to try a sample of our wildflower honey?",
+    options: [
+      "That sounds gross.",
+      "I guess.",
       "Absolutely! That sounds great!",
     ],
-     correctAnswer: "Absolutely! That sounds great!",
+    correctAnswer: "Absolutely! That sounds great!",
   },
   {
-     question: "Here you go. Our wildflower honey has a rich and complex flavor.",
-     options: ["I don't think I like it.", 
-      "It tastes great! How much for a small jar?", 
+    question:
+      "Here you go. Our wildflower honey has a rich and complex flavor.",
+    options: [
+      "I don't think I like it.",
+      "It tastes great! How much for a small jar?",
       "It's ok.",
     ],
-     correctAnswer: "It tastes great! How much for a small jar?",
+    correctAnswer: "It tastes great! How much for a small jar?",
   },
   {
-     question: "Our small jar is 10, and I'll throw in a sample jar of our clover honey.",
-     options: ["Thank you! I appreciate it!", 
-      "I don't want to pay extra.", 
+    question:
+      "Our small jar is 10, and I'll throw in a sample jar of our clover honey.",
+    options: [
+      "Thank you! I appreciate it!",
+      "I don't want to pay extra.",
       "Do you have any other samples?",
     ],
-     correctAnswer: "Thank you! I appreciate it!",
+    correctAnswer: "Thank you! I appreciate it!",
   },
   {
-     question: "Bakery Vendor: Welcome in! We have some fresh-baked bread, croissants, and some homemade pies today. Can I interest you in anything?",
-     options: ["I love bread!", 
-      "What kind of pies do you have?", 
+    question:
+      "Bakery Vendor: Welcome in! We have some fresh-baked bread, croissants, and some homemade pies today. Can I interest you in anything?",
+    options: [
+      "I love bread!",
+      "What kind of pies do you have?",
       "How many pies do you have?",
     ],
-     correctAnswer: "What kind of pies do you have?",
+    correctAnswer: "What kind of pies do you have?",
   },
   {
-     question: "We have apple, cherry, and pumpkin.",
-     options: ["Do you have pumpkin?", 
-      "I'll take an apple pie.", 
+    question: "We have apple, cherry, and pumpkin.",
+    options: [
+      "Do you have pumpkin?",
+      "I'll take an apple pie.",
       "Nevermind. Thanks anyways!",
     ],
-     correctAnswer: "I'll take an apple pie.",
+    correctAnswer: "I'll take an apple pie.",
   },
   {
-     question: "Craft vendor: Hi there! Everything here is handmade, from pottery to candles and jewelry. Let me know if you have any questions!",
-     options: ["None of these are my style.", 
-      "I love pottery!", 
+    question:
+      "Craft vendor: Hi there! Everything here is handmade, from pottery to candles and jewelry. Let me know if you have any questions!",
+    options: [
+      "None of these are my style.",
+      "I love pottery!",
       "These earrings are beautiful! I'll take these!",
     ],
-     correctAnswer: "These earrings are beautiful! I'll take these!",
+    correctAnswer: "These earrings are beautiful! I'll take these!",
   },
   {
-     question: "Great choice! That will be 12.",
-     options: ["Thank you! Have a good day!", 
-      "That's expensive!", 
+    question: "Great choice! That will be 12.",
+    options: [
+      "Thank you! Have a good day!",
+      "That's expensive!",
       "Here you go, thank you!",
     ],
-     correctAnswer: "Here you go, thank you!",
+    correctAnswer: "Here you go, thank you!",
   },
 ];
 
@@ -295,7 +312,7 @@ export default function FarmersMarketScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("farmerVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
@@ -306,7 +323,7 @@ export default function FarmersMarketScenario() {
     setselectedOption(pressedOption);
     speak(pressedOption); // speaks the selected answer
     const isAnswerCorrect =
-      QUESTIONS[currentquestionindex].correctAnswer === pressedOption;
+      dialogue[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
 
     if (isAnswerCorrect) {

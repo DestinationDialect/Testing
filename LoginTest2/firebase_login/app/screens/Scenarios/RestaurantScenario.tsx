@@ -22,7 +22,7 @@ interface Language {
   tag: string;
 }
 
-const languages: { [key: string]: Language } = {};
+export const languages: { [key: string]: Language } = {};
 languages["English"] = { name: "English", tag: "en" };
 languages["Spanish"] = { name: "Spanish", tag: "es" };
 languages["French"] = { name: "French", tag: "fr" };
@@ -313,7 +313,7 @@ export default function RestaurantScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("restaurantVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
