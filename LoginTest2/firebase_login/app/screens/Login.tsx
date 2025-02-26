@@ -51,9 +51,20 @@ const Login = () => {
   const setLanguage = async () => {
     // function to fetch user languages from database and save in async storage on sign in
     // replace language setting with database call data
-    const firstL = "English";
-    const newL = "Spanish";
-
+    const user = FIREBASE_AUTH.currentUser;
+    let firstL = "English"
+    let newL = "Spanish"
+      if (user) {
+        const user_id = user.uid;
+        const ref = doc(FIRESTORE_DB, "user_language", user_id);
+        const docSnap = await getDoc(ref);
+        const docData = docSnap.data();
+        console.log("user found");
+        if (docData) {
+          firstL = docData.firstLanguage
+          newL = docData.newLanguage
+        }
+      }
     // store data from variables in async storage
     asyncLanguageStorage(firstL, newL);
   };
@@ -100,6 +111,13 @@ const Login = () => {
           );
           i = i + 1;
         }
+        await setDoc(
+          doc(FIRESTORE_DB, "user_language", user_id), 
+          {
+            firstLanguage: firstLanguage,
+            newLanguage: newLanguage,
+          },
+        )
       }
       console.log(response);
       alert("Check your emails!");
