@@ -289,7 +289,7 @@ const PersonalTranslations = () => {
   };
 
   return (
-    <View style={notebookStyles.page}>
+    <View>
       {/* Header with Add Button */}
       <View style={notebookStyles.header}>
         <TouchableOpacity
@@ -381,7 +381,157 @@ const PersonalTranslations = () => {
   );
 };
 
-const PersonalNotes = () => {};
+const PersonalNotes = () => {
+  const [notes, setNotes] = useState<string[]>([]);
+  const [note, setNote] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+
+  // Load saved notes when the component mounts
+  useEffect(() => {
+    const loadPersonalNotes = async () => {
+      try {
+        const savedNotes = await AsyncStorage.getItem("personalNotes");
+        if (savedNotes) {
+          setNotes(JSON.parse(savedNotes));
+        }
+      } catch (error) {
+        console.error("Error loading personal notes:", error);
+      }
+    };
+    loadPersonalNotes();
+  }, []);
+
+  // Function to save a new or edited word
+  const saveWord = async () => {
+    if (note.trim() === "") {
+      Alert.alert("Error", "Field must be filled.");
+      return;
+    }
+
+    let updatedNotes = [...notes];
+
+    if (editIndex !== null) {
+      // Editing existing word
+      updatedNotes[editIndex] = note;
+      setEditIndex(null);
+    } else {
+      // Adding a new word
+      updatedNotes.push(note);
+    }
+
+    try {
+      await AsyncStorage.setItem("personalNotes", JSON.stringify(updatedNotes));
+      setNotes(updatedNotes);
+      setNote(""); // Clear input fields
+      setModalVisible(false); // Close the modal
+    } catch (error) {
+      console.error("Error saving note:", error);
+    }
+  };
+
+  // Function to delete a word
+  const deleteWord = async (index: number) => {
+    const updatedNotes = notes.filter((_, i) => i !== index);
+    try {
+      await AsyncStorage.setItem("personalNotes", JSON.stringify(updatedNotes));
+      setNotes(updatedNotes);
+    } catch (error) {
+      console.error("Error deleting note:", error);
+    }
+  };
+
+  // Open edit modal with existing word data
+  const openEditModal = (index: number) => {
+    setNote(notes[index]);
+    setEditIndex(index);
+    setModalVisible(true);
+  };
+
+  return (
+    <View>
+      {/* Header with Add Button */}
+      <View style={notebookStyles.header}>
+        <Pressable
+          onPress={() => setModalVisible(true)}
+          style={notebookStyles.addButton}
+        >
+          <Text style={notebookStyles.addButtonText}>+ Add</Text>
+        </Pressable>
+      </View>
+
+      {/* Display Saved Notes with Edit & Delete */}
+      <ScrollView>
+        {notes.length > 0 ? (
+          notes.map((item, index) => (
+            <View style={notebookStyles.vocabItem} key={index}>
+              <Text style={notebookStyles.vocabText}>{item}</Text>
+
+              {/* Edit Button */}
+              <Pressable
+                onPress={() => openEditModal(index)}
+                style={notebookStyles.editButton}
+              >
+                <FontAwesome name="edit" size={24} color="black" />
+              </Pressable>
+
+              {/* Delete Button */}
+              <Pressable
+                onPress={() => deleteWord(index)}
+                style={notebookStyles.deleteButton}
+              >
+                <FontAwesome name="trash" size={24} color="red" />
+              </Pressable>
+            </View>
+          ))
+        ) : (
+          <Text>No personal notes added.</Text>
+        )}
+      </ScrollView>
+
+      {/*Modal to edit or add notes */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        style={{ height: "50%" }}
+      >
+        <View style={notebookStyles.modalOverlay}>
+          <View style={notebookStyles.modalView}>
+            <Text style={notebookStyles.modalTitle}>
+              {editIndex !== null ? "Edit Note" : "Add New Note"}
+            </Text>
+
+            {/* Input Field */}
+            <TextInput
+              style={notebookStyles.inputNote}
+              multiline={true}
+              placeholder="Enter your notes"
+              value={note}
+              onChangeText={setNote}
+            />
+
+            {/* Buttons */}
+            <View style={notebookStyles.buttonRow}>
+              <Pressable
+                style={notebookStyles.cancelButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={notebookStyles.buttonText}>Cancel</Text>
+              </Pressable>
+              <Pressable style={notebookStyles.saveButton} onPress={saveWord}>
+                <Text style={notebookStyles.buttonText}>
+                  {editIndex !== null ? "Update" : "Save"}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+};
 
 const Personal = () => {
   const [currentSection, setCurrentSection] = useState("Translations");
@@ -410,6 +560,7 @@ const Personal = () => {
         </Pressable>
       </View>
       {currentSection == "Translations" && <PersonalTranslations />}
+      {currentSection == "Notes" && <PersonalNotes />}
     </View>
   );
 };
@@ -568,6 +719,20 @@ const notebookStyles = StyleSheet.create({
     color: "gray",
     flex: 1,
     lineHeight: 40,
+  },
+  inputNote: {
+    width: "80%",
+    borderColor: "black",
+    borderWidth: 2,
+    margin: 10,
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 30,
+    backgroundColor: "white",
+    borderRadius: 5,
+    textAlignVertical: "top",
+    flex: 1,
+    lineHeight: 20,
   },
   header: {
     flexDirection: "row",
