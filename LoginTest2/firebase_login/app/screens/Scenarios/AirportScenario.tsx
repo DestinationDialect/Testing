@@ -274,6 +274,7 @@ export default function AirportScenario() {
   };
 
   const storeVocab = async () => {
+    //Make this connect to the database for each user to store their vocab
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
@@ -321,6 +322,18 @@ export default function AirportScenario() {
 
           if (currentRouteLocation && docData) {
             let i = currentRouteLocation.id;
+            let currentID = docData[i];
+            if(currentID){
+              setDoc(
+                doc(FIRESTORE_DB, "user_data", user_id),
+                {
+                  [flattenedRouteData[i-1].id]: {
+                    stars: stars,
+                  },
+                },
+                { merge: true }
+              );
+            }
             let scenarioID = docData[i + 1];
             if (scenarioID) {
               setDoc(
@@ -328,7 +341,6 @@ export default function AirportScenario() {
                 {
                   [flattenedRouteData[i].id]: {
                     name: flattenedRouteData[i].title,
-                    stars: stars,
                     unlocked: true,
                   },
                 },

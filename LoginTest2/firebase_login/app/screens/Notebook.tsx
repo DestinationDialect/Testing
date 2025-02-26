@@ -202,6 +202,7 @@ const PersonalTranslations = () => {
   useEffect(() => {
     const loadPersonalVocab = async () => {
       try {
+        //DATABASE EVENTUALLY
         const savedVocab = await AsyncStorage.getItem("personalVocab");
         if (savedVocab) {
           setPersonalVocab(JSON.parse(savedVocab));
