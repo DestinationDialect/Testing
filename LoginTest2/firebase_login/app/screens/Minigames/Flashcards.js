@@ -12,14 +12,13 @@ import {
   import { useNavigation, } from "@react-navigation/native";
   import React, { useState, useEffect, useRef } from 'react';
   import FlashcardList from './FlashcardList';
-  // import { SafeAreaView } from "react-native-safe-area-context";
-  // import './FlashStyles.tsx';
-  //import styles from "../Styles";
+  import { useTheme } from "../ThemeContext";
   
   const Flashcards = () => {
     const navigation = useNavigation();
     const [flashcards, setFlashcards] = useState([])
     const [numQuestions, setNumQuestions] = useState("5");
+    const { darkMode } = useTheme(); // Get Dark Mode from context
 
     function handleGenerate() {
       const num = parseInt(numQuestions, 10) || 1; // Ensure it's a valid number
@@ -30,26 +29,34 @@ import {
     return (
       <SafeAreaView style={styles.container}> 
         <ImageBackground
-          source={require("../../../assets/homeScreen.png")}
+          source={
+            darkMode
+              ? require("../../../assets/DarkModeBackground.jpg") // Dark mode image
+              : require("../../../assets/homeScreen.png") // Light mode image
+          }
           resizeMode="cover"
           style={styles.imgBackground}
         >
           <Pressable onPress={() => navigation.goBack()}>
             <Image
               style={styles.backButtonIcon}
-              source={require("../../../assets/backArrow.png")}
+              source={
+                darkMode
+                  ? require("../../../assets/whiteBackArrow.png")
+                  : require("../../../assets/backArrow.png")
+              }
             />
           </Pressable>
         <View style={styles.header}>
-          <Text style={styles.label}>Number of Questions</Text>
+          <Text style={[styles.label, darkMode && styles.darkLabel]}>Number of Questions</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, darkMode && styles.darkInput]}
             keyboardType="numeric"
             value={numQuestions}
             onChangeText={setNumQuestions}
           />
           <TouchableOpacity style={styles.button} onPress={handleGenerate}>
-            <Text style={styles.buttonText}>Generate</Text>
+            <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Generate</Text>
           </TouchableOpacity>
         </View>
         
@@ -58,7 +65,7 @@ import {
         {flashcards.length > 0 ? (
           <FlashcardList flashcards={flashcards} />
         ) : (
-          <Text style={styles.emptyText}>No flashcards available.</Text>
+          <Text style={[styles.emptyText, darkMode && styles.darkEmptyText]}>No flashcards available.</Text>
         )}
         </View> 
         </ImageBackground>
@@ -70,81 +77,63 @@ import {
   const FLASHCARDS = [
     {
       id: 1,
-      question: "What is the air speed velocity of an unladen swallow?",
-      answer: "Is that an African or European swallow?",
-      //options: ["Is that an African or European swallow?", "Yellow", "I mean Blue", "Sir Lancelot of Camelot"]
+      question: "Hasta pronto",
+      answer: "See you soon",
     },
     {
       id: 2,
-      question: "Hasta pronto",
-      answer: "See you soon",
-      //options: ["Hello", "Goodbye", "See you soon", "See you later"]
+      question: "Adios",
+      answer: "Hello",
     },
     {
       id: 3,
-      question: "Adios",
+      question: "Hola",
       answer: "Hello",
-      //options: ["Hello", "Goodbye", "See you soon", "See you later"]
     },
     {
       id: 4,
-      question: "Hola",
-      answer: "Hello",
-      //options: ["Hello", "Goodbye", "See you soon", "See you later"]
+      question: "Pollo",
+      answer: "Chicken",
     },
     {
       id: 5,
-      question: "Pollo",
-      answer: "Chicken",
-      //options: ["Dog", "Chicken", "Cat", "Mouse"]
+      question: "Gato",
+      answer: "Cat",
     },
     {
       id: 6,
-      question: "Gato",
-      answer: "Cat",
-      //options: ["Dog", "Chicken", "Cat", "Mouse"]
+      question: "Raton",
+      answer: "Mouse",
     },
     {
       id: 7,
-      question: "Raton",
-      answer: "Mouse",
-      //options: ["Dog", "Chicken", "Cat", "Mouse"]
+      question: "Perro",
+      answer: "Dog",
     },
     {
       id: 8,
-      question: "Perro",
-      answer: "Dog",
-      //options: ["Dog", "Chicken", "Cat", "Mouse"]
+      question: "Por favor",
+      answer: "Please",
     },
     {
       id: 9,
-      question: "Por favor",
-      answer: "Please",
-      //options: ["Please", "Yes", "Thank you", "No"]
+      question: "No",
+      answer: "No",
     },
     {
       id: 10,
-      question: "No",
-      answer: "No",
-      //options: ["Please", "Yes", "Thank you", "No"]
+      question: "Si",
+      answer: "Yes",
     },
     {
       id: 11,
-      question: "Si",
-      answer: "Yes",
-      //options: ["Please", "Yes", "Thank you", "No"]
+      question: "Gracias",
+      answer: "Thank you",
     },
     {
       id: 12,
-      question: "Gracias",
-      answer: "Thank you",
-      //options: ["Please", "Yes", "Thank you", "No"]
-    },
-    {
-      id: 13,
       question: "Hasta Luego",
       answer: "See you later",
-      //options: ["Hello", "Goodbye", "See you soon", "See you later"]
     },
   ];
 
@@ -158,11 +147,6 @@ import {
       height: "100%",
       resizeMode: "cover",
     },
-    // backButton: { 
-    //   position: "absolute", 
-    //   top: 20, 
-    //   left: 20 
-    // },
     backButtonIcon: { 
       margin: 20,
       height: 30,
@@ -172,9 +156,29 @@ import {
       padding: 10, 
       alignItems: "center" 
     },
+
+    //--------------
+    darkLabel: {
+      fontSize: 20, 
+      color: "rgb(241, 236, 215)",
+    },
     label: { 
       fontSize: 20, 
       color: "black",
+    },
+    //---------------
+
+    //---------------
+    darkInput: {
+      borderWidth: 2, 
+      borderColor: "rgb(241, 236, 215)", 
+      padding: 10, 
+      width: 100, 
+      textAlign: "center", 
+      borderRadius: 5, 
+      marginBottom: 10,
+      backgroundColor: "darkgreen",
+      color: "rgb(241, 236, 215)",
     },
     input: { 
       borderWidth: 2, 
@@ -187,15 +191,35 @@ import {
       backgroundColor: "green",
       color: "white",
     },
+    //-----------------
+
     button: { 
-      backgroundColor: "rgb(0, 150, 255)", 
+      backgroundColor: "blue", 
       padding: 10, 
       borderRadius: 5 
+    },
+
+    //-----------------
+    darkButtonText: {
+      color: "rgb(241, 236, 215)", 
+      fontWeight: "bold" 
     },
     buttonText: { 
       color: "white", 
       fontWeight: "bold" 
     },
+    //-----------------
+
+    //-----------------
+    emptyText: {
+      color: "black",
+      fontSize: 15,
+    },
+    darkEmptyText: {
+      color: "rgb(241, 236, 215)",
+      fontSize: 15,
+    },
+    //-----------------
   });
   
 export default Flashcards;

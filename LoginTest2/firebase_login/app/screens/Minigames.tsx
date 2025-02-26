@@ -5,46 +5,60 @@ import {
   TouchableOpacity, 
   Pressable,
   Image,
+  ScrollView,
 } from "react-native";
 import styles from "./Styles";
 import React from "react";
 import { NavigationProp } from "@react-navigation/native";
+import { useTheme } from "./ThemeContext";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
 const Minigames = ({ navigation }: RouterProps) => {
+  const { darkMode } = useTheme(); // Get Dark Mode from context
+
   return (
     <ImageBackground
-      source={require("../../assets/homeScreen.png")}
+      source={
+        darkMode
+          ? require("../../assets/DarkModeBackground.jpg") // Dark mode image
+          : require("../../assets/homeScreen.png") // Light mode image
+      }
       resizeMode="cover"
-      style={styles.imgBackground}
+      style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply Dark Mode styles
     >
       <Pressable onPress={() => navigation.goBack()}>
         <Image
           style={styles.backButtonIcon}
-          source={require("../../assets/backArrow.png")}
+          source={
+            darkMode
+              ? require("../../assets/whiteBackArrow.png")
+              : require("../../assets/backArrow.png")
+          }
         />
       </Pressable>
 
-      <View style={styles.titleContainer}>
-        <Text style={styles.titleText}>Minigames</Text>
-      </View>
-      <View style={styles.menu}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Flashcards")}
-        >
-          <Text style={styles.buttonText}>Flashcards</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Matching")}
-        >
-          <Text style={styles.buttonText}>Matching</Text>
-        </TouchableOpacity>
-      </View>
+        <ScrollView contentContainerStyle={styles.minigamesContainer}>
+          <View style={[styles.titleContainer, darkMode && styles.darkTitleContainer]}>
+            <Text style={[styles.titleText, darkMode && styles.darkTitleText]}>Minigames</Text>
+          </View>
+            <View style={[styles.menu, darkMode && styles.darkMenu]}>
+              <TouchableOpacity
+                style={[styles.button, darkMode && styles.darkButton]}
+                onPress={() => navigation.navigate("Flashcards")}
+              >
+                <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Flashcards</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, darkMode && styles.darkButton]}
+                onPress={() => navigation.navigate("Matching")}
+              >
+                <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Matching</Text>
+              </TouchableOpacity>
+            </View>
+        </ScrollView>
     </ImageBackground>
   );
 };

@@ -24,6 +24,7 @@ import unlockedHospitalIcon from "../../assets/unlockedHospitalIcon.png";
 import lockedHospitalIcon from "../../assets/lockedHospitalIcon.png";
 
 import { NavigationProp } from "@react-navigation/native";
+import { useTheme } from "./ThemeContext"; 
 
 import styles from "./Styles";
 
@@ -227,6 +228,7 @@ const Route: React.FC<{
 
 const RouteScreen = ({ navigation }: RouterProps) => {
   const [routeData, setRouteData] = useState<RouteItem[]>(initialRouteData);
+  const { darkMode, toggleDarkMode } = useTheme();
 
   const unlockLevel = (id: number, data: RouteItem[]): RouteItem[] => {
     return data.map((item) => {
@@ -295,14 +297,22 @@ const RouteScreen = ({ navigation }: RouterProps) => {
 
   return (
     <ImageBackground
-      source={require("../../assets/routeScreen.png")}
+      source={
+        darkMode
+          ? require("../../assets/darkRoute.png") // Dark mode image
+          : require("../../assets/routeScreen.png") // Light mode image
+      }
       resizeMode="cover"
-      style={styles.imgBackground}
+      style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply Dark Mode styles
     >
       <Pressable onPress={() => navigation.navigate("Home")}>
         <Image
           style={styles.backButtonIcon}
-          source={require("../../assets/backArrow.png")}
+          source={
+            darkMode 
+            ? require("../../assets/whiteBackArrow.png")
+            : require("../../assets/backArrow.png")
+          }
         />
       </Pressable>
       <Route data={routeData} navigation={navigation} />

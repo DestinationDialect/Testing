@@ -12,9 +12,11 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "./ThemeContext";
 
 export default function ContactUs() {
   const navigation = useNavigation();
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   // State variables for form inputs
   const [name, setName] = useState("");
@@ -37,24 +39,32 @@ export default function ContactUs() {
 
   return (
     <ImageBackground
-      source={require("../../assets/SettingsPage.png")} 
+      source={
+        darkMode
+          ? require("../../assets/DarkModeBackground.jpg") // Dark mode image
+          : require("../../assets/homeScreen.png") // Light mode image
+      }
       resizeMode="cover"
       style={styles.background}
     >
       <Pressable onPress={() => navigation.goBack()}>
         <Image
-            style={styles.backButtonIcon}
-            source={require("../../assets/backArrow.png")}
+          style={styles.backButtonIcon}
+          source={
+            darkMode
+              ? require("../../assets/whiteBackArrow.png")
+              : require("../../assets/backArrow.png")
+          }
         />
-       </Pressable>
+      </Pressable>
 
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Contact Us</Text>
-        <Text style={styles.description}>Have a question or feedback? Reach out to us!</Text>
+        <Text style={[styles.title, darkMode && styles.darkTitle]}>Contact Us</Text>
+        <Text style={[styles.description, darkMode && styles.darkDescription]}>Have a question or feedback? Reach out to us!</Text>
 
         {/* Name Input */}
         <TextInput
-          style={styles.input}
+          style={[styles.input, darkMode && styles.darkInput]}
           placeholder="Your Name"
           placeholderTextColor="white"
           value={name}
@@ -63,7 +73,7 @@ export default function ContactUs() {
 
         {/* Email Input */}
         <TextInput
-          style={styles.input}
+          style={[styles.input, darkMode && styles.darkInput]}
           placeholder="Your Email"
           placeholderTextColor="white"
           value={email}
@@ -73,7 +83,7 @@ export default function ContactUs() {
 
         {/* Message Input */}
         <TextInput
-          style={[styles.input, styles.textArea]}
+          style={[styles.input, darkMode && styles.darkInput, styles.textArea]}
           placeholder="Your Message"
           placeholderTextColor="white"
           value={message}
@@ -82,8 +92,8 @@ export default function ContactUs() {
         />
 
         {/* Submit Button */}
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Send Message</Text>
+        <TouchableOpacity style={[styles.button, darkMode && styles.darkButton]} onPress={handleSubmit}>
+          <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Send Message</Text>
         </TouchableOpacity>
       </ScrollView>
     </ImageBackground>
@@ -106,17 +116,47 @@ const styles = StyleSheet.create({
     height: 30,
     width: 30,
   },
+
+  //--------------
+  darkTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "rgb(241, 236, 215)",
+    marginBottom: 10,
+  },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#1d1d1d",
     marginBottom: 10,
   },
+  //---------------
+
+  //---------------
+  darkDescription: {
+    fontSize: 16,
+    color: "rgb(241, 236, 215)",
+    textAlign: "center",
+    marginBottom: 20,
+  },
   description: {
     fontSize: 16,
     color: "#1d1d1d",
     textAlign: "center",
     marginBottom: 20,
+  },
+  //----------------
+
+  //----------------
+  darkInput: {
+    width: "100%",
+    backgroundColor: "darkgreen",
+    color: "rgb(241, 236, 215)",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderWidth: 3,
+    borderColor: "rgb(241, 236, 215)",
   },
   input: {
     width: "100%",
@@ -128,9 +168,22 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: "white",
   },
+  //----------------
+
   textArea: {
     height: 120,
     textAlignVertical: "top",
+  },
+
+  //----------------
+  darkButton: {
+    padding: 10,
+    margin: 10,
+    borderRadius: 10,
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
+    backgroundColor: "darkgreen",
+    alignItems: "center",
   },
   button: {
     padding: 10,
@@ -141,9 +194,18 @@ const styles = StyleSheet.create({
     backgroundColor: "green",
     alignItems: "center",
   },
+  //----------------
+
+  //----------------
+  darkButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+  },
   buttonText: {
     fontSize: 18,
     fontWeight: "bold",
     color: "white",
   },
+  //----------------
 });

@@ -37,6 +37,54 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     // Settings Styles -------------------------------------
   },
+  darkContainer: {
+    paddingVertical: 24,
+  },
+  darkImgBackground: {
+    flex: 1,
+    width: null,
+    height: null,
+  },
+  darkTitle: {
+    fontSize: 32,
+    fontWeight: "700",
+    color: "rgb(241, 236, 215)",
+    marginBottom: 6,
+  },
+  darkSubtitle: {
+    fontSize: 20,
+    fontWeight: "500",
+    color: "rgb(241, 236, 215)",
+  }, 
+  darkSectionHeaderText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "rgb(241, 236, 215)",
+    textTransform: "uppercase",
+    letterSpacing: 1.2,
+  },
+  darkRow: {
+    color: "rgb(241, 236, 215)",
+  },
+  darkRowLabel: {
+    fontSize: 17,
+    fontWeight: "500",
+    color: "rgb(241, 236, 215)",
+  }, 
+  darkRowWrapper: {
+    paddingLeft: 24,
+    borderTopWidth: 2,
+    borderColor: "rgb(241, 236, 215)",
+    backgroundColor: "darkgreen",
+    padding: 3,
+    margin: 1,
+    borderRadius: 10,
+    borderWidth: 2,
+  },
+  darkFeatherIcon: {
+    color: "rgb(241, 236, 215)",
+    marginRight: 12,
+  },
   header: {
     paddingHorizontal: 24,
     marginBottom: 12,
@@ -96,11 +144,50 @@ const styles = StyleSheet.create({
     color: "white",
     marginRight: 4,
   },
+  featherIcon: {
+    color: "white",
+    marginRight: 12,
+  },
   sectionBody: {
-    // paddingLeft: 24,
-    //borderColor: "white",
     backgroundColor: "transparent",
-    // ----------------------------------------------------------
+  },
+  // Minigames styles ------------------------
+  darkTitleText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 30,
+  },
+  darkButtonText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 20,
+  },
+  darkButton: {
+    padding: 10,
+    margin: 10,
+    borderRadius: 10,
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
+    backgroundColor: "darkgreen",
+    width: "50%",
+    alignItems: "center",
+  },
+  darkTitleContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+    backgroundColor: "darkgreen",
+    borderRadius: 10,
+    borderWidth: 3,
+    borderColor: "rgb(241, 236, 215)",
+    marginLeft: "10%",
+    width: "80%",
+    height: 200,
+  },
+  darkMenu: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  minigamesContainer: {
+    justifyContent: "center",
   },
   titleText: {
     color: "white",
@@ -136,6 +223,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 30,
   },
+  // -----------------------------
   scenarioButtonIcon: {
     height: 100,
     width: 100,

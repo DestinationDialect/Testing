@@ -19,6 +19,7 @@ import ContactUs from "./app/screens/ContactUs";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
+import { ThemeProvider } from "../firebase_login/app/screens/ThemeContext";
 
 const Stack = createNativeStackNavigator();
 
@@ -116,22 +117,24 @@ export default function App() {
     });
   }, []);
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        {user ? (
-          <Stack.Screen
-            name="Inside"
-            component={InsideLayout}
-            options={{ headerShown: false }}
-          />
-        ) : (
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{ headerShown: false }}
-          />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ThemeProvider> 
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          {user ? (
+            <Stack.Screen
+              name="Inside"
+              component={InsideLayout}
+              options={{ headerShown: false }}
+            />
+          ) : (
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
+            />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }

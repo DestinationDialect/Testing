@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, FlatList, StyleSheet } from "react-native";
 import Flashcard from './Flashcard';
+import { useTheme } from "../ThemeContext";
 
 export default function FlashcardList({ flashcards }) {
+  const { darkMode } = useTheme(); // Get Dark Mode from context
   return (
     <FlatList
       data={flashcards}
