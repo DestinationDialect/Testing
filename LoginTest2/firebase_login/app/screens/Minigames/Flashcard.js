@@ -1,14 +1,15 @@
-import React, {useState, useEffect, useRef, use} from 'react'; 
-import { Text, 
-  TouchableOpacity, 
-  Animated, 
-  View, 
-  StyleSheet 
+import React, { useState, useEffect, useRef, use } from "react";
+import {
+  Text,
+  TouchableOpacity,
+  Animated,
+  View,
+  StyleSheet,
 } from "react-native";
 import { useTheme } from "../ThemeContext";
 
-export default function Flashcard({flashcard}) {
-  const [flip, setFlip] = useState(false)
+export default function Flashcard({ flashcard }) {
+  const [flip, setFlip] = useState(false);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const { darkMode } = useTheme(); // Get Dark Mode from context
 
@@ -21,11 +22,25 @@ export default function Flashcard({flashcard}) {
   };
 
   const frontAnimatedStyle = {
-    transform: [{ rotateY: animatedValue.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "180deg"] }) }],
+    transform: [
+      {
+        rotateY: animatedValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: ["0deg", "180deg"],
+        }),
+      },
+    ],
   };
 
   const backAnimatedStyle = {
-    transform: [{ rotateY: animatedValue.interpolate({ inputRange: [0, 1], outputRange: ["180deg", "360deg"] }) }],
+    transform: [
+      {
+        rotateY: animatedValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: ["180deg", "360deg"],
+        }),
+      },
+    ],
   };
 
   return (
@@ -43,12 +58,12 @@ export default function Flashcard({flashcard}) {
 }
 
 const styles = StyleSheet.create({
-  cardContainer: { 
-    width: 250, 
-    height: 150, 
-    marginVertical: 10, 
-    alignItems: "center", 
-    justifyContent: "center", 
+  cardContainer: {
+    width: 250,
+    height: 150,
+    marginVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
   //----------------
   darkCard: {
