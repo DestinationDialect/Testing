@@ -16,6 +16,7 @@ import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
+import { useTheme } from "../ThemeContext";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -35,85 +36,98 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  {  
-     question: "Good afternoon! How can I help you?",
-     options: ["I'm not from here and I haven't been feeling good.", 
+  {
+    question: "Good afternoon! How can I help you?",
+    options: [
+      "I'm not from here and I haven't been feeling good.",
       "I don't know how to do this.",
       "I don't feel good.",
-     ],
-     correctAnswer: "I'm not from here and I haven't been feeling good.",
+    ],
+    correctAnswer: "I'm not from here and I haven't been feeling good.",
   },
   {
-     question: "Do you have travel insurance or any identification with you?",
-     options: ["I'm not sure.",
+    question: "Do you have travel insurance or any identification with you?",
+    options: [
+      "I'm not sure.",
       "I think so.",
       "Yes, I have my passport and travel insurance card.",
-     ],
-     correctAnswer: "Yes, I have my passport and travel insurance card.",
+    ],
+    correctAnswer: "Yes, I have my passport and travel insurance card.",
   },
   {
-     question: "Perfect. I'll need you to fill out this form, and then we'll have a doctor see you as soon as possible.",
-     options: ["Why do I need to fill out a form?", 
-      "I don't want to.", 
+    question:
+      "Perfect. I'll need you to fill out this form, and then we'll have a doctor see you as soon as possible.",
+    options: [
+      "Why do I need to fill out a form?",
+      "I don't want to.",
       "Thank you!",
     ],
-     correctAnswer: "Thank you!",
+    correctAnswer: "Thank you!",
   },
   {
-     question: "Hello, I'm Dr. Alvarez. I see you're not feeling well. Can you tell me your symptoms?",
-     options: ["I don't know.", 
-      "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.", 
+    question:
+      "Hello, I'm Dr. Alvarez. I see you're not feeling well. Can you tell me your symptoms?",
+    options: [
+      "I don't know.",
+      "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.",
       "I just don't feel good.",
     ],
-     correctAnswer: "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.",
+    correctAnswer:
+      "Since this morning, I've had nausea, stomach cramps, and I've thrown up twice.",
   },
   {
-     question: "That sounds like food poisoning. We'll give you some fluids to prevent dehydration and some medication to help with the nausea.",
-     options: ["Sounds good. Do I need to stay overnight?", 
-      "How long is that going to take?", 
+    question:
+      "That sounds like food poisoning. We'll give you some fluids to prevent dehydration and some medication to help with the nausea.",
+    options: [
+      "Sounds good. Do I need to stay overnight?",
+      "How long is that going to take?",
       "I don't want to stay overnight.",
     ],
-     correctAnswer: "Sounds good. Do I need to stay overnight?",
+    correctAnswer: "Sounds good. Do I need to stay overnight?",
   },
   {
-     question: "If you're able to keep fluids down and start feeling better then, no.",
-     options: ["Why would I not be able to keep the fluids down?", 
-      "What if I don't feel better?", 
+    question:
+      "If you're able to keep fluids down and start feeling better then, no.",
+    options: [
+      "Why would I not be able to keep the fluids down?",
+      "What if I don't feel better?",
       "Ok.",
     ],
-     correctAnswer: "What if I don't feel better?",
+    correctAnswer: "What if I don't feel better?",
   },
   {
-     question: "If you feel worse or develop a fever, come back immediately.",
-     options: ["Will I die?", 
-      "Ok, will do.", 
-      "Why would I develop a fever?",
-    ],
-     correctAnswer: "Ok, will do.",
+    question: "If you feel worse or develop a fever, come back immediately.",
+    options: ["Will I die?", "Ok, will do.", "Why would I develop a fever?"],
+    correctAnswer: "Ok, will do.",
   },
   {
-     question: "Pharmacist: Hi, here is your medication. You have been prescribed anti-nausea tablets and electrolyte packets to mix with water.",
-     options: ["How often should I take the tablets?", 
-      "Do I have to take these?", 
+    question:
+      "Pharmacist: Hi, here is your medication. You have been prescribed anti-nausea tablets and electrolyte packets to mix with water.",
+    options: [
+      "How often should I take the tablets?",
+      "Do I have to take these?",
       "What are the electrolyte packets for?",
     ],
-     correctAnswer: "How often should I take the tablets?",
+    correctAnswer: "How often should I take the tablets?",
   },
   {
-     question: "Once every six hours if needed. Don't take more than four in a day.",
-     options: ["What happens if I take more than 4?", 
-      "I don't understand.", 
+    question:
+      "Once every six hours if needed. Don't take more than four in a day.",
+    options: [
+      "What happens if I take more than 4?",
+      "I don't understand.",
       "Ok, sounds good.",
     ],
-     correctAnswer: "Ok, sounds good.",
+    correctAnswer: "Ok, sounds good.",
   },
   {
-     question: "Here you go. I hope you feel better soon!",
-     options: ["Ok.", 
-      "Thank you. I appreciate it!", 
+    question: "Here you go. I hope you feel better soon!",
+    options: [
+      "Ok.",
+      "Thank you. I appreciate it!",
       "What if I don't feel better?",
     ],
-     correctAnswer: "Thank you. I appreciate it!",
+    correctAnswer: "Thank you. I appreciate it!",
   },
 ];
 
@@ -122,6 +136,7 @@ export default function HospitalScenario() {
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
   const navigation = useNavigation();
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const name = "HospitalScenario";
   const currentRouteLocation = flattenedRouteData.find(
@@ -295,7 +310,7 @@ export default function HospitalScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("hospitalVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
@@ -339,6 +354,18 @@ export default function HospitalScenario() {
 
           if (currentRouteLocation && docData) {
             let i = currentRouteLocation.id;
+            let currentID = docData[i];
+            if(currentID){
+              setDoc(
+                doc(FIRESTORE_DB, "user_data", user_id),
+                {
+                  [flattenedRouteData[i-1].id]: {
+                    stars: stars,
+                  },
+                },
+                { merge: true }
+              );
+            }
             let scenarioID = docData[i + 1];
             if (scenarioID) {
               setDoc(
@@ -346,7 +373,6 @@ export default function HospitalScenario() {
                 {
                   [flattenedRouteData[i].id]: {
                     name: flattenedRouteData[i].title,
-                    stars: stars,
                     unlocked: true,
                   },
                 },
@@ -376,13 +402,13 @@ export default function HospitalScenario() {
     <SafeAreaView style={styles.container}>
       <Modal visible={isVisible} transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
+          <View style={[styles.modalView, darkMode && styles.darkModalView]}>
             <Text style={styles.score}>You got {averageScore / 30} stars!</Text>
             <Pressable
               onPress={() => setVisible(false)}
-              style={styles.closeButton}
+              style={[styles.closeButton, darkMode && styles.darkCloseButton]}
             >
-              <Text style={styles.buttonText}>Review Lesson</Text>
+              <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Review Lesson</Text>
             </Pressable>
           </View>
         </View>
@@ -399,10 +425,10 @@ export default function HospitalScenario() {
           />
         </Pressable>
       </ImageBackground>
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, darkMode && styles.darkOverlay]}>
         {!loading ? ( //view encasing what displays once page and translation loads
           <View>
-            <Text style={styles.question}>
+            <Text style={[styles.question, darkMode && styles.darkQuestion]}>
               {dialogue[currentquestionindex].question}
             </Text>
             {dialogue[currentquestionindex].options.map((option, index) => (
@@ -411,7 +437,9 @@ export default function HospitalScenario() {
                 <Text
                   style={[
                     styles.option,
-                    isCorrect ? styles.correctAnswer : styles.option,
+                    isCorrect 
+                    ? styles.correctAnswer && styles.darkCorrectAnswer
+                    : styles.option && styles.darkOption
                   ]}
                 >
                   {option}
@@ -424,20 +452,34 @@ export default function HospitalScenario() {
           <Text>LOADING</Text>
         )}
 
-        <Pressable onPress={nextQuestion} style={styles.nextButton}>
-          <Text style={styles.buttonText}>Next Question</Text>
+        <Pressable onPress={nextQuestion} style={[styles.nextButton, darkMode && styles.darkNextButton]}>
+          <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Next Question</Text>
         </Pressable>
       </View>
     </SafeAreaView>
   );
 }
 
-
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
     alignItems: "center",
+  },
+
+  //---------------
+  darkOverlay: {
+    paddingVertical: 50,
+    backgroundColor: "darkgreen",
+    color: "rgb(241, 236, 215)",
+    position: "absolute",
+    bottom: 0,
+    height: "50%",
+    width: "100%",
+    justifyContent: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 5,
+    borderRadius: 25,
   },
   overlay: {
     paddingVertical: 50,
@@ -452,10 +494,21 @@ export const styles = StyleSheet.create({
     borderWidth: 5,
     borderRadius: 25,
   },
+  //----------------
+
   imageBackground: {
     width: "100%",
     height: "75%",
     resizeMode: "cover",
+  },
+
+  //----------------
+  darkQuestion: {
+    color: "rgb(241, 236, 215)",
+    padding: 15,
+    marginBottom: 4,
+    marginTop: 6,
+    fontSize: 25,
   },
   question: {
     color: "white",
@@ -463,6 +516,20 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 6,
     fontSize: 25,
+  },
+  //-----------------
+
+  //-----------------
+  darkOption: {
+    color: "rgb(241, 236, 215)",
+    borderColor: "rgb(241, 236, 215)",
+    borderBlockColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    fontSize: 20,
+    paddingLeft: 10,
   },
   option: {
     color: "white",
@@ -475,6 +542,17 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     paddingLeft: 10,
   },
+  //-----------------
+
+  //-----------------
+  darkCorrectAnswer: {
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    backgroundColor: "green",
+    color: "rgb(241, 236, 215)",
+  },
   correctAnswer: {
     borderWidth: 3,
     borderRadius: 5,
@@ -482,6 +560,18 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "chartreuse",
     color: "white",
+  },
+  //--------------------
+
+  //--------------------
+  darkNextButton: {
+    padding: 10,
+    backgroundColor: "darkred",
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
   },
   nextButton: {
     padding: 10,
@@ -492,10 +582,19 @@ export const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 3,
   },
+  //-------------------
+
+  //-------------------
+  darkButtonText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 18,
+  },
   buttonText: {
     color: "white",
     fontSize: 18,
   },
+  //-------------------
+
   score: {
     fontSize: 36,
     justifyContent: "center",
@@ -507,6 +606,20 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
+  },
+
+  //-------------------
+  darkModalView: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalView: {
     width: "80%",
@@ -520,12 +633,23 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  //-----------------
+
+  //-----------------
+  darkCloseButton: {
+    marginTop: 20,
+    backgroundColor: "darkred",
+    padding: 10,
+    borderRadius: 5,
+  },
   closeButton: {
     marginTop: 20,
     backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
+  //----------------
+
   backButtonIcon: {
     margin: 20,
     height: 30,

@@ -16,6 +16,7 @@ import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
+import { useTheme } from "../ThemeContext";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -35,75 +36,95 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  {  
-     question: "Hello, welcome to the museum. How may I help you today?",
-     options: ["Hello.", 
-      "Hello, do you offer guided tours?", 
-      "Hello, where do I start?"],
-     correctAnswer: "Hello, do you offer guided tours?",
+  {
+    question: "Hello, welcome to the museum. How may I help you today?",
+    options: [
+      "Hello.",
+      "Hello, do you offer guided tours?",
+      "Hello, where do I start?",
+    ],
+    correctAnswer: "Hello, do you offer guided tours?",
   },
   {
-     question: "Yes we do. Our tours last about 90 minutes.",
-     options: ["Ok, what does the tour cover?", 
-      "How long is it?", 
-      "Ok, how do I do that?"],
-     correctAnswer: "Ok, what does the tour cover?",
+    question: "Yes we do. Our tours last about 90 minutes.",
+    options: [
+      "Ok, what does the tour cover?",
+      "How long is it?",
+      "Ok, how do I do that?",
+    ],
+    correctAnswer: "Ok, what does the tour cover?",
   },
   {
-     question: "The tour covers the major highlights of the museum. Does that sound like something you would want to do?",
-     options: ["I'll have to think about it.", 
-      "Yes but how long is it?", 
-      "Yes it does, sign me up!"],
-     correctAnswer: "Yes it does, sign me up!",
+    question:
+      "The tour covers the major highlights of the museum. Does that sound like something you would want to do?",
+    options: [
+      "I'll have to think about it.",
+      "Yes but how long is it?",
+      "Yes it does, sign me up!",
+    ],
+    correctAnswer: "Yes it does, sign me up!",
   },
   {
-     question: "Ok, you can join that group over there and the tour will begin shortly.",
-     options: ["Ok, thank you!", 
-      "I don't want to.", 
-      "Thanks but I don't like people."],
-     correctAnswer: "Ok, thank you!",
+    question:
+      "Ok, you can join that group over there and the tour will begin shortly.",
+    options: [
+      "Ok, thank you!",
+      "I don't want to.",
+      "Thanks but I don't like people.",
+    ],
+    correctAnswer: "Ok, thank you!",
   },
   {
-     question: "Ok, everyone follow me. We're going to start the tour in our Ancient Egyptian exhibit.",
-     options: ["Can I touch any of this stuff?", 
-      "Let's go!", 
-      "Awesome!"],
-     correctAnswer: "Let's go!",
+    question:
+      "Ok, everyone follow me. We're going to start the tour in our Ancient Egyptian exhibit.",
+    options: ["Can I touch any of this stuff?", "Let's go!", "Awesome!"],
+    correctAnswer: "Let's go!",
   },
   {
-     question: "Here we have a statue of Pharaoh Ramesses II, one of Egypt's most powerful rulers. Ramesses II was known for his military campaigns and for commissioning grand monuments like this one.",
-     options: ["How did they transport something this big back then?", 
-      "Can I touch it?", 
-      "Can I take pictures in here?"],
-     correctAnswer: "How did they transport something this big back then?",
+    question:
+      "Here we have a statue of Pharaoh Ramesses II, one of Egypt's most powerful rulers. Ramesses II was known for his military campaigns and for commissioning grand monuments like this one.",
+    options: [
+      "How did they transport something this big back then?",
+      "Can I touch it?",
+      "Can I take pictures in here?",
+    ],
+    correctAnswer: "How did they transport something this big back then?",
   },
   {
-     question: "Great question! Ancient Egyptians were brilliant engineers. They used wooden sledges and rolled them over logs or poured water on the sand to make transportation easier.",
-     options: ["Thank you! That is very insightful.", 
-      "Cool!", 
-      "Awesome!"],
-     correctAnswer: "Thank you! That is very insightful.",
+    question:
+      "Great question! Ancient Egyptians were brilliant engineers. They used wooden sledges and rolled them over logs or poured water on the sand to make transportation easier.",
+    options: ["Thank you! That is very insightful.", "Cool!", "Awesome!"],
+    correctAnswer: "Thank you! That is very insightful.",
   },
   {
-     question: "Ok everyone, let's move onto the next section, our Renaissance painting exhibit!",
-     options: ["Can I take pictures of these?", 
-      "Wow, this painting looks so detailed! What is the story behind it?", 
-      "These paintings are weird."],
-     correctAnswer: "Wow, this painting looks so detailed! What is the story behind it?",
+    question:
+      "Ok everyone, let's move onto the next section, our Renaissance painting exhibit!",
+    options: [
+      "Can I take pictures of these?",
+      "Wow, this painting looks so detailed! What is the story behind it?",
+      "These paintings are weird.",
+    ],
+    correctAnswer:
+      "Wow, this painting looks so detailed! What is the story behind it?",
   },
   {
-     question: "This is one of the few surviving portraits by Leonardo da Vinci, painted around 1474-1478.",
-     options: ["It is so pretty!", 
-      "Why does it look like that?", 
-      "Can I take a picture of it?"],
-     correctAnswer: "It is so pretty!",
+    question:
+      "This is one of the few surviving portraits by Leonardo da Vinci, painted around 1474-1478.",
+    options: [
+      "It is so pretty!",
+      "Why does it look like that?",
+      "Can I take a picture of it?",
+    ],
+    correctAnswer: "It is so pretty!",
   },
   {
-     question: "Ok everyone, this concludes our tour. Thank you all for coming!",
-     options: ["Thanks, bye!", 
-      "This was so cool!", 
-      "Thank you! You were a great tour guide!"],
-     correctAnswer: "Thank you! You were a great tour guide!",
+    question: "Ok everyone, this concludes our tour. Thank you all for coming!",
+    options: [
+      "Thanks, bye!",
+      "This was so cool!",
+      "Thank you! You were a great tour guide!",
+    ],
+    correctAnswer: "Thank you! You were a great tour guide!",
   },
 ];
 
@@ -112,6 +133,7 @@ export default function MuseumScenario() {
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
   const navigation = useNavigation();
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const name = "MuseumScenario";
   const currentRouteLocation = flattenedRouteData.find(
@@ -285,7 +307,7 @@ export default function MuseumScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("museumVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
@@ -329,6 +351,18 @@ export default function MuseumScenario() {
 
           if (currentRouteLocation && docData) {
             let i = currentRouteLocation.id;
+            let currentID = docData[i];
+            if(currentID){
+              setDoc(
+                doc(FIRESTORE_DB, "user_data", user_id),
+                {
+                  [flattenedRouteData[i-1].id]: {
+                    stars: stars,
+                  },
+                },
+                { merge: true }
+              );
+            }
             let scenarioID = docData[i + 1];
             if (scenarioID) {
               setDoc(
@@ -336,7 +370,6 @@ export default function MuseumScenario() {
                 {
                   [flattenedRouteData[i].id]: {
                     name: flattenedRouteData[i].title,
-                    stars: stars,
                     unlocked: true,
                   },
                 },
@@ -366,13 +399,13 @@ export default function MuseumScenario() {
     <SafeAreaView style={styles.container}>
       <Modal visible={isVisible} transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
+          <View style={[styles.modalView, darkMode && styles.darkModalView]}>
             <Text style={styles.score}>You got {averageScore / 30} stars!</Text>
             <Pressable
               onPress={() => setVisible(false)}
-              style={styles.closeButton}
+              style={[styles.closeButton, darkMode && styles.darkCloseButton]}
             >
-              <Text style={styles.buttonText}>Review Lesson</Text>
+              <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Review Lesson</Text>
             </Pressable>
           </View>
         </View>
@@ -389,10 +422,10 @@ export default function MuseumScenario() {
           />
         </Pressable>
       </ImageBackground>
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, darkMode && styles.darkOverlay]}>
         {!loading ? ( //view encasing what displays once page and translation loads
           <View>
-            <Text style={styles.question}>
+            <Text style={[styles.question, darkMode && styles.darkQuestion]}>
               {dialogue[currentquestionindex].question}
             </Text>
             {dialogue[currentquestionindex].options.map((option, index) => (
@@ -401,7 +434,9 @@ export default function MuseumScenario() {
                 <Text
                   style={[
                     styles.option,
-                    isCorrect ? styles.correctAnswer : styles.option,
+                    isCorrect 
+                    ? styles.correctAnswer && styles.darkCorrectAnswer
+                    : styles.option && styles.darkOption, 
                   ]}
                 >
                   {option}
@@ -428,6 +463,21 @@ export const styles = StyleSheet.create({
     backgroundColor: "black",
     alignItems: "center",
   },
+
+  //---------------
+  darkOverlay: {
+    paddingVertical: 50,
+    backgroundColor: "darkgreen",
+    color: "rgb(241, 236, 215)",
+    position: "absolute",
+    bottom: 0,
+    height: "50%",
+    width: "100%",
+    justifyContent: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 5,
+    borderRadius: 25,
+  },
   overlay: {
     paddingVertical: 50,
     backgroundColor: "green",
@@ -441,10 +491,21 @@ export const styles = StyleSheet.create({
     borderWidth: 5,
     borderRadius: 25,
   },
+  //----------------
+
   imageBackground: {
     width: "100%",
     height: "75%",
     resizeMode: "cover",
+  },
+
+  //----------------
+  darkQuestion: {
+    color: "rgb(241, 236, 215)",
+    padding: 15,
+    marginBottom: 4,
+    marginTop: 6,
+    fontSize: 25,
   },
   question: {
     color: "white",
@@ -452,6 +513,20 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 6,
     fontSize: 25,
+  },
+  //-----------------
+
+  //-----------------
+  darkOption: {
+    color: "rgb(241, 236, 215)",
+    borderColor: "rgb(241, 236, 215)",
+    borderBlockColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    fontSize: 20,
+    paddingLeft: 10,
   },
   option: {
     color: "white",
@@ -464,6 +539,17 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     paddingLeft: 10,
   },
+  //-----------------
+
+  //-----------------
+  darkCorrectAnswer: {
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    backgroundColor: "green",
+    color: "rgb(241, 236, 215)",
+  },
   correctAnswer: {
     borderWidth: 3,
     borderRadius: 5,
@@ -471,6 +557,18 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "chartreuse",
     color: "white",
+  },
+  //--------------------
+
+  //--------------------
+  darkNextButton: {
+    padding: 10,
+    backgroundColor: "darkred",
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
   },
   nextButton: {
     padding: 10,
@@ -481,10 +579,19 @@ export const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 3,
   },
+  //-------------------
+
+  //-------------------
+  darkButtonText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 18,
+  },
   buttonText: {
     color: "white",
     fontSize: 18,
   },
+  //-------------------
+
   score: {
     fontSize: 36,
     justifyContent: "center",
@@ -496,6 +603,20 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
+  },
+
+  //-------------------
+  darkModalView: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalView: {
     width: "80%",
@@ -509,12 +630,23 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  //-----------------
+
+  //-----------------
+  darkCloseButton: {
+    marginTop: 20,
+    backgroundColor: "darkred",
+    padding: 10,
+    borderRadius: 5,
+  },
   closeButton: {
     marginTop: 20,
     backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
+  //----------------
+
   backButtonIcon: {
     margin: 20,
     height: 30,

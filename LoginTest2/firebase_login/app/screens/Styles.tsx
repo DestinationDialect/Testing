@@ -262,6 +262,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
   },
+
+  //----------------
+  darkModalView: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderRadius: 15,
+    alignItems: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 5,
+      },
+      web: {
+        boxShadow: "0px 2px 4px #000",
+      },
+    }),
+  },
   modalView: {
     width: "80%",
     padding: 20,
@@ -283,12 +306,23 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  //-------------------
+
+  //-------------------
+  darkContinueButton: {
+    marginTop: 20,
+    backgroundColor: "darkgreen",
+    padding: 10,
+    borderRadius: 5,
+  },
   continueButton: {
     marginTop: 20,
     backgroundColor: "green",
     padding: 10,
     borderRadius: 5,
   },
+  //--------------------
+
   //---language selection modal styles---------
   modalLanguages: {
     flexDirection: "row",

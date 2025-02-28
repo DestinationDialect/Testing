@@ -16,6 +16,7 @@ import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
+import { useTheme } from "../ThemeContext";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -35,84 +36,97 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  {  
-    question: "Welcome everyone to the zoo! I'll be your tour guide today. We will be visiting some of our most fascinating animals and learning about their habitats. If you have any questions, feel free to ask!",
-    options: ["Cool.", 
-     "This sounds fun, I guess.", 
-     "Awesome! Let's go!",
-   ],
+  {
+    question:
+      "Welcome everyone to the zoo! I'll be your tour guide today. We will be visiting some of our most fascinating animals and learning about their habitats. If you have any questions, feel free to ask!",
+    options: ["Cool.", "This sounds fun, I guess.", "Awesome! Let's go!"],
     correctAnswer: "Awesome! Let's go!",
   },
   {
-    question: "Here is our African elephants! They are the largest land animal on Earth, and they can weigh up to 5,443 kilograms which is around 12,000 pounds.",
-    options: ["That's big!", 
-     "Wow! How much do they eat in a day?", 
-     "That is scary.", 
-   ],
+    question:
+      "Here is our African elephants! They are the largest land animal on Earth, and they can weigh up to 5,443 kilograms which is around 12,000 pounds.",
+    options: [
+      "That's big!",
+      "Wow! How much do they eat in a day?",
+      "That is scary.",
+    ],
     correctAnswer: "Wow! How much do they eat in a day?",
   },
   {
-    question: "A lot! An adult elephant can eat over 136 kilograms, which is around 300 pounds, of food a day, mostly grasses, fruits, and tree bark.",
-    options: ["That is a lot!", 
-     "Wow!", 
-     "Can I go into the enclosure?"
-   ],
+    question:
+      "A lot! An adult elephant can eat over 136 kilograms, which is around 300 pounds, of food a day, mostly grasses, fruits, and tree bark.",
+    options: ["That is a lot!", "Wow!", "Can I go into the enclosure?"],
     correctAnswer: "That is a lot!",
   },
   {
-    question: "Follow me and let's visit our big cats! Here we have our male lion, Simba.",
-    options: ["Is it a boy or a girl?", 
-     "Wow, he's huge! How much does he weigh?", 
-     "He's gorgeous!"
-   ],
+    question:
+      "Follow me and let's visit our big cats! Here we have our male lion, Simba.",
+    options: [
+      "Is it a boy or a girl?",
+      "Wow, he's huge! How much does he weigh?",
+      "He's gorgeous!",
+    ],
     correctAnswer: "Wow, he's huge! How much does he weigh?",
   },
   {
-    question: "Simba weighs around 195 kilograms, 430 pounds. The females, called lionesses, are a bit smaller but are the primary hunters in the wild.",
-    options: ["That is cool!", 
-     "I figured the males would be the hunters.", 
-     "That's interesting! I didn't know that the lionesses are the hunters.",
-   ],
-    correctAnswer: "That's interesting! I didn't know that the lionesses are the hunters.",
+    question:
+      "Simba weighs around 195 kilograms, 430 pounds. The females, called lionesses, are a bit smaller but are the primary hunters in the wild.",
+    options: [
+      "That is cool!",
+      "I figured the males would be the hunters.",
+      "That's interesting! I didn't know that the lionesses are the hunters.",
+    ],
+    correctAnswer:
+      "That's interesting! I didn't know that the lionesses are the hunters.",
   },
   {
-    question: "Everyone, if you look to your right, you'll see our Bengal tiger, Rajah pacing near the water.",
-    options: ["I didn't know tigers liked water.", 
-     "Why is he pacing?", 
-     "He's gorgeous.",
-   ],
+    question:
+      "Everyone, if you look to your right, you'll see our Bengal tiger, Rajah pacing near the water.",
+    options: [
+      "I didn't know tigers liked water.",
+      "Why is he pacing?",
+      "He's gorgeous.",
+    ],
     correctAnswer: "I didn't know tigers liked water.",
   },
   {
-    question: "Yes, tigers are excellent swimmers. In the wild, tigers use rivers and lakes to cool off and even hunt prey.",
-    options: ["This has been awesome. What's next?", 
-     "That is so cool!", 
-     "That is scary.",
-   ],
+    question:
+      "Yes, tigers are excellent swimmers. In the wild, tigers use rivers and lakes to cool off and even hunt prey.",
+    options: [
+      "This has been awesome. What's next?",
+      "That is so cool!",
+      "That is scary.",
+    ],
     correctAnswer: "This has been awesome. What's next?",
   },
   {
-    question: "We are now going to head over to our giraffe enclosure. This is one of our interactive enclosures, where you can feed them if you want.",
-    options: ["Do we have to feed them?", 
-     "Can we move on?", 
-     "What do they eat?",
-   ],
+    question:
+      "We are now going to head over to our giraffe enclosure. This is one of our interactive enclosures, where you can feed them if you want.",
+    options: [
+      "Do we have to feed them?",
+      "Can we move on?",
+      "What do they eat?",
+    ],
     correctAnswer: "What do they eat?",
   },
   {
-    question: "Giraffes are herbivores, so they only eat plants. We have some specially formulated giraffe biscuits that you can feed them. They contain all the nutrients they need!",
-    options: ["That sounds fun! Let's do it!", 
-     "I think I'll pass.", 
-     "Can I eat the biscuit?",
-   ],
+    question:
+      "Giraffes are herbivores, so they only eat plants. We have some specially formulated giraffe biscuits that you can feed them. They contain all the nutrients they need!",
+    options: [
+      "That sounds fun! Let's do it!",
+      "I think I'll pass.",
+      "Can I eat the biscuit?",
+    ],
     correctAnswer: "That sounds fun! Let's do it!",
   },
   {
-    question: "Ok everyone, this has been a fun tour with you all! Come see us again!",
-    options: ["I don't think I'll be back.", 
-     "The tour was Ok.", 
-     "Thank you! This has been great!",
-   ],
+    question:
+      "Ok everyone, this has been a fun tour with you all! Come see us again!",
+    options: [
+      "I don't think I'll be back.",
+      "The tour was Ok.",
+      "Thank you! This has been great!",
+    ],
     correctAnswer: "Thank you! This has been great!",
   },
 ];
@@ -122,6 +136,7 @@ export default function ZooScenario() {
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
   const navigation = useNavigation();
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const name = "ZooScenario";
   const currentRouteLocation = flattenedRouteData.find(
@@ -295,7 +310,7 @@ export default function ZooScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("zooVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
@@ -339,6 +354,18 @@ export default function ZooScenario() {
 
           if (currentRouteLocation && docData) {
             let i = currentRouteLocation.id;
+            let currentID = docData[i];
+            if(currentID){
+              setDoc(
+                doc(FIRESTORE_DB, "user_data", user_id),
+                {
+                  [flattenedRouteData[i-1].id]: {
+                    stars: stars,
+                  },
+                },
+                { merge: true }
+              );
+            }
             let scenarioID = docData[i + 1];
             if (scenarioID) {
               setDoc(
@@ -346,7 +373,6 @@ export default function ZooScenario() {
                 {
                   [flattenedRouteData[i].id]: {
                     name: flattenedRouteData[i].title,
-                    stars: stars,
                     unlocked: true,
                   },
                 },
@@ -376,13 +402,13 @@ export default function ZooScenario() {
     <SafeAreaView style={styles.container}>
       <Modal visible={isVisible} transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
+          <View style={[styles.modalView, darkMode && styles.darkModalView]}>
             <Text style={styles.score}>You got {averageScore / 30} stars!</Text>
             <Pressable
               onPress={() => setVisible(false)}
-              style={styles.closeButton}
+              style={[styles.closeButton, darkMode && styles.darkCloseButton]}
             >
-              <Text style={styles.buttonText}>Review Lesson</Text>
+              <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Review Lesson</Text>
             </Pressable>
           </View>
         </View>
@@ -399,10 +425,10 @@ export default function ZooScenario() {
           />
         </Pressable>
       </ImageBackground>
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, darkMode && styles.darkOverlay]}>
         {!loading ? ( //view encasing what displays once page and translation loads
           <View>
-            <Text style={styles.question}>
+            <Text style={[styles.question, darkMode && styles.darkQuestion]}>
               {dialogue[currentquestionindex].question}
             </Text>
             {dialogue[currentquestionindex].options.map((option, index) => (
@@ -411,7 +437,9 @@ export default function ZooScenario() {
                 <Text
                   style={[
                     styles.option,
-                    isCorrect ? styles.correctAnswer : styles.option,
+                    isCorrect 
+                    ? styles.correctAnswer && styles.darkCorrectAnswer
+                    : styles.option && styles.darkOption,
                   ]}
                 >
                   {option}
@@ -424,8 +452,8 @@ export default function ZooScenario() {
           <Text>LOADING</Text>
         )}
 
-        <Pressable onPress={nextQuestion} style={styles.nextButton}>
-          <Text style={styles.buttonText}>Next Question</Text>
+        <Pressable onPress={nextQuestion} style={[styles.nextButton, darkMode && styles.darkNextButton]}>
+          <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Next Question</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -437,6 +465,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "black",
     alignItems: "center",
+  },
+
+  //---------------
+  darkOverlay: {
+    paddingVertical: 50,
+    backgroundColor: "darkgreen",
+    color: "rgb(241, 236, 215)",
+    position: "absolute",
+    bottom: 0,
+    height: "50%",
+    width: "100%",
+    justifyContent: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 5,
+    borderRadius: 25,
   },
   overlay: {
     paddingVertical: 50,
@@ -451,10 +494,21 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     borderRadius: 25,
   },
+  //----------------
+
   imageBackground: {
     width: "100%",
     height: "75%",
     resizeMode: "cover",
+  },
+
+  //----------------
+  darkQuestion: {
+    color: "rgb(241, 236, 215)",
+    padding: 15,
+    marginBottom: 4,
+    marginTop: 6,
+    fontSize: 25,
   },
   question: {
     color: "white",
@@ -462,6 +516,20 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 6,
     fontSize: 25,
+  },
+  //-----------------
+
+  //-----------------
+  darkOption: {
+    color: "rgb(241, 236, 215)",
+    borderColor: "rgb(241, 236, 215)",
+    borderBlockColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    fontSize: 20,
+    paddingLeft: 10,
   },
   option: {
     color: "white",
@@ -474,6 +542,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     paddingLeft: 10,
   },
+  //-----------------
+
+  //-----------------
+  darkCorrectAnswer: {
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    backgroundColor: "green",
+    color: "rgb(241, 236, 215)",
+  },
   correctAnswer: {
     borderWidth: 3,
     borderRadius: 5,
@@ -481,6 +560,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "chartreuse",
     color: "white",
+  },
+  //--------------------
+
+  //--------------------
+  darkNextButton: {
+    padding: 10,
+    backgroundColor: "darkred",
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
   },
   nextButton: {
     padding: 10,
@@ -491,10 +582,19 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 3,
   },
+  //-------------------
+
+  //-------------------
+  darkButtonText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 18,
+  },
   buttonText: {
     color: "white",
     fontSize: 18,
   },
+  //-------------------
+
   score: {
     fontSize: 36,
     justifyContent: "center",
@@ -506,6 +606,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
+  },
+
+  //-------------------
+  darkModalView: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalView: {
     width: "80%",
@@ -519,12 +633,23 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  //-----------------
+
+  //-----------------
+  darkCloseButton: {
+    marginTop: 20,
+    backgroundColor: "darkred",
+    padding: 10,
+    borderRadius: 5,
+  },
   closeButton: {
     marginTop: 20,
     backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
+  //----------------
+
   backButtonIcon: {
     margin: 20,
     height: 30,

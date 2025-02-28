@@ -16,6 +16,7 @@ import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
+import { useTheme } from "../ThemeContext";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -35,85 +36,102 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  {  
-     question: "Produce vendor: Good morning! Welcome to the farmers market. Let me know if you need any help!",
-     options: ["Are these tomatoes?", 
-      "Good morning! Your produce looks amazing. Are these tomatoes organic?", 
+  {
+    question:
+      "Produce vendor: Good morning! Welcome to the farmers market. Let me know if you need any help!",
+    options: [
+      "Are these tomatoes?",
+      "Good morning! Your produce looks amazing. Are these tomatoes organic?",
       "Do you have any bread?",
-     ],
-     correctAnswer: "Good morning! Your produce looks amazing. Are these tomatoes organic?",
+    ],
+    correctAnswer:
+      "Good morning! Your produce looks amazing. Are these tomatoes organic?",
   },
   {
-     question: "Yes, they are! We grow them without any pesticides.",
-     options: ["Nice! I'll take half a kilogram, please.", 
-      "I don't like organic produce.", 
-      "Can I buy just one?", 
-     ],
-     correctAnswer: "Nice! I'll take half a kilogram, please.",
+    question: "Yes, they are! We grow them without any pesticides.",
+    options: [
+      "Nice! I'll take half a kilogram, please.",
+      "I don't like organic produce.",
+      "Can I buy just one?",
+    ],
+    correctAnswer: "Nice! I'll take half a kilogram, please.",
   },
   {
-     question: "Great! That will be 4 please. Anything else for you?",
-     options: ["Actually, I don't think I want these anymore.", 
-      "Thank you!", 
+    question: "Great! That will be 4 please. Anything else for you?",
+    options: [
+      "Actually, I don't think I want these anymore.",
+      "Thank you!",
       "This is it for now, thank you!",
     ],
-     correctAnswer: "This is it for now, thank you!",
+    correctAnswer: "This is it for now, thank you!",
   },
   {
-     question: "Vendor: Hi! Would you like to try a sample of our wildflower honey?",
-     options: ["That sounds gross.", 
-      "I guess.", 
+    question:
+      "Vendor: Hi! Would you like to try a sample of our wildflower honey?",
+    options: [
+      "That sounds gross.",
+      "I guess.",
       "Absolutely! That sounds great!",
     ],
-     correctAnswer: "Absolutely! That sounds great!",
+    correctAnswer: "Absolutely! That sounds great!",
   },
   {
-     question: "Here you go. Our wildflower honey has a rich and complex flavor.",
-     options: ["I don't think I like it.", 
-      "It tastes great! How much for a small jar?", 
+    question:
+      "Here you go. Our wildflower honey has a rich and complex flavor.",
+    options: [
+      "I don't think I like it.",
+      "It tastes great! How much for a small jar?",
       "It's ok.",
     ],
-     correctAnswer: "It tastes great! How much for a small jar?",
+    correctAnswer: "It tastes great! How much for a small jar?",
   },
   {
-     question: "Our small jar is 10, and I'll throw in a sample jar of our clover honey.",
-     options: ["Thank you! I appreciate it!", 
-      "I don't want to pay extra.", 
+    question:
+      "Our small jar is 10, and I'll throw in a sample jar of our clover honey.",
+    options: [
+      "Thank you! I appreciate it!",
+      "I don't want to pay extra.",
       "Do you have any other samples?",
     ],
-     correctAnswer: "Thank you! I appreciate it!",
+    correctAnswer: "Thank you! I appreciate it!",
   },
   {
-     question: "Bakery Vendor: Welcome in! We have some fresh-baked bread, croissants, and some homemade pies today. Can I interest you in anything?",
-     options: ["I love bread!", 
-      "What kind of pies do you have?", 
+    question:
+      "Bakery Vendor: Welcome in! We have some fresh-baked bread, croissants, and some homemade pies today. Can I interest you in anything?",
+    options: [
+      "I love bread!",
+      "What kind of pies do you have?",
       "How many pies do you have?",
     ],
-     correctAnswer: "What kind of pies do you have?",
+    correctAnswer: "What kind of pies do you have?",
   },
   {
-     question: "We have apple, cherry, and pumpkin.",
-     options: ["Do you have pumpkin?", 
-      "I'll take an apple pie.", 
+    question: "We have apple, cherry, and pumpkin.",
+    options: [
+      "Do you have pumpkin?",
+      "I'll take an apple pie.",
       "Nevermind. Thanks anyways!",
     ],
-     correctAnswer: "I'll take an apple pie.",
+    correctAnswer: "I'll take an apple pie.",
   },
   {
-     question: "Craft vendor: Hi there! Everything here is handmade, from pottery to candles and jewelry. Let me know if you have any questions!",
-     options: ["None of these are my style.", 
-      "I love pottery!", 
+    question:
+      "Craft vendor: Hi there! Everything here is handmade, from pottery to candles and jewelry. Let me know if you have any questions!",
+    options: [
+      "None of these are my style.",
+      "I love pottery!",
       "These earrings are beautiful! I'll take these!",
     ],
-     correctAnswer: "These earrings are beautiful! I'll take these!",
+    correctAnswer: "These earrings are beautiful! I'll take these!",
   },
   {
-     question: "Great choice! That will be 12.",
-     options: ["Thank you! Have a good day!", 
-      "That's expensive!", 
+    question: "Great choice! That will be 12.",
+    options: [
+      "Thank you! Have a good day!",
+      "That's expensive!",
       "Here you go, thank you!",
     ],
-     correctAnswer: "Here you go, thank you!",
+    correctAnswer: "Here you go, thank you!",
   },
 ];
 
@@ -122,6 +140,7 @@ export default function FarmersMarketScenario() {
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
   const navigation = useNavigation();
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const name = "FarmersMarketScenario";
   const currentRouteLocation = flattenedRouteData.find(
@@ -295,7 +314,7 @@ export default function FarmersMarketScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("farmerVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
@@ -339,6 +358,18 @@ export default function FarmersMarketScenario() {
 
           if (currentRouteLocation && docData) {
             let i = currentRouteLocation.id;
+            let currentID = docData[i];
+            if(currentID){
+              setDoc(
+                doc(FIRESTORE_DB, "user_data", user_id),
+                {
+                  [flattenedRouteData[i-1].id]: {
+                    stars: stars,
+                  },
+                },
+                { merge: true }
+              );
+            }
             let scenarioID = docData[i + 1];
             if (scenarioID) {
               setDoc(
@@ -346,7 +377,6 @@ export default function FarmersMarketScenario() {
                 {
                   [flattenedRouteData[i].id]: {
                     name: flattenedRouteData[i].title,
-                    stars: stars,
                     unlocked: true,
                   },
                 },
@@ -376,13 +406,13 @@ export default function FarmersMarketScenario() {
     <SafeAreaView style={styles.container}>
       <Modal visible={isVisible} transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
+          <View style={[styles.modalView, darkMode && styles.darkModalView]}>
             <Text style={styles.score}>You got {averageScore / 30} stars!</Text>
             <Pressable
               onPress={() => setVisible(false)}
-              style={styles.closeButton}
+              style={[styles.closeButton, darkMode && styles.darkCloseButton]}
             >
-              <Text style={styles.buttonText}>Review Lesson</Text>
+              <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Review Lesson</Text>
             </Pressable>
           </View>
         </View>
@@ -399,10 +429,10 @@ export default function FarmersMarketScenario() {
           />
         </Pressable>
       </ImageBackground>
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, darkMode && styles.darkOverlay]}>
         {!loading ? ( //view encasing what displays once page and translation loads
           <View>
-            <Text style={styles.question}>
+            <Text style={[styles.question, darkMode && styles.darkQuestion]}>
               {dialogue[currentquestionindex].question}
             </Text>
             {dialogue[currentquestionindex].options.map((option, index) => (
@@ -411,7 +441,9 @@ export default function FarmersMarketScenario() {
                 <Text
                   style={[
                     styles.option,
-                    isCorrect ? styles.correctAnswer : styles.option,
+                    isCorrect 
+                    ? styles.correctAnswer && styles.darkCorrectAnswer
+                    : styles.option && styles.darkOption
                   ]}
                 >
                   {option}
@@ -424,8 +456,8 @@ export default function FarmersMarketScenario() {
           <Text>LOADING</Text>
         )}
 
-        <Pressable onPress={nextQuestion} style={styles.nextButton}>
-          <Text style={styles.buttonText}>Next Question</Text>
+        <Pressable onPress={nextQuestion} style={[styles.nextButton, darkMode && styles.darkNextButton]}>
+          <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Next Question</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -437,6 +469,21 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "black",
     alignItems: "center",
+  },
+
+  //---------------
+  darkOverlay: {
+    paddingVertical: 50,
+    backgroundColor: "darkgreen",
+    color: "rgb(241, 236, 215)",
+    position: "absolute",
+    bottom: 0,
+    height: "50%",
+    width: "100%",
+    justifyContent: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 5,
+    borderRadius: 25,
   },
   overlay: {
     paddingVertical: 50,
@@ -451,10 +498,21 @@ export const styles = StyleSheet.create({
     borderWidth: 5,
     borderRadius: 25,
   },
+  //----------------
+
   imageBackground: {
     width: "100%",
     height: "75%",
     resizeMode: "cover",
+  },
+
+  //----------------
+  darkQuestion: {
+    color: "rgb(241, 236, 215)",
+    padding: 15,
+    marginBottom: 4,
+    marginTop: 6,
+    fontSize: 25,
   },
   question: {
     color: "white",
@@ -462,6 +520,20 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 6,
     fontSize: 25,
+  },
+  //-----------------
+
+  //-----------------
+  darkOption: {
+    color: "rgb(241, 236, 215)",
+    borderColor: "rgb(241, 236, 215)",
+    borderBlockColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    fontSize: 20,
+    paddingLeft: 10,
   },
   option: {
     color: "white",
@@ -474,6 +546,17 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     paddingLeft: 10,
   },
+  //-----------------
+
+  //-----------------
+  darkCorrectAnswer: {
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    backgroundColor: "green",
+    color: "rgb(241, 236, 215)",
+  },
   correctAnswer: {
     borderWidth: 3,
     borderRadius: 5,
@@ -481,6 +564,18 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "chartreuse",
     color: "white",
+  },
+  //--------------------
+
+  //--------------------
+  darkNextButton: {
+    padding: 10,
+    backgroundColor: "darkred",
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
   },
   nextButton: {
     padding: 10,
@@ -491,10 +586,19 @@ export const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 3,
   },
+  //-------------------
+
+  //-------------------
+  darkButtonText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 18,
+  },
   buttonText: {
     color: "white",
     fontSize: 18,
   },
+  //-------------------
+
   score: {
     fontSize: 36,
     justifyContent: "center",
@@ -506,6 +610,20 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
+  },
+
+  //-------------------
+  darkModalView: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalView: {
     width: "80%",
@@ -519,12 +637,23 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  //-----------------
+
+  //-----------------
+  darkCloseButton: {
+    marginTop: 20,
+    backgroundColor: "darkred",
+    padding: 10,
+    borderRadius: 5,
+  },
   closeButton: {
     marginTop: 20,
     backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
+  //----------------
+
   backButtonIcon: {
     margin: 20,
     height: 30,

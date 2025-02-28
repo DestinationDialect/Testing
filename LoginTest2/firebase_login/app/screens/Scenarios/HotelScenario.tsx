@@ -16,6 +16,7 @@ import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
+import { useTheme } from "../ThemeContext";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -37,81 +38,86 @@ interface Question {
 const QUESTIONS: Question[] = [
   {
     question: "Good afternoon. How may I help you?",
-    options: ["I'm supposed to be staying here.", 
-      "I have a room booked under the name Doe.", 
-      "I just want my room.", 
+    options: [
+      "I'm supposed to be staying here.",
+      "I have a room booked under the name Doe.",
+      "I just want my room.",
     ],
     correctAnswer: "I have a room booked under the name Doe.",
   },
   {
     question: "Yes, I have a single king bed for 7 nights. Is that correct?",
-    options: ["Yes, that is correct.", 
-      "I thought I had a queen bed.", 
+    options: [
+      "Yes, that is correct.",
+      "I thought I had a queen bed.",
       "No, it should be for 7 nights.",
     ],
     correctAnswer: "Yes, that is correct.",
   },
   {
-    question: "Ok, we have your credit card information on file, may I see your ID?",
-    options: ["No.", 
-      "Sure, no problem.", 
-      "Why do you need my ID?",
-    ],
+    question:
+      "Ok, we have your credit card information on file, may I see your ID?",
+    options: ["No.", "Sure, no problem.", "Why do you need my ID?"],
     correctAnswer: "Sure, no problem.",
   },
   {
-    question: "Thank you. Here is your key, you are in room 427. Breakfast starts at 7am.",
-    options: ["No, thank you.", 
-      "That's not my room.", 
-      "Great, thank you.",
-    ],
+    question:
+      "Thank you. Here is your key, you are in room 427. Breakfast starts at 7am.",
+    options: ["No, thank you.", "That's not my room.", "Great, thank you."],
     correctAnswer: "Great, thank you.",
   },
   {
     question: "Do you have any questions I can answer for you?",
-    options: ["What room am I in?", 
-      "I don't think so.", 
-      "Actually yes. Where is the pool?", 
+    options: [
+      "What room am I in?",
+      "I don't think so.",
+      "Actually yes. Where is the pool?",
     ],
     correctAnswer: "Actually yes. Where is the pool?",
   },
   {
-    question: "We have an outdoor pool just out the door to your left. It's open from 7AM to 8PM.",
-    options: ["Perfect. Also, is there a place nearby where I can get dinner?", 
-      "I want dinner. Where are the restaurants?", 
-      "I didn't ask.", 
+    question:
+      "We have an outdoor pool just out the door to your left. It's open from 7AM to 8PM.",
+    options: [
+      "Perfect. Also, is there a place nearby where I can get dinner?",
+      "I want dinner. Where are the restaurants?",
+      "I didn't ask.",
     ],
-    correctAnswer: "Perfect. Also, is there a place nearby where I can get dinner?",
+    correctAnswer:
+      "Perfect. Also, is there a place nearby where I can get dinner?",
   },
   {
-    question: "Yes, there are several restaurants within walking distance. Here's a map with some recommendations.",
-    options: ["Thank you. You've been very helpful.", 
-      "Thanks, I'll just go to my room.", 
-      "Ok, cool.", 
+    question:
+      "Yes, there are several restaurants within walking distance. Here's a map with some recommendations.",
+    options: [
+      "Thank you. You've been very helpful.",
+      "Thanks, I'll just go to my room.",
+      "Ok, cool.",
     ],
     correctAnswer: "Thank you. You've been very helpful.",
   },
   {
-    question: "No problem. If you need anything else, please let us know. Enjoy your stay!",
-    options: ["Why do you say that?", 
-      "I will, thank you.", 
-      "I won't.", 
-    ],
+    question:
+      "No problem. If you need anything else, please let us know. Enjoy your stay!",
+    options: ["Why do you say that?", "I will, thank you.", "I won't."],
     correctAnswer: "I will, thank you.",
   },
   {
     question: "Checking out of the hotel... Did you enjoy your stay with us?",
-    options: ["Yes I did. What is the quickest way to get to the airport?", 
-      "I need to get to the airport.", 
-      "Where's the airport?", 
+    options: [
+      "Yes I did. What is the quickest way to get to the airport?",
+      "I need to get to the airport.",
+      "Where's the airport?",
     ],
     correctAnswer: "Yes I did. What is the quickest way to get to the airport?",
   },
   {
-    question: "We have a free airport shuttle service. The next shuttle leaves in 20 minutes.",
-    options: ["Ok, I guess I'll just have to wait.", 
-      "Great, thank you.", 
-      "Why doesn't it leave earlier?", 
+    question:
+      "We have a free airport shuttle service. The next shuttle leaves in 20 minutes.",
+    options: [
+      "Ok, I guess I'll just have to wait.",
+      "Great, thank you.",
+      "Why doesn't it leave earlier?",
     ],
     correctAnswer: "Great, thank you.",
   },
@@ -122,6 +128,7 @@ export default function HotelScenario() {
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
   const navigation = useNavigation();
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const name = "HotelScenario";
   const currentRouteLocation = flattenedRouteData.find(
@@ -295,7 +302,7 @@ export default function HotelScenario() {
     const vocabulary = formatVocab(dialogue, nativeDialogue);
     try {
       const jsonVocab = JSON.stringify(vocabulary);
-      await AsyncStorage.setItem("vocabulary", jsonVocab);
+      await AsyncStorage.setItem("hotelVocabulary", jsonVocab);
       console.log("vocab stored: ");
     } catch (error) {
       console.error("Error storing vocab: ", error);
@@ -339,6 +346,18 @@ export default function HotelScenario() {
 
           if (currentRouteLocation && docData) {
             let i = currentRouteLocation.id;
+            let currentID = docData[i];
+            if(currentID){
+              setDoc(
+                doc(FIRESTORE_DB, "user_data", user_id),
+                {
+                  [flattenedRouteData[i-1].id]: {
+                    stars: stars,
+                  },
+                },
+                { merge: true }
+              );
+            }
             let scenarioID = docData[i + 1];
             if (scenarioID) {
               setDoc(
@@ -346,7 +365,6 @@ export default function HotelScenario() {
                 {
                   [flattenedRouteData[i].id]: {
                     name: flattenedRouteData[i].title,
-                    stars: stars,
                     unlocked: true,
                   },
                 },
@@ -376,13 +394,13 @@ export default function HotelScenario() {
     <SafeAreaView style={styles.container}>
       <Modal visible={isVisible} transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
+          <View style={[styles.modalView, darkMode && styles.darkModalView]}>
             <Text style={styles.score}>You got {averageScore / 30} stars!</Text>
             <Pressable
               onPress={() => setVisible(false)}
-              style={styles.closeButton}
+              style={[styles.closeButton, darkMode && styles.darkCloseButton]}
             >
-              <Text style={styles.buttonText}>Review Lesson</Text>
+              <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Review Lesson</Text>
             </Pressable>
           </View>
         </View>
@@ -399,10 +417,10 @@ export default function HotelScenario() {
           />
         </Pressable>
       </ImageBackground>
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, darkMode && styles.darkOverlay]}>
         {!loading ? ( //view encasing what displays once page and translation loads
           <View>
-            <Text style={styles.question}>
+            <Text style={[styles.question, darkMode && styles.darkQuestion]}>
               {dialogue[currentquestionindex].question}
             </Text>
             {dialogue[currentquestionindex].options.map((option, index) => (
@@ -411,7 +429,9 @@ export default function HotelScenario() {
                 <Text
                   style={[
                     styles.option,
-                    isCorrect ? styles.correctAnswer : styles.option,
+                    isCorrect 
+                    ? styles.correctAnswer && styles.darkCorrectAnswer
+                    : styles.option && styles.darkOption,
                   ]}
                 >
                   {option}
@@ -438,6 +458,21 @@ export const styles = StyleSheet.create({
     backgroundColor: "black",
     alignItems: "center",
   },
+
+  //---------------
+  darkOverlay: {
+    paddingVertical: 50,
+    backgroundColor: "darkgreen",
+    color: "rgb(241, 236, 215)",
+    position: "absolute",
+    bottom: 0,
+    height: "50%",
+    width: "100%",
+    justifyContent: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 5,
+    borderRadius: 25,
+  },
   overlay: {
     paddingVertical: 50,
     backgroundColor: "green",
@@ -451,10 +486,21 @@ export const styles = StyleSheet.create({
     borderWidth: 5,
     borderRadius: 25,
   },
+  //----------------
+
   imageBackground: {
     width: "100%",
     height: "75%",
     resizeMode: "cover",
+  },
+
+  //----------------
+  darkQuestion: {
+    color: "rgb(241, 236, 215)",
+    padding: 15,
+    marginBottom: 4,
+    marginTop: 6,
+    fontSize: 25,
   },
   question: {
     color: "white",
@@ -462,6 +508,20 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 6,
     fontSize: 25,
+  },
+  //-----------------
+
+  //-----------------
+  darkOption: {
+    color: "rgb(241, 236, 215)",
+    borderColor: "rgb(241, 236, 215)",
+    borderBlockColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    fontSize: 20,
+    paddingLeft: 10,
   },
   option: {
     color: "white",
@@ -474,6 +534,17 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     paddingLeft: 10,
   },
+  //-----------------
+
+  //-----------------
+  darkCorrectAnswer: {
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    backgroundColor: "green",
+    color: "rgb(241, 236, 215)",
+  },
   correctAnswer: {
     borderWidth: 3,
     borderRadius: 5,
@@ -481,6 +552,18 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "chartreuse",
     color: "white",
+  },
+  //--------------------
+
+  //--------------------
+  darkNextButton: {
+    padding: 10,
+    backgroundColor: "darkred",
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
   },
   nextButton: {
     padding: 10,
@@ -491,10 +574,19 @@ export const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 3,
   },
+  //-------------------
+
+  //-------------------
+  darkButtonText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 18,
+  },
   buttonText: {
     color: "white",
     fontSize: 18,
   },
+  //-------------------
+
   score: {
     fontSize: 36,
     justifyContent: "center",
@@ -506,6 +598,20 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
+  },
+
+  //-------------------
+  darkModalView: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalView: {
     width: "80%",
@@ -519,12 +625,23 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  //-----------------
+
+  //-----------------
+  darkCloseButton: {
+    marginTop: 20,
+    backgroundColor: "darkred",
+    padding: 10,
+    borderRadius: 5,
+  },
   closeButton: {
     marginTop: 20,
     backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
+  //----------------
+
   backButtonIcon: {
     margin: 20,
     height: 30,
