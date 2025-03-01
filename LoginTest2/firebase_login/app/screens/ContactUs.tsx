@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
+import AudioManager from "./AudioManager";
 
 export default function ContactUs() {
   const navigation = useNavigation();
@@ -47,13 +48,18 @@ export default function ContactUs() {
       resizeMode="cover"
       style={styles.background}
     >
-      <Pressable onPress={() => navigation.goBack()}>
+      <Pressable 
+        onPress={async () => { 
+          await AudioManager.playButtonSound();
+          navigation.goBack();
+        }}
+      >
         <Image
           style={styles.backButtonIcon}
           source={
-            darkMode
-              ? require("../../assets/whiteBackArrow.png")
-              : require("../../assets/backArrow.png")
+            darkMode 
+            ? require("../../assets/whiteBackArrow.png")
+            : require("../../assets/backArrow.png")
           }
         />
       </Pressable>
@@ -92,9 +98,15 @@ export default function ContactUs() {
         />
 
         {/* Submit Button */}
-        <TouchableOpacity style={[styles.button, darkMode && styles.darkButton]} onPress={handleSubmit}>
+        <TouchableOpacity style={[styles.button, darkMode && styles.darkButton]} 
+            onPress={() => {  
+                AudioManager.playButtonSound();   
+                handleSubmit();
+            }}
+        >
           <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Send Message</Text>
         </TouchableOpacity>
+
       </ScrollView>
     </ImageBackground>
   );

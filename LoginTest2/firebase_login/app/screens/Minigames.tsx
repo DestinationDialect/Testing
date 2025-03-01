@@ -11,6 +11,7 @@ import styles from "./Styles";
 import React from "react";
 import { NavigationProp } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
+import AudioManager from "./AudioManager";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -29,7 +30,12 @@ const Minigames = ({ navigation }: RouterProps) => {
       resizeMode="cover"
       style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply Dark Mode styles
     >
-      <Pressable onPress={() => navigation.goBack()}>
+      <Pressable 
+        onPress={() => {
+          AudioManager.playButtonSound();
+          navigation.goBack()
+        }}
+        >
         <Image
           style={styles.backButtonIcon}
           source={
@@ -47,13 +53,19 @@ const Minigames = ({ navigation }: RouterProps) => {
             <View style={[styles.menu, darkMode && styles.darkMenu]}>
               <TouchableOpacity
                 style={[styles.button, darkMode && styles.darkButton]}
-                onPress={() => navigation.navigate("Flashcards")}
+                onPress={() => { 
+                  AudioManager.playButtonSound();
+                  navigation.navigate("Flashcards")
+                }}
               >
                 <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Flashcards</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, darkMode && styles.darkButton]}
-                onPress={() => navigation.navigate("Matching")}
+                onPress={() => { 
+                  AudioManager.playButtonSound();
+                  navigation.navigate("Matching")
+                }}
               >
                 <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Matching</Text>
               </TouchableOpacity>

@@ -323,6 +323,15 @@ const styles = StyleSheet.create({
   },
   //--------------------
 
+  //--------------------
+  darkContinueButtonText: {
+    color: "rgb(241, 236, 215)",
+  },
+  continueButtonText: {
+    color: "white",
+  },
+  //--------------------
+
   //---language selection modal styles---------
   modalLanguages: {
     flexDirection: "row",
@@ -347,6 +356,14 @@ const styles = StyleSheet.create({
     padding: 5,
     borderWidth: 2,
     borderColor: "#000",
+  },
+
+  //------------------
+  darkSelectedLanguageText: {
+    color: "rgb(241, 236, 215)"
+  }, 
+  selectedLanguageText: {
+    color: "white",
   },
 });
 export default styles;

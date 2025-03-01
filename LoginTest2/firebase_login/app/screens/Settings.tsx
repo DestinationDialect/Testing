@@ -7,9 +7,10 @@ import {
   ImageBackground,
   Pressable,
   Image, 
-  useColorScheme, 
+  useColorScheme,
+  Modal, 
 } from "react-native";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Styles";
 import FeatherIcon from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
@@ -19,6 +20,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "./ThemeContext"; 
+import AudioManager from "./AudioManager";
 
 type InsideStackParamList = {
   Settings: undefined;
@@ -112,27 +114,48 @@ export default function Settings() {
   const [firstLanguage, setFirstLanguage] = useState("");
   const [newLanguage, setNewLanguage] = useState("");
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("English"); 
+  const [errorMessage, setErrorMessage] = useState("");
   const { darkMode, toggleDarkMode } = useTheme();
   const auth = FIREBASE_AUTH;
   const navigation = useNavigation<NativeStackNavigationProp<InsideStackParamList>>();
 
-  const asyncLanguageStorage = async () => {
+  const asyncLanguageStorage = async (firstL: string, newL: string) => {
     try {
-      await AsyncStorage.setItem("originLanguage", firstLanguage);
-      await AsyncStorage.setItem("newLanguage", newLanguage);
+      await AsyncStorage.setItem("originLanguage", firstL);
+      await AsyncStorage.setItem("newLanguage", newL);
+      //Store language
     } catch (error) {
       console.error("Error storing languages in AsyncStorage:", error);
+    } finally {
+      console.log(
+        "Stored Languages - firstLanguage: ",
+        firstL,
+        "newLanguage: ",
+        newL
+      );
     }
   };
 
   const setLanguage = async () => {
     // function to fetch user languages from database and save in async storage on sign in
     // replace language setting with database call data
-    setFirstLanguage("English");
-    setNewLanguage("Spanish");
-
+    const user = FIREBASE_AUTH.currentUser;
+    let firstL = "English"
+    let newL = "Spanish"
+      if (user) {
+        const user_id = user.uid;
+        const ref = doc(FIRESTORE_DB, "user_language", user_id);
+        const docSnap = await getDoc(ref);
+        const docData = docSnap.data();
+        console.log("user found");
+        if (docData) {
+          firstL = docData.firstLanguage
+          newL = docData.newLanguage
+        }
+      }
     // store data from variables in async storage
-    asyncLanguageStorage();
+    asyncLanguageStorage(firstL, newL);
   };
 
   const signIn = async () => {
@@ -140,41 +163,71 @@ export default function Settings() {
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
       console.log(response);
+      setLanguage();
     } catch (error: any) {
       console.log(error);
       alert("Sign in failed" + error.message);
-      setLoginError(true);
-     } finally {
-      if (!loginError) {
-        setLanguage(); // function to fetch user languages from database and save in async storage
-      }
+    } finally {
       setLoading(false);
     }
   };
 
   const handleLanguageSelection = () => {
     // store languages in async storage
-    asyncLanguageStorage();
-  
-    // close Modal
-    setLanguageModalVisible(false);
-  
-    // // complete sign up
-    // signUp();
-  };
-  
-  const handleSignUp = () => {
-    // display modal for language selection
-    setLanguageModalVisible(true);
+    if (firstLanguage && newLanguage && firstLanguage != newLanguage) {
+      asyncLanguageStorage(firstLanguage, newLanguage);
+
+      // close Modal
+      setLanguageModalVisible(false);
+    }
   };
 
   const [form, setForm] = useState<FormState>({
     darkMode: false,
-    language: "English",
+    language: "English", 
     backgroundMusic: true,
     buttonSound: true,
     notifications: true,
   });
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const savedButtonSound = await AsyncStorage.getItem("buttonSound");
+        const savedBackgroundMusic = await AsyncStorage.getItem("backgroundMusic");
+        const savedFirstLanguage = await AsyncStorage.getItem("originLanguage");
+        const savedNewLanguage = await AsyncStorage.getItem("newLanguage");
+  
+        setForm((prevState) => ({
+          ...prevState,
+          buttonSound: savedButtonSound === "true",
+          backgroundMusic: savedBackgroundMusic === "true",
+        }));
+  
+        if (savedFirstLanguage && savedNewLanguage) {
+          setFirstLanguage(savedFirstLanguage);
+          setNewLanguage(savedNewLanguage);
+        }
+      } catch (error) {
+        console.error("Error loading settings from AsyncStorage:", error);
+      }
+    };
+  
+    loadSettings();
+
+    const loadLanguage = async () => {
+      try {
+        const savedLanguage = await AsyncStorage.getItem("selectedLanguage");
+        if (savedLanguage) {
+          setSelectedLanguage(savedLanguage);
+        }
+      } catch (error) {
+        console.error("Error loading language from AsyncStorage:", error);
+      }
+    };
+    loadLanguage();
+
+  }, []);  
 
   return (
     <ImageBackground
@@ -186,7 +239,12 @@ export default function Settings() {
       resizeMode="cover"
       style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply different styles
     > 
-      <Pressable onPress={() => navigation.goBack()}>
+      <Pressable 
+        onPress={async () => { 
+          await AudioManager.playButtonSound();
+          navigation.goBack();
+        }}
+      >
         <Image
           style={styles.backButtonIcon}
           source={
@@ -197,6 +255,63 @@ export default function Settings() {
         />
       </Pressable>
       <ScrollView contentContainerStyle={[styles.container, darkMode && styles.darkContainer]}>
+      <Modal visible={languageModalVisible} transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalTitle}>
+                Select your language settings
+              </Text>
+              <View style={styles.modalLanguages}>
+                <View style={styles.modalLanguage}>
+                  <Text>First Language:</Text>
+                  {availableLanguages.map((language, index) => (
+                    <Pressable
+                      key={index}
+                      style={
+                        language === firstLanguage
+                          ? styles.selectedModalLanguageButton
+                          : styles.modalLanguageButton
+                      }
+                      onPress={() => setFirstLanguage(language)}
+                    >
+                      <Text>{language}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <View style={styles.modalLanguage}>
+                  <Text>Language to learn:</Text>
+                  {availableLanguages.map((language, index) => (
+                    <Pressable
+                      key={index}
+                      style={
+                        language === newLanguage
+                          ? styles.selectedModalLanguageButton
+                          : styles.modalLanguageButton
+                      }
+                      onPress={() => setNewLanguage(language)}
+                    >
+                      <Text>{language}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+              <Text>{errorMessage}</Text>
+              <Pressable
+                style={[styles.continueButton, darkMode && styles.darkContinueButton]}
+                onPress={async () => {
+                  AudioManager.playButtonSound();
+                  await AsyncStorage.setItem("originLanguage", firstLanguage);
+                  await AsyncStorage.setItem("newLanguage", newLanguage);
+                  setLanguageModalVisible(false);
+                }}
+              >
+                <Text style={styles.continueButtonText}>Save</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+
+
         <View style={styles.header}>
           <Text style={[styles.title, darkMode && styles.darkTitle]}>Settings</Text>
           <Text style={[styles.subtitle, darkMode && styles.darkSubtitle]}>Update your Preferences Here</Text>
@@ -218,12 +333,15 @@ export default function Settings() {
                   key={id}
                 >
                   <TouchableOpacity
-                    onPress={() => {
+                    onPress={() => {  
+                    AudioManager.playButtonSound();   
                       if (id === "contact") {
                         navigation.navigate("ContactUs");
                       }
+                      if (id === "language") {
+                        setLanguageModalVisible(true);
+                      }
                     }}
-                    
                   >
                     <View style={styles.row}>
                       <FeatherIcon style={[styles.featherIcon, darkMode && styles.darkFeatherIcon]}
@@ -243,14 +361,40 @@ export default function Settings() {
                             }else {
                               setForm({ ...form, [id as keyof FormState]: value })
                             }
+
+                            // Handle Audio Toggles
+                            if (id === "backgroundMusic") {
+                              setForm((prevState) => ({ ...prevState, backgroundMusic: value }));
+                              AsyncStorage.setItem("backgroundMusic", value.toString()).then(() => {
+                                if (value) {
+                                  AudioManager.playBackgroundMusic();
+                                } else {
+                                  AudioManager.stopBackgroundMusic();
+                                }
+                              });
+                            }                            
+                            
+                            if (id === "buttonSound") {
+                              setForm((prevState) => ({ ...prevState, buttonSound: value }));
+                              AsyncStorage.setItem("buttonSound", value.toString());
+                            }                            
+
                           }}
                         />
+                      )}
+
+                      {/* Show selected language next to Language option */}
+                      {id === "language" && (
+                        <Text style={styles.selectedLanguageText}>
+                          {firstLanguage} ➞ {newLanguage}
+                        </Text>
                       )}
 
                       {/* Show arrow for "select" and "link" types */}
                       {["select", "link"].includes(type) && (
                         <FeatherIcon name="chevron-right" color="white" size={22} />
                       )}
+
                     </View>
                   </TouchableOpacity> 
                 </View>

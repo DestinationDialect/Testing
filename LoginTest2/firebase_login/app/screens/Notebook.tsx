@@ -21,6 +21,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { translateText } from "../../translate";
 import { languages } from "./Scenarios/RestaurantScenario";
 import { useTheme } from "./ThemeContext";
+import AudioManager from "./AudioManager";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -129,7 +130,9 @@ const Vocabulary = () => {
                 ? notebookStyles.selectedSectionHeader && notebookStyles.darkSelectedSectionHeader
                 : notebookStyles.sectionHeader && notebookStyles.darkSectionHeader
             }
-            onPress={() => setCurrentSection(item)}
+            onPress={() => { 
+              AudioManager.playButtonSound();
+              setCurrentSection(item)}}
           >
             <Text>{item}</Text>
           </Pressable>
@@ -300,7 +303,10 @@ const PersonalTranslations = () => {
       {/* Header with Add Button */}
       <View style={notebookStyles.header}>
         <TouchableOpacity
-          onPress={() => setModalVisible(true)}
+          onPress={() => {
+            AudioManager.playButtonSound();
+            setModalVisible(true)
+          }}
           style={[notebookStyles.addButton, darkMode && notebookStyles.darkAddButton]}
         >
           <Text style={[notebookStyles.addButtonText, darkMode && notebookStyles.darkButtonText]}>+ Add</Text>
@@ -317,7 +323,10 @@ const PersonalTranslations = () => {
 
               {/* Edit Button */}
               <TouchableOpacity
-                onPress={() => openEditModal(index)}
+                onPress={() => { 
+                  AudioManager.playButtonSound();
+                  openEditModal(index)
+                }}
                 style={notebookStyles.editButton}
               >
                 <FontAwesome name="edit" size={24} color="black" />
@@ -325,7 +334,10 @@ const PersonalTranslations = () => {
 
               {/* Delete Button */}
               <TouchableOpacity
-                onPress={() => deleteWord(index)}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  deleteWord(index)
+                }}
                 style={[notebookStyles.deleteButton, darkMode && notebookStyles.darkDeleteButton]}
               >
                 <FontAwesome name="trash" size={24} style={[notebookStyles.deleteIcon, darkMode && notebookStyles.darkDeleteIcon]} />
@@ -361,20 +373,29 @@ const PersonalTranslations = () => {
             {/* Buttons */}
             <View style={notebookStyles.buttonRow}>
               <Pressable
-                onPress={() => handleTranslation(word)}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  handleTranslation(word)
+                }}
                 style={[notebookStyles.translateButton, darkMode && notebookStyles.darkTranslateButton]}
               >
                 <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>Translate</Text>
               </Pressable>
               <TouchableOpacity
                 style={[notebookStyles.cancelButton, darkMode && notebookStyles.darkCancelButton]}
-                onPress={() => setModalVisible(false)}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  setModalVisible(false)
+                }}
               >
                 <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[notebookStyles.saveButton, darkMode && notebookStyles.darkSaveButton]}
-                onPress={saveWord}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  saveWord()
+                }}
               >
                 <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>
                   {editIndex !== null ? "Update" : "Save"}
@@ -462,7 +483,10 @@ const PersonalNotes = () => {
       {/* Header with Add Button */}
       <View style={notebookStyles.header}>
         <Pressable
-          onPress={() => setModalVisible(true)}
+          onPress={() => {
+            AudioManager.playButtonSound();
+            setModalVisible(true)
+          }}
           style={[notebookStyles.addButton, darkMode && notebookStyles.darkAddButton]}
         >
           <Text style={[notebookStyles.addButtonText, darkMode && notebookStyles.darkAddButtonText]}>+ Add</Text>
@@ -478,7 +502,10 @@ const PersonalNotes = () => {
 
               {/* Edit Button */}
               <Pressable
-                onPress={() => openEditModal(index)}
+                onPress={() => { 
+                  AudioManager.playButtonSound();
+                  openEditModal(index)
+                }}
                 style={notebookStyles.editButton}
               >
                 <FontAwesome name="edit" size={24} color="black" />
@@ -486,7 +513,10 @@ const PersonalNotes = () => {
 
               {/* Delete Button */}
               <Pressable
-                onPress={() => deleteWord(index)}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  deleteWord(index)
+                }}
                 style={[notebookStyles.deleteButton, darkMode && notebookStyles.darkDeleteButton]}
               >
                 <FontAwesome name="trash" size={24} style={[notebookStyles.deleteIcon, darkMode && notebookStyles.darkDeleteIcon]} />
@@ -513,7 +543,7 @@ const PersonalNotes = () => {
 
             {/* Input Field */}
             <TextInput
-              style={[notebookStyles.inputNote, darkMode && notebookStyles.darkInputNote]}
+              style={[notebookStyles.input, darkMode && notebookStyles.darkInput]}
               multiline={true}
               placeholder="Enter your notes"
               value={note}
@@ -524,11 +554,20 @@ const PersonalNotes = () => {
             <View style={notebookStyles.buttonRow}>
               <Pressable
                 style={[notebookStyles.cancelButton, darkMode && notebookStyles.darkCancelButton]}
-                onPress={() => setModalVisible(false)}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  setModalVisible(false)
+                }}
               >
                 <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>Cancel</Text>
               </Pressable>
-              <Pressable style={[notebookStyles.saveButton, darkMode && notebookStyles.darkSaveButton]} onPress={saveWord}>
+              <Pressable 
+                style={[notebookStyles.saveButton, darkMode && notebookStyles.darkSaveButton]} 
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  saveWord()
+                }}
+              >
                 <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>
                   {editIndex !== null ? "Update" : "Save"}
                 </Text>
@@ -554,7 +593,10 @@ const Personal = () => {
               ? notebookStyles.selectedSectionHeader && notebookStyles.darkSelectedSectionHeader
               : notebookStyles.sectionHeader && notebookStyles.darkSectionHeader
           }
-          onPress={() => setCurrentSection("Translations")}
+          onPress={() => {
+            AudioManager.playButtonSound()
+            setCurrentSection("Translations")
+          }}
         >
           <Text>Translations</Text>
         </Pressable>
@@ -564,7 +606,10 @@ const Personal = () => {
               ? notebookStyles.selectedSectionHeader && notebookStyles.darkSelectedSectionHeader
               : notebookStyles.sectionHeader && notebookStyles.darkSectionHeader
           }
-          onPress={() => setCurrentSection("Notes")}
+          onPress={() => {
+            AudioManager.playButtonSound();
+            setCurrentSection("Notes")
+          }}
         >
           <Text>Notes</Text>
         </Pressable>
@@ -590,7 +635,10 @@ const Notebook = ({ navigation }: RouterProps) => {
       resizeMode="cover"
       style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply Dark Mode styles
     >
-      <Pressable onPress={() => navigation.goBack()}>
+      <Pressable onPress={() => { 
+        AudioManager.playButtonSound();
+        navigation.goBack()}}
+      >
         <Image
           style={styles.backButtonIcon}
           source={
@@ -608,13 +656,19 @@ const Notebook = ({ navigation }: RouterProps) => {
         <View style={notebookStyles.tabs}>
           <Pressable 
             style={[notebookStyles.tab, darkMode && notebookStyles.darkTab]}
-            onPress={() => setCurrentTab("vocabulary")}
+            onPress={() => {
+              AudioManager.playButtonSound();
+              setCurrentTab("vocabulary")
+            }}
           >
             <Text style={notebookStyles.tabTitle}>Vocabulary</Text>
           </Pressable>
           <Pressable
             style={[notebookStyles.tab, darkMode && notebookStyles.darkTab]}
-            onPress={() => setCurrentTab("personal")}
+            onPress={() => {
+              AudioManager.playButtonSound();
+              setCurrentTab("personal")
+            }}
           >
             <Text style={notebookStyles.tabTitle}>Personal</Text>
           </Pressable>

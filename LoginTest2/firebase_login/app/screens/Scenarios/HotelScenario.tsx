@@ -17,6 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
 import { useTheme } from "../ThemeContext";
+import AudioManager from "../AudioManager";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -444,7 +445,13 @@ export default function HotelScenario() {
           <Text>LOADING</Text>
         )}
 
-        <Pressable onPress={nextQuestion} style={styles.nextButton}>
+        <Pressable 
+          onPress={() => {
+            AudioManager.playButtonSound(); 
+            {nextQuestion} 
+          }}
+          style={styles.nextButton}
+        >
           <Text style={styles.buttonText}>Next Question</Text>
         </Pressable>
       </View>

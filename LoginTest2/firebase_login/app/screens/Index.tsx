@@ -4,6 +4,7 @@ import React from "react";
 import { NavigationProp } from "@react-navigation/native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import { useTheme } from "./ThemeContext";
+import AudioManager from "./AudioManager";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -28,31 +29,47 @@ const Home = ({ navigation }: RouterProps) => {
       <View style={styles.menu}>
         <TouchableOpacity
           style={[styles.button, darkMode && styles.darkButton]}
-          onPress={() => navigation.navigate("Route")}
+          onPress={() => { 
+            AudioManager.playButtonSound()   
+            navigation.navigate("Route");
+          }}
         >
           <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Route</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, darkMode && styles.darkButton]}
-          onPress={() => navigation.navigate("Notebook")}
+          onPress={() => { 
+            AudioManager.playButtonSound();
+            navigation.navigate("Notebook")
+          }}
         >
           <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Notebook</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, darkMode && styles.darkButton]}
-          onPress={() => navigation.navigate("Minigames")}
+          onPress={() => { 
+            AudioManager.playButtonSound();
+            navigation.navigate("Minigames")
+          }}
         >
           <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Minigames</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, darkMode && styles.darkButton]}
-          onPress={() => navigation.navigate("Settings")}
+          onPress={() => { 
+            AudioManager.playButtonSound();
+            navigation.navigate("Settings")
+          }}
         >
           <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Settings</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, darkMode && styles.darkButton]}
-          onPress={() => FIREBASE_AUTH.signOut()}
+          onPress={() => { 
+            AudioManager.playButtonSound();
+            AudioManager.stopBackgroundMusic(); 
+            FIREBASE_AUTH.signOut();
+          }}
         >
           <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Logout</Text>
         </TouchableOpacity>

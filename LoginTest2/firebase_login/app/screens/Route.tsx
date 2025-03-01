@@ -25,6 +25,7 @@ import lockedHospitalIcon from "../../assets/lockedHospitalIcon.png";
 
 import { NavigationProp } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext"; 
+import AudioManager from "./AudioManager";
 
 import styles from "./Styles";
 
@@ -152,7 +153,10 @@ const RouteItemComponent: React.FC<{
   const iconSource = iconMap[iconKey];
   return (
     <TouchableOpacity
-      onPress={() => item.isUnlocked && navigation.navigate(item.title)}
+      onPress={() => {
+        AudioManager.playButtonSound();
+        item.isUnlocked && navigation.navigate(item.title)
+      }}
     >
       <Image
         style={styles.scenarioButtonIcon}
@@ -305,7 +309,11 @@ const RouteScreen = ({ navigation }: RouterProps) => {
       resizeMode="cover"
       style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply Dark Mode styles
     >
-      <Pressable onPress={() => navigation.navigate("Home")}>
+      <Pressable 
+        onPress={() => {
+          AudioManager.playButtonSound();
+          navigation.navigate("Home")}}
+        >
         <Image
           style={styles.backButtonIcon}
           source={

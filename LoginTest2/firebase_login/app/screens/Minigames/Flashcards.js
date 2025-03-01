@@ -16,6 +16,7 @@ import {
   import { useTheme } from "../ThemeContext";
   import styles from "../Styles";
   import AsyncStorage from "@react-native-async-storage/async-storage";
+import AudioManager from "../AudioManager";
   
   const Flashcards = () => {
     const navigation = useNavigation();
@@ -62,8 +63,8 @@ import {
     function handleGenerate() {
       const num = parseInt(numQuestions, 10) || 1; // Ensure it's a valid number
       const flashcardSet = handleTopic(); // stores flashcards from selected topic
-      const shuffled = [...FLASHCARDS].sort(() => Math.random() - 0.5);
-      setFlashcards(shuffled.slice(0, Math.min(num, FLASHCARDS.length))); // Ensure it doesn't exceed the total number
+      const shuffled = [...flashcardSet].sort(() => Math.random() - 0.5);
+      setFlashcards(shuffled.slice(0, Math.min(num, flashcardSet.length))); // Ensure it doesn't exceed the total number
     }
 
     // format vocab from async storage into format flashcard interface works with
@@ -158,7 +159,12 @@ import {
           resizeMode="cover"
           style={styles.imgBackground}
         >
-          <Pressable onPress={() => navigation.goBack()}>
+          <Pressable 
+            onPress={() => { 
+              AudioManager.playButtonSound();
+              navigation.goBack()
+            }}
+          >
             <Image
               style={flashStyles.backButtonIcon}
               source={
@@ -166,7 +172,7 @@ import {
                   ? require("../../../assets/whiteBackArrow.png")
                   : require("../../../assets/backArrow.png")
               }
-            />
+            /> 
           </Pressable>
         <View style={flashStyles.header}>
           <Text style={[flashStyles.label, darkMode && flashStyles.darkLabel]}>Number of Questions</Text>
@@ -177,12 +183,21 @@ import {
             onChangeText={setNumQuestions}
           />
           <Pressable
-            onPress={() => setModalVisible(true)}
             style={[flashStyles.input, darkMode && flashStyles.darkInput]}
+            onPress={() => { 
+              AudioManager.playButtonSound(); 
+              setModalVisible(true)
+            }}
           >
-            <Text style={[flashStyles.selectTopicButton, darkMode && flashStyles.darkSelectTopicButton]}>Select Topic</Text>
+            <Text style={[flashStyles.buttonText, darkMode && flashStyles.darkButtonText]}>Select Topic</Text>
           </Pressable>
-          <TouchableOpacity style={flashStyles.button} onPress={handleGenerate}>
+          <TouchableOpacity 
+            style={flashStyles.button} 
+            onPress={() => {
+              AudioManager.playButtonSound(); 
+              handleGenerate
+            }}
+            >
             <Text style={[flashStyles.buttonText, darkMode && flashStyles.darkButtonText]}>Generate</Text>
           </TouchableOpacity>
         </View>
@@ -345,7 +360,7 @@ import {
     darkInput: {
       borderWidth: 2, 
       borderColor: "rgb(241, 236, 215)", 
-      padding: 10, 
+      padding: 9, 
       width: 100, 
       textAlign: "center", 
       borderRadius: 5, 

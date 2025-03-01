@@ -16,6 +16,7 @@ import {
   import React, { useState, useEffect } from 'react';
   import styles from "../Styles";
   import { useTheme } from "../ThemeContext";
+  import AudioManager from "../AudioManager";
 
   const randomArrFunction = (arr) => {
     for (let i = arr.length - 1; i > 0; i--) {
@@ -122,7 +123,11 @@ import {
               resizeMode="cover"
               style={styles.imgBackground}
             >
-              <Pressable onPress={() => navigation.goBack()}>
+              <Pressable 
+                onPress={() => { 
+                  AudioManager.playButtonSound(); 
+                  navigation.goBack()
+                }}>
                 <Image
                   style={styles.backButtonIcon}
                   source={
@@ -141,6 +146,7 @@ import {
 					    <Button
 						    title="Restart"
 						    onPress={() => {
+                  AudioManager.playButtonSound();
 							    setCards(gameCardsFunction());
 							    setSelectedCards([]);
 							    setMatches(0);
