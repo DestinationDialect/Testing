@@ -386,13 +386,16 @@ export default function Settings() {
                       {/* Show selected language next to Language option */}
                       {id === "language" && (
                         <Text style={styles.selectedLanguageText}>
-                          {firstLanguage} ➞ {newLanguage}
+                          {firstLanguage} <FeatherIcon name="arrow-right" size={15}/> {newLanguage}
                         </Text>
                       )}
 
                       {/* Show arrow for "select" and "link" types */}
                       {["select", "link"].includes(type) && (
-                        <FeatherIcon name="chevron-right" color="white" size={22} />
+                        <FeatherIcon style={[styles.featherArrow, darkMode && styles.darkFeatherArrow]}
+                        name="chevron-right"
+                        size={22}
+                      />
                       )}
 
                     </View>

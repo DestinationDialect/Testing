@@ -425,7 +425,7 @@ export default function AirportScenario() {
         <Pressable 
           onPress={() => {
             AudioManager.playButtonSound(); 
-            {nextQuestion} 
+            nextQuestion()
           }}
           style={[styles.nextButton, darkMode && styles.darkNextButton]}
         >

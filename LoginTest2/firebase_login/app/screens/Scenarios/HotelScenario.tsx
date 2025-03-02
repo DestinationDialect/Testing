@@ -448,7 +448,7 @@ export default function HotelScenario() {
         <Pressable 
           onPress={() => {
             AudioManager.playButtonSound(); 
-            {nextQuestion} 
+            nextQuestion()
           }}
           style={styles.nextButton}
         >

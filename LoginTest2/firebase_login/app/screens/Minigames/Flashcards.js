@@ -9,19 +9,24 @@ import {
     Pressable,
     SafeAreaView,
     Modal,
+    FlatList,
   } from "react-native";
   import { useNavigation, } from "@react-navigation/native";
-  import React, { useState, useEffect, useRef } from 'react';
+  import React, { useState, useEffect } from 'react';
+  import Flashcard from "./Flashcard";
   import FlashcardList from './FlashcardList';
   import { useTheme } from "../ThemeContext";
   import styles from "../Styles";
   import AsyncStorage from "@react-native-async-storage/async-storage";
-import AudioManager from "../AudioManager";
+  import AudioManager from "../AudioManager";
+  import FeatherIcon from "react-native-vector-icons/Feather";
   
   const Flashcards = () => {
     const navigation = useNavigation();
     const [flashcards, setFlashcards] = useState([])
-    const [numQuestions, setNumQuestions] = useState("5");
+    const [currentIndex, setCurrentIndex] = useState(0); 
+    const [viewMode, setViewMode] = useState("list"); 
+    const [numQuestions, setNumQuestions] = useState("10");
     const { darkMode } = useTheme(); // Get Dark Mode from context
     const [modalVisible, setModalVisible] = useState(false); // controls topic selection modal visibility
     const [availableScenarios, setAvailableScenarios] = useState([]); // stores which scenarios vocab is unlocked
@@ -61,10 +66,20 @@ import AudioManager from "../AudioManager";
     }
 
     function handleGenerate() {
-      const num = parseInt(numQuestions, 10) || 1; // Ensure it's a valid number
-      const flashcardSet = handleTopic(); // stores flashcards from selected topic
+      const num = parseInt(numQuestions, 10) || 1; // Ensure valid number
+      const flashcardSet = handleTopic(); // Get flashcards from selected topic
+    
+      if (!flashcardSet || flashcardSet.length === 0) {
+        console.error("No flashcards found for topic:", topic);
+        setFlashcards([]); // Reset flashcards if none are found
+        setCurrentIndex(0); // Reset index to prevent stale state
+        return;
+      }
+    
       const shuffled = [...flashcardSet].sort(() => Math.random() - 0.5);
-      setFlashcards(shuffled.slice(0, Math.min(num, flashcardSet.length))); // Ensure it doesn't exceed the total number
+      setFlashcards(shuffled.slice(0, Math.min(num, flashcardSet.length))); // Ensure valid range
+    
+      setCurrentIndex(0); // Reset to the first flashcard
     }
 
     // format vocab from async storage into format flashcard interface works with
@@ -83,6 +98,19 @@ import AudioManager from "../AudioManager";
     }
 
     useEffect(() => {
+      // Load user preference for view mode
+      const loadSettings = async () => {
+        try {
+          const savedViewMode = await AsyncStorage.getItem("flashcardViewMode");
+          if (savedViewMode) {
+            setViewMode(savedViewMode);
+          }
+        } catch (error) {
+          console.error("Error loading flashcard view mode:", error);
+        }
+      };
+      loadSettings();
+
       let storedScenarios = [];
       let storedPersonal = [];
       // function to get each vocab set
@@ -147,6 +175,14 @@ import AudioManager from "../AudioManager";
       };
       fetchVocab();
     }, []);
+
+    // Save view mode to AsyncStorage
+    const toggleViewMode = async () => {
+      const newMode = viewMode === "list" ? "single" : "list";
+      setViewMode(newMode);
+      await AsyncStorage.setItem("flashcardViewMode", newMode);
+      AudioManager.playButtonSound(); // Play sound on toggle
+    };
   
     return (
       <SafeAreaView style={flashStyles.container}> 
@@ -195,7 +231,7 @@ import AudioManager from "../AudioManager";
             style={flashStyles.button} 
             onPress={() => {
               AudioManager.playButtonSound(); 
-              handleGenerate
+              handleGenerate()
             }}
             >
             <Text style={[flashStyles.buttonText, darkMode && flashStyles.darkButtonText]}>Generate</Text>
@@ -203,16 +239,81 @@ import AudioManager from "../AudioManager";
         </View>
 
         <View style={flashStyles.container}>
-        {flashcards.length > 0 ? (
-          <FlashcardList flashcards={flashcards} />
-        ) : (
-          <Text style={[flashStyles.emptyText, darkMode && flashStyles.darkEmptyText]}>No flashcards yet.</Text>
-        )}
-        </View> 
+         {/* Toggle Button for View Mode */}
+          <TouchableOpacity
+            style={[flashStyles.toggleButton, darkMode && flashStyles.darkToggleButton]}
+            onPress={toggleViewMode}
+          >
+            <Text style={flashStyles.buttonText}>
+              Switch to {viewMode === "list" ? "Single Card View" : "List View"}
+            </Text>
+          </TouchableOpacity>
+
+          {/* List View Mode */}
+          {viewMode === "list" ? (
+            <FlatList
+              contentContainerStyle={flashStyles.listContainer}
+              data={flashcards}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => item ? (
+                <View style={flashStyles.flashcardContainer}>
+                  <Flashcard flashcard={item} />
+                </View>
+              ) : null}
+            />
+          ) : (
+            // Single Card View Mode
+            <View style={flashStyles.singleCardContainer}>
+              {flashcards.length > 0 ? (
+                <>
+                  <Flashcard flashcard={flashcards[currentIndex]} />
+
+                  <View style={flashStyles.navButtons}>
+                    <TouchableOpacity
+                      style={flashStyles.navButton}
+                      onPress={() => {
+                        AudioManager.playButtonSound();
+                        setCurrentIndex((prevIndex) =>
+                          prevIndex > 0 ? prevIndex - 1 : flashcards.length - 1
+                        );
+                      }}
+                    >
+                      <FeatherIcon name="arrow-left" size={30} color="white" />
+                    </TouchableOpacity>
+
+                    {/* Flashcard Counter (Current Card / Total Cards) */}
+                    <Text style={flashStyles.counterText}>
+                      {flashcards.length > 0 ? `${currentIndex + 1} / ${flashcards.length}` : "0 / 0"}
+                    </Text>
+
+                    <TouchableOpacity
+                      style={flashStyles.navButton}
+                      onPress={() => {
+                        AudioManager.playButtonSound();
+                        setCurrentIndex((prevIndex) =>
+                          (prevIndex + 1) % flashcards.length
+                        );
+                      }}
+                    >
+                      <FeatherIcon name="arrow-right" size={30} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <Text style={[flashStyles.emptyText, darkMode && flashStyles.darkEmptyText]}>
+                  No flashcards yet.
+                </Text>
+              )}
+            </View>
+          )}
+        </View>
+      
+        {/* Flashcard Topic Selection Modal */}
         <Modal visible={modalVisible} transparent={true}>
           <View style={styles.modalOverlay}>
-            <View style={styles.modalView}>
+            <View style={[styles.modalView, darkMode && styles.darkModalView]}>
               <Text style={styles.modalTitle}>Select your flashcard topic</Text>
+              
               <View style={styles.modalLanguages}>
                 <View style={styles.modalLanguage}>
                   <Text>Scenario Vocabulary:</Text>
@@ -230,6 +331,8 @@ import AudioManager from "../AudioManager";
                     </Pressable>
                   ))}
                 </View>
+
+                {/* Personal Vocabulary Section */}
                 <View style={styles.modalLanguage}>
                   <Text>Personal Vocabulary:</Text>
                   {availablePersonal.map((vocab, index) => (
@@ -253,82 +356,38 @@ import AudioManager from "../AudioManager";
               >
                 <Text style={[flashStyles.buttonText, darkMode && flashStyles.darkButtonText]}>Confirm</Text>
               </Pressable>
+              <Pressable
+                style={[flashStyles.cancelButton, darkMode && flashStyles.darkCancelButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={[flashStyles.buttonText, darkMode && flashStyles.darkButtonText]}>Close</Text>
+              </Pressable>
             </View>
           </View>
         </Modal>
-        </ImageBackground>
+      </ImageBackground>
       </SafeAreaView>
 
     );
   };
 
-  const FLASHCARDS = [
-    {
-      id: 1,
-      question: "Hasta pronto",
-      answer: "See you soon",
-    },
-    {
-      id: 2,
-      question: "Adios",
-      answer: "Hello",
-    },
-    {
-      id: 3,
-      question: "Hola",
-      answer: "Hello",
-    },
-    {
-      id: 4,
-      question: "Pollo",
-      answer: "Chicken",
-    },
-    {
-      id: 5,
-      question: "Gato",
-      answer: "Cat",
-    },
-    {
-      id: 6,
-      question: "Raton",
-      answer: "Mouse",
-    },
-    {
-      id: 7,
-      question: "Perro",
-      answer: "Dog",
-    },
-    {
-      id: 8,
-      question: "Por favor",
-      answer: "Please",
-    },
-    {
-      id: 9,
-      question: "No",
-      answer: "No",
-    },
-    {
-      id: 10,
-      question: "Si",
-      answer: "Yes",
-    },
-    {
-      id: 11,
-      question: "Gracias",
-      answer: "Thank you",
-    },
-    {
-      id: 12,
-      question: "Hasta Luego",
-      answer: "See you later",
-    },
-  ];
-
   const flashStyles = StyleSheet.create({
     container: {
       flex: 1,
     }, 
+    listContainer: {
+      alignItems: "center", 
+      justifyContent: "center",
+    },
+    singleCardContainer: {
+      flex: 1,
+      alignItems: "center", 
+    },
+    flashcardContainer: {
+      alignItems: "center", 
+      justifyContent: "center",
+      marginVertical: 10,
+    },
     imgBackground: { 
       flex: 1,
       width: "100%",
@@ -343,6 +402,43 @@ import AudioManager from "../AudioManager";
     header: { 
       padding: 10, 
       alignItems: "center" 
+    },
+
+    //----------------
+    darkToggleButton: {
+      borderWidth: 2, 
+      borderColor: "rgb(241, 236, 215)", 
+      backgroundColor: "darkgreen",
+      padding: 10,
+      borderRadius: 5,
+      alignSelf: "center",
+      marginBottom: 15,
+    },
+    toggleButton: {
+      borderWidth: 2, 
+      borderColor: "white", 
+      backgroundColor: "green",
+      padding: 10,
+      borderRadius: 5,
+      alignSelf: "center",
+      marginBottom: 15,
+    },
+    //-----------------
+
+    navButtons: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      width: "50%",
+      marginTop: 20,
+    },
+    navButton: {
+      padding: 10,
+    },
+    counterText: {
+      fontSize: 20,
+      fontWeight: "bold",
+      color: "white",
     },
 
     //--------------
@@ -397,19 +493,6 @@ import AudioManager from "../AudioManager";
     //-----------------
 
     //-----------------
-    darkContinueButton: {
-      backgroundColor: "darkgreen", 
-      padding: 10, 
-      borderRadius: 5 
-    },
-    continueButton: {
-      backgroundColor: "green", 
-      padding: 10, 
-      borderRadius: 5 
-    },
-    //-----------------
-
-    //-----------------
     darkButtonText: {
       color: "rgb(241, 236, 215)", 
       fontWeight: "bold" 
@@ -430,6 +513,54 @@ import AudioManager from "../AudioManager";
       fontSize: 15,
     },
     //-----------------
+
+    //------------------
+    darkSelectedLanguageText: {
+      color: "rgb(241, 236, 215)"
+    }, 
+    selectedLanguageText: {
+      color: "white",
+    },
+    //-----------------
+  
+    //------------------
+    darkCancelButton: {
+      marginTop: 20,
+      backgroundColor: "darkred",
+      padding: 10,
+      borderRadius: 5,
+    },
+    cancelButton: {
+      marginTop: 20,
+      backgroundColor: "red",
+      padding: 10,
+      borderRadius: 5,
+    },
+    //-------------------
+
+    //-------------------
+    darkContinueButton: {
+      marginTop: 20,
+      backgroundColor: "darkgreen",
+      padding: 10,
+      borderRadius: 5,
+    },
+    continueButton: {
+      marginTop: 20,
+      backgroundColor: "green",
+      padding: 10,
+      borderRadius: 5,
+    },
+    //--------------------
+
+    //--------------------
+    darkContinueButtonText: {
+      color: "rgb(241, 236, 215)",
+    },
+    continueButtonText: {
+      color: "white",
+    },
+    //--------------------
   });
   
 export default Flashcards;

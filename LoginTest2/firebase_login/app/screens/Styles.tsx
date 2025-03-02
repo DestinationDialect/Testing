@@ -85,6 +85,10 @@ const styles = StyleSheet.create({
     color: "rgb(241, 236, 215)",
     marginRight: 12,
   },
+  darkFeatherArrow: {
+    color: "rgb(241, 236, 215)",
+    //marginRight: 12,
+  },
   header: {
     paddingHorizontal: 24,
     marginBottom: 12,
@@ -147,6 +151,9 @@ const styles = StyleSheet.create({
   featherIcon: {
     color: "white",
     marginRight: 12,
+  },
+  featherArrow: {
+    color: "white",
   },
   sectionBody: {
     backgroundColor: "transparent",
@@ -365,5 +372,13 @@ const styles = StyleSheet.create({
   selectedLanguageText: {
     color: "white",
   },
+
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  
+  
 });
 export default styles;

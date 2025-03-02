@@ -456,7 +456,7 @@ export default function ZooScenario() {
         <Pressable 
           onPress={() => {
             AudioManager.playButtonSound(); 
-            {nextQuestion} 
+            nextQuestion()
           }}
           style={[styles.nextButton, darkMode && styles.darkNextButton]}
         >

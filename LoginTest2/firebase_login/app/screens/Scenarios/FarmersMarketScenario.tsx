@@ -460,7 +460,7 @@ export default function FarmersMarketScenario() {
         <Pressable 
           onPress={() => {
             AudioManager.playButtonSound(); 
-            {nextQuestion} 
+            nextQuestion()
           }}
           style={[styles.nextButton, darkMode && styles.darkNextButton]}
         >
