@@ -137,48 +137,23 @@ export default function Settings() {
     }
   };
 
-  const setLanguage = async () => {
-    // function to fetch user languages from database and save in async storage on sign in
-    // replace language setting with database call data
-    const user = FIREBASE_AUTH.currentUser;
-    let firstL = "English"
-    let newL = "Spanish"
-      if (user) {
-        const user_id = user.uid;
-        const ref = doc(FIRESTORE_DB, "user_language", user_id);
-        const docSnap = await getDoc(ref);
-        const docData = docSnap.data();
-        console.log("user found");
-        if (docData) {
-          firstL = docData.firstLanguage
-          newL = docData.newLanguage
-        }
-      }
-    // store data from variables in async storage
-    asyncLanguageStorage(firstL, newL);
-  };
-
-  const signIn = async () => {
-    setLoading(true);
-    try {
-      const response = await signInWithEmailAndPassword(auth, email, password);
-      console.log(response);
-      setLanguage();
-    } catch (error: any) {
-      console.log(error);
-      alert("Sign in failed" + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLanguageSelection = () => {
+  const handleLanguageSelection = async () => {
     // store languages in async storage
     if (firstLanguage && newLanguage && firstLanguage != newLanguage) {
       asyncLanguageStorage(firstLanguage, newLanguage);
+    }
 
-      // close Modal
-      setLanguageModalVisible(false);
+    const user = FIREBASE_AUTH.currentUser;
+    if (user) {
+      const user_id = user.uid;
+
+      await setDoc(
+        doc(FIRESTORE_DB, "user_language", user_id), 
+        {
+          firstLanguage: firstLanguage,
+          newLanguage: newLanguage,
+        },
+      )
     }
   };
 
@@ -214,18 +189,6 @@ export default function Settings() {
     };
   
     loadSettings();
-
-    const loadLanguage = async () => {
-      try {
-        const savedLanguage = await AsyncStorage.getItem("selectedLanguage");
-        if (savedLanguage) {
-          setSelectedLanguage(savedLanguage);
-        }
-      } catch (error) {
-        console.error("Error loading language from AsyncStorage:", error);
-      }
-    };
-    loadLanguage();
 
   }, []);  
 
@@ -302,6 +265,7 @@ export default function Settings() {
                   AudioManager.playButtonSound();
                   await AsyncStorage.setItem("originLanguage", firstLanguage);
                   await AsyncStorage.setItem("newLanguage", newLanguage);
+                  handleLanguageSelection(); 
                   setLanguageModalVisible(false);
                 }}
               >
