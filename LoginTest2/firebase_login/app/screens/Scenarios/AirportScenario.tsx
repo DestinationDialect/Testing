@@ -16,6 +16,8 @@ import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
+import { useTheme } from "../ThemeContext";
+import AudioManager from "../AudioManager";
 //import Tts from "react-native-tts";
 interface Language {
   name: string;
@@ -103,6 +105,7 @@ export default function AirportScenario() {
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
   const navigation = useNavigation();
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const name = "AirportScenario";
   const currentRouteLocation = flattenedRouteData.find(
@@ -370,13 +373,13 @@ export default function AirportScenario() {
     <SafeAreaView style={styles.container}>
       <Modal visible={isVisible} transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
+          <View style={[styles.modalView, darkMode && styles.darkModalView]}>
             <Text style={styles.score}>You got {averageScore / 30} stars!</Text>
             <Pressable
               onPress={() => setVisible(false)}
-              style={styles.closeButton}
+              style={[styles.closeButton, darkMode && styles.darkCloseButton]}
             >
-              <Text style={styles.buttonText}>Review Lesson</Text>
+              <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Review Lesson</Text>
             </Pressable>
           </View>
         </View>
@@ -393,19 +396,20 @@ export default function AirportScenario() {
           />
         </Pressable>
       </ImageBackground>
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, darkMode && styles.darkOverlay]}>
         {!loading ? ( //view encasing what displays once page and translation loads
           <View>
-            <Text style={styles.question}>
+            <Text style={[styles.question, darkMode && styles.darkQuestion]}>
               {dialogue[currentquestionindex].question}
             </Text>
             {dialogue[currentquestionindex].options.map((option, index) => (
-              //<View style={styles.option}>
               <Pressable key={index} onPress={() => checkAnswer(option)}>
                 <Text
                   style={[
                     styles.option,
-                    isCorrect ? styles.correctAnswer : styles.option,
+                    isCorrect 
+                    ? styles.correctAnswer && styles.darkCorrectAnswer
+                    : styles.option && styles.darkOption
                   ]}
                 >
                   {option}
@@ -418,8 +422,14 @@ export default function AirportScenario() {
           <Text>LOADING</Text>
         )}
 
-        <Pressable onPress={nextQuestion} style={styles.nextButton}>
-          <Text style={styles.buttonText}>Next Question</Text>
+        <Pressable 
+          onPress={() => {
+            AudioManager.playButtonSound(); 
+            nextQuestion()
+          }}
+          style={[styles.nextButton, darkMode && styles.darkNextButton]}
+        >
+          <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Next Question</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -431,6 +441,21 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "black",
     alignItems: "center",
+  },
+
+  //---------------
+  darkOverlay: {
+    paddingVertical: 50,
+    backgroundColor: "darkgreen",
+    color: "rgb(241, 236, 215)",
+    position: "absolute",
+    bottom: 0,
+    height: "50%",
+    width: "100%",
+    justifyContent: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 5,
+    borderRadius: 25,
   },
   overlay: {
     paddingVertical: 50,
@@ -445,10 +470,21 @@ export const styles = StyleSheet.create({
     borderWidth: 5,
     borderRadius: 25,
   },
+  //----------------
+
   imageBackground: {
     width: "100%",
     height: "75%",
     resizeMode: "cover",
+  },
+
+  //----------------
+  darkQuestion: {
+    color: "rgb(241, 236, 215)",
+    padding: 15,
+    marginBottom: 4,
+    marginTop: 6,
+    fontSize: 25,
   },
   question: {
     color: "white",
@@ -456,6 +492,20 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 6,
     fontSize: 25,
+  },
+  //-----------------
+
+  //-----------------
+  darkOption: {
+    color: "rgb(241, 236, 215)",
+    borderColor: "rgb(241, 236, 215)",
+    borderBlockColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    fontSize: 20,
+    paddingLeft: 10,
   },
   option: {
     color: "white",
@@ -468,6 +518,17 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     paddingLeft: 10,
   },
+  //-----------------
+
+  //-----------------
+  darkCorrectAnswer: {
+    borderWidth: 3,
+    borderRadius: 5,
+    marginVertical: 4,
+    marginHorizontal: 5,
+    backgroundColor: "green",
+    color: "rgb(241, 236, 215)",
+  },
   correctAnswer: {
     borderWidth: 3,
     borderRadius: 5,
@@ -475,6 +536,18 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "chartreuse",
     color: "white",
+  },
+  //--------------------
+
+  //--------------------
+  darkNextButton: {
+    padding: 10,
+    backgroundColor: "darkred",
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+    borderColor: "rgb(241, 236, 215)",
+    borderWidth: 3,
   },
   nextButton: {
     padding: 10,
@@ -485,10 +558,19 @@ export const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 3,
   },
+  //-------------------
+
+  //-------------------
+  darkButtonText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 18,
+  },
   buttonText: {
     color: "white",
     fontSize: 18,
   },
+  //-------------------
+
   score: {
     fontSize: 36,
     justifyContent: "center",
@@ -500,6 +582,20 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
+  },
+
+  //-------------------
+  darkModalView: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalView: {
     width: "80%",
@@ -513,12 +609,23 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  //-----------------
+
+  //-----------------
+  darkCloseButton: {
+    marginTop: 20,
+    backgroundColor: "darkred",
+    padding: 10,
+    borderRadius: 5,
+  },
   closeButton: {
     marginTop: 20,
     backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
+  //----------------
+
   backButtonIcon: {
     margin: 20,
     height: 30,

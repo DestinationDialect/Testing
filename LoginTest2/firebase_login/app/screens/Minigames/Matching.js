@@ -18,6 +18,8 @@ import { useNavigation } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
 import styles from "../Styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTheme } from "../ThemeContext";
+import AudioManager from "../AudioManager";
 
 const randomArrFunction = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -28,12 +30,12 @@ const randomArrFunction = (arr) => {
 };
 
 const initialTermPairs = {
-  Cat: "Gato",
-  Mouse: "Raton",
-  Hola: "Hello",
-  Adios: "Goodbye",
+  "Cat": "Gato",
+  "Mouse": "Raton",
+  "Hola": "Hello",
+  "Adios": "Goodbye",
   "Por Favor": "Please",
-  Gracias: "Thank you",
+  "Gracias": "Thank you",
 };
 const gameCardsFunction = (terms) => {
   let termList = Object.entries(terms).flat();
@@ -54,6 +56,7 @@ const Matching = () => {
   const [matches, setMatches] = useState(0);
   const [winMessage, setWinMessage] = useState(new Animated.Value(0));
   const [gameWon, setGameWon] = useState(false);
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const [modalVisible, setModalVisible] = useState(false); // controls topic selection modal visibility
   const [availableScenarios, setAvailableScenarios] = useState([]); // stores which scenarios vocab is unlocked
@@ -227,33 +230,43 @@ const Matching = () => {
   return (
     <SafeAreaView style={matchingStyles.container}>
       <ImageBackground
-        source={require("../../../assets/homeScreen.png")}
+        source={
+                darkMode
+                  ? require("../../../assets/DarkModeBackground.jpg") // Dark mode image
+                  : require("../../../assets/homeScreen.png") // Light mode image
+              }
         resizeMode="cover"
-        style={matchingStyles.imgBackground}
+        style={styles.imgBackground}
       >
-        <Pressable onPress={() => navigation.goBack()}>
-          <Image
-            style={styles.backButtonIcon}
-            source={require("../../../assets/backArrow.png")}
-          />
+        <Pressable onPress={() => { 
+                  AudioManager.playButtonSound(); 
+                  navigation.goBack()
+                }}>
+                <Image
+                  style={styles.backButtonIcon}
+                  source={
+                    darkMode
+                      ? require("../../../assets/whiteBackArrow.png")
+                      : require("../../../assets/backArrow.png")
+                  }
+                />
         </Pressable>
         <View style={matchingStyles.container}>
-          <Text style={matchingStyles.header1}>Memory Pair Game</Text>
-          <Text style={matchingStyles.matchText}>{msg}</Text>
+          <Text style={[matchingStyles.header1, darkMode && matchingStyles.darkHeader1]}>Memory Pair Game</Text>
+          <Text style={[matchingStyles.matchText, darkMode && matchingStyles.darkMatchText]}>{msg}</Text>
           {gameWon ? (
-            <View style={matchingStyles.winMessage}>
+            <View style={[matchingStyles.winMessage, darkMode && matchingStyles.darkWinMessage]}>
               {/* <View style={styles2.winMessageContent}></View> */}
-              <Text style={matchingStyles.winText}>
-                Congratulations! You Won!
-              </Text>
+              <Text style={[matchingStyles.winText, darkMode && matchingStyles.darkWinText]}>Congratulations! You Won!</Text>
               <Pressable
                 onPress={() => setModalVisible(true)}
-                style={matchingStyles.input}
+                style={[matchingStyles.input, darkMode && matchingStyles.darkInput]}
               >
-                <Text style={{ color: "white" }}>Select Topic</Text>
+                <Text style={[matchingStyles.buttonText, darkMode && matchingStyles.darkButtonText]}>Select Topic</Text>
               </Pressable>
               <Pressable
                 onPress={() => {
+                  AudioManager.playButtonSound();
                   setCards(gameCardsFunction(handleTopic(topic)));
                   setSelectedCards([]);
                   setMatches(0);
@@ -268,23 +281,20 @@ const Matching = () => {
             <View style={{ alignItems: "center" }}>
               <Pressable
                 onPress={() => setModalVisible(true)}
-                style={matchingStyles.input}
+                style={[matchingStyles.input, darkMode && matchingStyles.darkInput]}
               >
-                <Text style={{ color: "white" }}>Select Topic</Text>
+                <Text style={[matchingStyles.buttonText, darkMode && matchingStyles.darkButtonText]}>Select Topic</Text>
               </Pressable>
               <ScrollView style={{ maxHeight: "60vh" }}>
                 <View style={matchingStyles.grid}>
                   {cards.map((card) => (
                     <TouchableOpacity
                       key={card.id}
-                      style={[
-                        matchingStyles.card,
-                        card.isFlipped && matchingStyles.cardFlipped,
-                      ]}
+                      style={[styles2.card, darkMode && styles2.darkCard, card.isFlipped && styles2.cardFlipped, darkMode && styles2.darkCardIsFlipped]}
                       onPress={() => cardClickFunction(card)}
                     >
                       {card.isFlipped ? (
-                        <Text style={matchingStyles.cardText}>
+                        <Text style={[styles2.cardText, darkMode && styles2.darkCardText]}>
                           {card.symbol}
                         </Text>
                       ) : null}
@@ -296,7 +306,7 @@ const Matching = () => {
           )}
           <Modal visible={modalVisible} transparent={true}>
             <View style={styles.modalOverlay}>
-              <View style={styles.modalView}>
+              <View style={[styles.modalView, darkMode && styles.darkModalView]}>
                 <Text style={styles.modalTitle}>
                   Select your flashcard topic
                 </Text>
@@ -341,17 +351,17 @@ const Matching = () => {
                       setMatches(0);
                       setModalVisible(false);
                     }}
-                    style={styles.continueButton}
+                    style={[matchingStyles.continueButton, darkMode && matchingStyles.darkContinueButton]}
                   >
-                    <Text>Confirm</Text>
+                    <Text style={[matchingStyles.buttonText, darkMode && matchingStyles.darkButtonText]}>Confirm</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => {
                       setModalVisible(false);
                     }}
-                    style={styles.cancelButton}
+                    style={[matchingStyles.cancelButton, darkMode && matchingStyles.darkCancelButton]}
                   >
-                    <Text>Cancel</Text>
+                    <Text style={[matchingStyles.buttonText, darkMode && matchingStyles.darkButtonText]}>Cancel</Text>
                   </Pressable>
                 </View>
               </View>
@@ -376,65 +386,160 @@ const matchingStyles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-  header1: {
-    fontSize: 36,
-    marginBottom: 10,
-    color: "green",
-  },
-  matchText: {
-    fontSize: 18,
-    color: "black",
-  },
+  darkHeader1: {
+      fontSize: 36,
+      marginBottom: 10,
+      color: "rgb(241, 236, 215)",
+    },
+    header1: {
+      fontSize: 36,
+      marginBottom: 10,
+      color: "black",
+    },
+  darkMatchText: {
+      fontSize: 18,
+      color: "rgb(241, 236, 215)",
+    },
+    matchText: {
+      fontSize: 18,
+      color: 'black',
+    },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
   },
-  card: {
-    width: 90,
-    height: 90,
-    margin: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "green",
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "white",
-  },
-  cardFlipped: {
-    backgroundColor: "#ffc82c",
-  },
-  cardText: {
-    fontSize: 20,
-    color: "white",
-    fontWeight: "bold",
-  },
-  winMessage: {
-    position: "absolute",
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1,
-    margin: 0,
-    padding: 0,
-  },
-  winText: {
-    fontSize: 36,
-    color: "white",
-  },
-  input: {
-    borderWidth: 2,
-    borderColor: "white",
-    padding: 10,
-    width: 100,
-    textAlign: "center",
-    borderRadius: 5,
-    marginBottom: 10,
-    backgroundColor: "green",
-    color: "white",
-  },
+   darkCard: {
+      width: 90,
+      height: 90,
+      margin: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'darkgreen',
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: 'rgb(241, 236, 215)',
+    },
+    card: {
+      width: 90,
+      height: 90,
+      margin: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'green',
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: 'white',
+    },
+  darkCardFlipped: {
+      backgroundColor: '#d8a208',
+    },
+    cardFlipped: {
+      backgroundColor: '#ffc82c',
+    },
+    //-----------------
+
+    //-----------------
+    darkCardText: {
+      fontSize: 20,
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    cardText: {
+      fontSize: 20,
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    //-----------------
+
+    //-----------------
+    darkWinMessage: {
+      position: 'absolute',
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      width: '100%',
+      height: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1,
+      margin: 0,
+      padding: 0,
+    },
+    winMessage: {
+      position: 'absolute',
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      width: '100%',
+      height: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1,
+      margin: 0,
+      padding: 0,
+    },
+  darkWinText: {
+      fontSize: 36,
+      color: 'rgb(241, 236, 215)',
+    },
+    winText: {
+      fontSize: 36,
+      color: 'white',
+    },
+  darkInput: {
+      borderWidth: 2, 
+      borderColor: "rgb(241, 236, 215)", 
+      padding: 9, 
+      width: 100, 
+      textAlign: "center", 
+      borderRadius: 5, 
+      marginBottom: 10,
+      backgroundColor: "darkgreen",
+      color: "rgb(241, 236, 215)",
+    },
+    input: { 
+      borderWidth: 2, 
+      borderColor: "white", 
+      padding: 10, 
+      width: 100, 
+      textAlign: "center", 
+      borderRadius: 5, 
+      marginBottom: 10,
+      backgroundColor: "green",
+      color: "white",
+    },
+  darkButtonText: {
+      color: "rgb(241, 236, 215)", 
+      fontWeight: "bold" 
+    },
+    buttonText: { 
+      color: "white", 
+      fontWeight: "bold" 
+    },
+  darkCancelButton: {
+      marginTop: 20,
+      backgroundColor: "darkred",
+      padding: 10,
+      borderRadius: 5,
+    },
+    cancelButton: {
+      marginTop: 20,
+      backgroundColor: "red",
+      padding: 10,
+      borderRadius: 5,
+    },
+    //-------------------
+
+    //-------------------
+    darkContinueButton: {
+      marginTop: 20,
+      backgroundColor: "darkgreen",
+      padding: 10,
+      borderRadius: 5,
+    },
+    continueButton: {
+      marginTop: 20,
+      backgroundColor: "green",
+      padding: 10,
+      borderRadius: 5,
+    },
 });
 
 export default Matching;

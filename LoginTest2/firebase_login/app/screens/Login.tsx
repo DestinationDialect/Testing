@@ -35,16 +35,9 @@ const Login = () => {
     try {
       await AsyncStorage.setItem("originLanguage", firstL);
       await AsyncStorage.setItem("newLanguage", newL);
-      //Store language
+      // Store Language
     } catch (error) {
       console.error("Error storing languages in AsyncStorage:", error);
-    } finally {
-      console.log(
-        "Stored Languages - firstLanguage: ",
-        firstL,
-        "newLanguage: ",
-        newL
-      );
     }
   };
 
@@ -198,7 +191,6 @@ const Login = () => {
                   ))}
                 </View>
               </View>
-              <Text>{errorMessage}</Text>
               <Pressable
                 onPress={() => handleLanguageSelection()}
                 style={styles.continueButton}
