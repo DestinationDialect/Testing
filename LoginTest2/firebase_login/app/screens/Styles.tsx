@@ -324,7 +324,15 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     marginTop: 20,
+    marginHorizontal: 5,
     backgroundColor: "green",
+    padding: 10,
+    borderRadius: 5,
+  },
+  cancelButton: {
+    marginTop: 20,
+    marginHorizontal: 5,
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
@@ -338,7 +346,6 @@ const styles = StyleSheet.create({
     color: "white",
   },
   //--------------------
-
   //---language selection modal styles---------
   modalLanguages: {
     flexDirection: "row",
