@@ -172,7 +172,7 @@ const Flashcards = () => {
             onPress={() => setModalVisible(true)}
             style={flashcardStyles.input}
           >
-            <Text style={{ color: "white" }}>Select Topic</Text>
+            <Text style={{ color: "white" }}>{"Select Topic" || topic}</Text>
           </Pressable>
           <TouchableOpacity
             style={flashcardStyles.button}
