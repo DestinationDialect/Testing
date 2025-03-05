@@ -18,7 +18,7 @@ import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
 import { useTheme } from "../ThemeContext";
 import AudioManager from "../AudioManager";
-//import Tts from "react-native-tts";
+import { updateRoute, ScenarioNavigationProp } from "./AirportScenario";
 interface Language {
   name: string;
   tag: string;
@@ -133,7 +133,7 @@ export default function MuseumScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
-  const navigation = useNavigation();
+  const navigation = useNavigation<ScenarioNavigationProp>();
   const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const name = "MuseumScenario";
@@ -335,6 +335,7 @@ export default function MuseumScenario() {
       setScores([...scores, score]);
       if (currentquestionindex === QUESTIONS.length - 1) {
         storeVocab();
+        updateRoute(5);
         const averageScore =
           scores.length > 0
             ? Math.round(
@@ -353,11 +354,11 @@ export default function MuseumScenario() {
           if (currentRouteLocation && docData) {
             let i = currentRouteLocation.id;
             let currentID = docData[i];
-            if(currentID){
+            if (currentID) {
               setDoc(
                 doc(FIRESTORE_DB, "user_data", user_id),
                 {
-                  [flattenedRouteData[i-1].id]: {
+                  [flattenedRouteData[i - 1].id]: {
                     stars: stars,
                   },
                 },
@@ -406,7 +407,11 @@ export default function MuseumScenario() {
               onPress={() => setVisible(false)}
               style={[styles.closeButton, darkMode && styles.darkCloseButton]}
             >
-              <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Review Lesson</Text>
+              <Text
+                style={[styles.buttonText, darkMode && styles.darkButtonText]}
+              >
+                Review Lesson
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -416,7 +421,7 @@ export default function MuseumScenario() {
         style={styles.imageBackground}
         resizeMode="cover"
       >
-        <Pressable onPress={() => navigation.goBack()}>
+        <Pressable onPress={() => navigation.replace("Route")}>
           <Image
             style={styles.backButtonIcon}
             source={require("../../../assets/backArrow.png")}
@@ -435,9 +440,13 @@ export default function MuseumScenario() {
                 <Text
                   style={[
                     styles.option,
-                    isCorrect 
-                    ? styles.correctAnswer && styles.darkCorrectAnswer
-                    : styles.option && styles.darkOption, 
+                    option === dialogue[currentquestionindex].correctAnswer &&
+                    isCorrect
+                      ? [
+                          styles.correctAnswer,
+                          darkMode && styles.darkCorrectAnswer,
+                        ]
+                      : [styles.option, darkMode && styles.darkOption],
                   ]}
                 >
                   {option}
@@ -450,10 +459,10 @@ export default function MuseumScenario() {
           <Text>LOADING</Text>
         )}
 
-        <Pressable 
+        <Pressable
           onPress={() => {
-            AudioManager.playButtonSound(); 
-            nextQuestion()
+            AudioManager.playButtonSound();
+            nextQuestion();
           }}
           style={[styles.nextButton, darkMode && styles.darkNextButton]}
         >

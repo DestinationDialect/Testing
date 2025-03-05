@@ -37,7 +37,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-interface RouterProps {
+export interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
@@ -284,7 +284,6 @@ const RouteScreen = ({ navigation }: RouterProps) => {
         console.error("Error retrieving route data: ", error);
       }
     };
-
     getData();
     console.log(routeData);
     console.log(flattenedRouteData);

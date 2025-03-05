@@ -18,7 +18,7 @@ import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
 import { useTheme } from "../ThemeContext";
 import AudioManager from "../AudioManager";
-//import Tts from "react-native-tts";
+import { updateRoute, ScenarioNavigationProp } from "./AirportScenario";
 interface Language {
   name: string;
   tag: string;
@@ -140,7 +140,7 @@ export default function RestaurantScenario() {
   const [currentquestionindex, setcurrentquestionindex] = useState(0);
   const [selectedOption, setselectedOption] = useState("");
   const [isCorrect, setisCorrect] = useState(false);
-  const navigation = useNavigation();
+  const navigation = useNavigation<ScenarioNavigationProp>();
   const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const name = "RestaurantScenario";
@@ -343,6 +343,7 @@ export default function RestaurantScenario() {
       setScores([...scores, score]);
       if (currentquestionindex === QUESTIONS.length - 1) {
         storeVocab();
+        updateRoute(3);
         const averageScore =
           scores.length > 0
             ? Math.round(
@@ -361,11 +362,11 @@ export default function RestaurantScenario() {
           if (currentRouteLocation && docData) {
             let i = currentRouteLocation.id;
             let currentID = docData[i];
-            if(currentID){
+            if (currentID) {
               setDoc(
                 doc(FIRESTORE_DB, "user_data", user_id),
                 {
-                  [flattenedRouteData[i-1].id]: {
+                  [flattenedRouteData[i - 1].id]: {
                     stars: stars,
                   },
                 },
@@ -414,7 +415,11 @@ export default function RestaurantScenario() {
               onPress={() => setVisible(false)}
               style={[styles.closeButton, darkMode && styles.darkCloseButton]}
             >
-              <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Review Lesson</Text>
+              <Text
+                style={[styles.buttonText, darkMode && styles.darkButtonText]}
+              >
+                Review Lesson
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -424,7 +429,7 @@ export default function RestaurantScenario() {
         style={styles.imageBackground}
         resizeMode="cover"
       >
-        <Pressable onPress={() => navigation.goBack()}>
+        <Pressable onPress={() => navigation.replace("Route")}>
           <Image
             style={styles.backButtonIcon}
             source={require("../../../assets/backArrow.png")}
@@ -443,9 +448,13 @@ export default function RestaurantScenario() {
                 <Text
                   style={[
                     styles.option,
-                    isCorrect 
-                    ? styles.correctAnswer && styles.darkCorrectAnswer
-                    : styles.option && styles.darkOption, 
+                    option === dialogue[currentquestionindex].correctAnswer &&
+                    isCorrect
+                      ? [
+                          styles.correctAnswer,
+                          darkMode && styles.darkCorrectAnswer,
+                        ]
+                      : [styles.option, darkMode && styles.darkOption],
                   ]}
                 >
                   {option}
@@ -458,14 +467,16 @@ export default function RestaurantScenario() {
           <Text>LOADING</Text>
         )}
 
-        <Pressable 
+        <Pressable
           onPress={() => {
-            AudioManager.playButtonSound(); 
-            nextQuestion() 
+            AudioManager.playButtonSound();
+            nextQuestion();
           }}
           style={[styles.nextButton, darkMode && styles.darkNextButton]}
         >
-          <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>Next Question</Text>
+          <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>
+            Next Question
+          </Text>
         </Pressable>
       </View>
     </SafeAreaView>
