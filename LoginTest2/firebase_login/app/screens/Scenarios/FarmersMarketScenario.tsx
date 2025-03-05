@@ -314,6 +314,14 @@ export default function FarmersMarketScenario() {
       const jsonVocab = JSON.stringify(vocabulary);
       await AsyncStorage.setItem("farmerVocabulary", jsonVocab);
       console.log("vocab stored: ");
+      const user = FIREBASE_AUTH.currentUser;
+          if (user) {
+            const user_id = user.uid;
+            await setDoc(doc(FIRESTORE_DB, "user_vocab_notebook", user_id), {
+              FarmersMarketScenario: {title: 'farmerVocabulary', vocab: jsonVocab}
+            },
+            { merge: true }); 
+          }
     } catch (error) {
       console.error("Error storing vocab: ", error);
     }

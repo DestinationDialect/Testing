@@ -310,6 +310,14 @@ export default function ZooScenario() {
       const jsonVocab = JSON.stringify(vocabulary);
       await AsyncStorage.setItem("zooVocabulary", jsonVocab);
       console.log("vocab stored: ");
+      const user = FIREBASE_AUTH.currentUser;
+          if (user) {
+            const user_id = user.uid;
+            await setDoc(doc(FIRESTORE_DB, "user_vocab_notebook", user_id), {
+              ZooScenario: {title: 'zooVocabulary', vocab: jsonVocab}
+            },
+            { merge: true }); 
+          }
     } catch (error) {
       console.error("Error storing vocab: ", error);
     }

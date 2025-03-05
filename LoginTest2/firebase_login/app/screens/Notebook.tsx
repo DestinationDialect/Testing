@@ -20,6 +20,8 @@ import { NavigationProp } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import { translateText } from "../../translate";
 import { languages } from "./Scenarios/RestaurantScenario";
+import { setDoc, doc } from "firebase/firestore";
+import { FIRESTORE_DB, FIREBASE_AUTH } from "../../FirebaseConfig";
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
@@ -265,6 +267,14 @@ const PersonalTranslations = () => {
       setWord(""); // Clear input fields
       setTranslation("");
       setModalVisible(false); // Close the modal
+      const user = FIREBASE_AUTH.currentUser;
+        if (user) {
+          const user_id = user.uid;
+          await setDoc(doc(FIRESTORE_DB, "user_personal_notebook", user_id), {
+            Vocab: updatedVocab
+          },
+          { merge: true }); 
+        }
     } catch (error) {
       console.error("Error saving word:", error);
     }
@@ -276,6 +286,14 @@ const PersonalTranslations = () => {
     try {
       await AsyncStorage.setItem("personalVocab", JSON.stringify(updatedVocab));
       setPersonalVocab(updatedVocab);
+      const user = FIREBASE_AUTH.currentUser;
+        if (user) {
+          const user_id = user.uid;
+          await setDoc(doc(FIRESTORE_DB, "user_personal_notebook", user_id), {
+            Vocab: updatedVocab
+          },
+          { merge: true }); 
+        }
     } catch (error) {
       console.error("Error deleting word:", error);
     }

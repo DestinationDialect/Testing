@@ -69,12 +69,71 @@ const Login = () => {
     asyncLanguageStorage(firstL, newL);
   };
 
+  const asyncNotebookStorage = async (title: string, notes: string) => {
+    try {
+      await AsyncStorage.setItem(title, notes);
+      //Store language
+    } catch (error) {
+      console.error("Error storing languages in AsyncStorage:", error);
+    } finally {
+      console.log(
+        "Title: ",
+        title,
+        "Notebook JSON: ",
+        notes
+      );
+    }
+  };
+
+  const setNotebook = async () => {
+    const user = FIREBASE_AUTH.currentUser;
+      if (user) {
+        const user_id = user.uid;
+        const ref = doc(FIRESTORE_DB, "user_vocab_notebook", user_id);
+        const docSnap = await getDoc(ref);
+        const docData = docSnap.data();
+        console.log("user found");
+        if (docData) {
+          Object.keys(docData).forEach((key) => {
+            const note = docData[key];
+            if (note && note.title && note.vocab) {
+              asyncNotebookStorage(note.title, note.vocab);
+            }
+          });
+        }
+        const refP = doc(FIRESTORE_DB, "user_personal_notebook", user_id);
+        const docSnapP = await getDoc(refP);
+        const docDataP = docSnapP.data();
+        console.log("Personal Notebook Step 1");
+        if (docDataP) {
+          let updatedVocab = [];
+          console.log('Personal Notebook step 2');
+          let i = 0;
+          while(docDataP.Vocab[i]) {
+            console.log('Personal Notebook step 3');
+            if (docDataP.Vocab[i] && docDataP.Vocab[i].learnedText && docDataP.Vocab[i].translation) {
+              console.log('Personal Notebook step 4');
+              updatedVocab.push({
+                learnedText: docDataP.Vocab[i].learnedText,
+                translation: docDataP.Vocab[i].translation,
+              });
+              console.log(docDataP.Vocab[i].learnedText, docDataP.Vocab[i].translation );
+            }
+            i++;
+          }
+          await AsyncStorage.setItem("personalVocab", JSON.stringify(updatedVocab));
+        }
+        
+      }
+  };
+
   const signIn = async () => {
     setLoading(true);
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
       console.log(response);
       setLanguage();
+      setNotebook();
     } catch (error: any) {
       console.log(error);
       alert("Sign in failed" + error.message);
