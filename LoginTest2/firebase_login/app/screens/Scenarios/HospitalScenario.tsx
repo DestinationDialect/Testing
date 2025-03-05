@@ -313,6 +313,14 @@ export default function HospitalScenario() {
       const jsonVocab = JSON.stringify(vocabulary);
       await AsyncStorage.setItem("hospitalVocabulary", jsonVocab);
       console.log("vocab stored: ");
+      const user = FIREBASE_AUTH.currentUser;
+          if (user) {
+            const user_id = user.uid;
+            await setDoc(doc(FIRESTORE_DB, "user_vocab_notebook", user_id), {
+              HospitalScenario: {title: 'hospitalVocabulary', vocab: jsonVocab}
+            },
+            { merge: true }); 
+          }
     } catch (error) {
       console.error("Error storing vocab: ", error);
     }
