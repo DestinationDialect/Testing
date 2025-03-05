@@ -19,6 +19,8 @@ import ContactUs from "./app/screens/ContactUs";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
+import { ThemeProvider } from "../firebase_login/app/screens/ThemeContext";
+import AudioManager from "./app/screens/AudioManager";
 
 const Stack = createNativeStackNavigator();
 
@@ -108,30 +110,38 @@ function InsideLayout() {
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [isAudioInitialized, setIsAudioInitialized] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
       console.log("user", user);
       setUser(user);
     });
+
+    if (!isAudioInitialized) {
+      AudioManager.initialize(); // Load audio settings on startup
+      setIsAudioInitialized(true);
+    }
   }, []);
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        {user ? (
-          <Stack.Screen
-            name="Inside"
-            component={InsideLayout}
-            options={{ headerShown: false }}
-          />
-        ) : (
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{ headerShown: false }}
-          />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ThemeProvider> 
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          {user ? (
+            <Stack.Screen
+              name="Inside"
+              component={InsideLayout}
+              options={{ headerShown: false }}
+            />
+          ) : (
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
+            />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }

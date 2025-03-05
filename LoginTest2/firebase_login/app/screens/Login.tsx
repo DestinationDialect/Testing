@@ -15,7 +15,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import styles from "./Styles";
-import { flattenedRouteData } from "./Route";
+import { flattenedRouteData, initialRouteData, RouteItem } from "./Route";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const availableLanguages = ["English", "Spanish", "French", "German"];
@@ -35,16 +35,54 @@ const Login = () => {
     try {
       await AsyncStorage.setItem("originLanguage", firstL);
       await AsyncStorage.setItem("newLanguage", newL);
-      //Store language
+      // Store Language
     } catch (error) {
       console.error("Error storing languages in AsyncStorage:", error);
-    } finally {
-      console.log(
-        "Stored Languages - firstLanguage: ",
-        firstL,
-        "newLanguage: ",
-        newL
-      );
+    }
+  };
+
+  const unlockLevel = (id: number, data: RouteItem[]): RouteItem[] => {
+    return data.map((item) => {
+      if (item.id === id) {
+        return { ...item, isUnlocked: true };
+      }
+      if (item.children) {
+        return { ...item, children: unlockLevel(id, item.children) };
+      }
+      return item;
+    });
+  };
+
+  const getRouteData = async () => {
+    const user = FIREBASE_AUTH.currentUser;
+    if (user) {
+      const user_id = user.uid;
+      const ref = doc(FIRESTORE_DB, "user_data", user_id);
+      const docSnap = await getDoc(ref);
+      const docData = docSnap.data();
+      let i = 1;
+      let updatedData = [...initialRouteData];
+      console.log("user found");
+      if (docData) {
+        let scenarioID = docData[i];
+        while (scenarioID) {
+          if (scenarioID && scenarioID.unlocked == true) {
+            updatedData = unlockLevel(i, updatedData);
+          }
+          i = i + 1;
+          scenarioID = docData[i];
+        }
+        return updatedData;
+      }
+    }
+  };
+
+  const setRouteData = async (storedRouteData: RouteItem[]) => {
+    const routeData = JSON.stringify(storedRouteData);
+    try {
+      await AsyncStorage.setItem("routeData", routeData); // store stringified route data
+    } catch (error) {
+      console.error("Error storing route data in AsyncStorage:", error);
     }
   };
 
@@ -52,19 +90,19 @@ const Login = () => {
     // function to fetch user languages from database and save in async storage on sign in
     // replace language setting with database call data
     const user = FIREBASE_AUTH.currentUser;
-    let firstL = "English"
-    let newL = "Spanish"
-      if (user) {
-        const user_id = user.uid;
-        const ref = doc(FIRESTORE_DB, "user_language", user_id);
-        const docSnap = await getDoc(ref);
-        const docData = docSnap.data();
-        console.log("user found");
-        if (docData) {
-          firstL = docData.firstLanguage
-          newL = docData.newLanguage
-        }
+    let firstL = "English";
+    let newL = "Spanish";
+    if (user) {
+      const user_id = user.uid;
+      const ref = doc(FIRESTORE_DB, "user_language", user_id);
+      const docSnap = await getDoc(ref);
+      const docData = docSnap.data();
+      console.log("user found");
+      if (docData) {
+        firstL = docData.firstLanguage;
+        newL = docData.newLanguage;
       }
+    }
     // store data from variables in async storage
     asyncLanguageStorage(firstL, newL);
   };
@@ -134,6 +172,10 @@ const Login = () => {
       console.log(response);
       setLanguage();
       setNotebook();
+      const routeData = await getRouteData();
+      if (routeData) {
+        setRouteData(routeData);
+      }
     } catch (error: any) {
       console.log(error);
       alert("Sign in failed" + error.message);
@@ -170,13 +212,10 @@ const Login = () => {
           );
           i = i + 1;
         }
-        await setDoc(
-          doc(FIRESTORE_DB, "user_language", user_id), 
-          {
-            firstLanguage: firstLanguage,
-            newLanguage: newLanguage,
-          },
-        )
+        await setDoc(doc(FIRESTORE_DB, "user_language", user_id), {
+          firstLanguage: firstLanguage,
+          newLanguage: newLanguage,
+        });
       }
       console.log(response);
       alert("Check your emails!");
@@ -191,7 +230,11 @@ const Login = () => {
   const handleLanguageSelection = () => {
     // store languages in async storage
     if (firstLanguage && newLanguage && firstLanguage != newLanguage) {
+      // stores languages in async
       asyncLanguageStorage(firstLanguage, newLanguage);
+
+      // stores initial route data in async
+      setRouteData(initialRouteData);
 
       // close Modal
       setLanguageModalVisible(false);
@@ -257,7 +300,6 @@ const Login = () => {
                   ))}
                 </View>
               </View>
-              <Text>{errorMessage}</Text>
               <Pressable
                 onPress={() => handleLanguageSelection()}
                 style={styles.continueButton}

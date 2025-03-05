@@ -17,11 +17,14 @@ import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from "react";
 import { NavigationProp } from "@react-navigation/native";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome } from '@expo/vector-icons';
 import { translateText } from "../../translate";
 import { languages } from "./Scenarios/RestaurantScenario";
 import { setDoc, doc } from "firebase/firestore";
 import { FIRESTORE_DB, FIREBASE_AUTH } from "../../FirebaseConfig";
+import { useTheme } from "./ThemeContext";
+import AudioManager from "./AudioManager";
+
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
@@ -40,6 +43,7 @@ const scenarioVocabs = [
   "Farmer's Market",
   "Hospital",
 ];
+
 const ScenarioVocabulary = ({ vocab }: { vocab: Vocab[] }) => {
   return (
     <ScrollView>
@@ -56,13 +60,15 @@ const ScenarioVocabulary = ({ vocab }: { vocab: Vocab[] }) => {
     </ScrollView>
   );
 };
+
 const Vocabulary = () => {
+  const { darkMode } = useTheme(); // Get Dark Mode from context
+
   // sets current section from user selection
   const [currentSection, setCurrentSection] = useState("Airport");
   // storing vocabulary array of objects for each scenario section
   const [airportVocabulary, setAirportVocabulary] = useState(initialVocab);
-  const [restaurantVocabulary, setRestaurantVocabulary] =
-    useState(initialVocab);
+  const [restaurantVocabulary, setRestaurantVocabulary] = useState(initialVocab);
   const [hotelVocabulary, setHotelVocabulary] = useState(initialVocab);
   const [museumVocabulary, setMuseumVocabulary] = useState(initialVocab);
   const [zooVocabulary, setZooVocabulary] = useState(initialVocab);
@@ -116,22 +122,24 @@ const Vocabulary = () => {
   }, []);
 
   return (
-    <View style={notebookStyles.page}>
-      <View style={notebookStyles.sections}>
+    <View style={[notebookStyles.page, darkMode && notebookStyles.darkPage]}>
+      <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={notebookStyles.sections}>
         {scenarioVocabs.map((item, index) => (
           <Pressable
             key={index}
             style={
               item == currentSection
-                ? notebookStyles.selectedSectionHeader
-                : notebookStyles.sectionHeader
+                ? notebookStyles.selectedSectionHeader && notebookStyles.darkSelectedSectionHeader
+                : notebookStyles.sectionHeader && notebookStyles.darkSectionHeader
             }
-            onPress={() => setCurrentSection(item)}
+            onPress={() => { 
+              AudioManager.playButtonSound();
+              setCurrentSection(item)}}
           >
             <Text>{item}</Text>
           </Pressable>
         ))}
-      </View>
+      </ScrollView>
       {currentSection == "Airport" && (
         <ScenarioVocabulary vocab={airportVocabulary} />
       )}
@@ -164,6 +172,7 @@ const PersonalTranslations = () => {
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [learningLanguage, setLearningLanguage] = useState("");
   const [firstLanguage, setFirstLanguage] = useState("");
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   const getLearningLanguage = async () => {
     // attempts to get target language from async storage
@@ -308,19 +317,22 @@ const PersonalTranslations = () => {
   };
 
   return (
-    <View style={notebookStyles.page}>
+    <View>
       {/* Header with Add Button */}
       <View style={notebookStyles.header}>
         <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-          style={notebookStyles.addButton}
+          onPress={() => {
+            AudioManager.playButtonSound();
+            setModalVisible(true)
+          }}
+          style={[notebookStyles.addButton, darkMode && notebookStyles.darkAddButton]}
         >
-          <Text style={notebookStyles.addButtonText}>+ Add</Text>
+          <Text style={[notebookStyles.addButtonText, darkMode && notebookStyles.darkButtonText]}>+ Add</Text>
         </TouchableOpacity>
       </View>
 
       {/* Display Saved Words with Edit & Delete */}
-      <ScrollView>
+      <View>
         {personalVocab.length > 0 ? (
           personalVocab.map((item, index) => (
             <View style={notebookStyles.vocabItem} key={index}>
@@ -329,7 +341,10 @@ const PersonalTranslations = () => {
 
               {/* Edit Button */}
               <TouchableOpacity
-                onPress={() => openEditModal(index)}
+                onPress={() => { 
+                  AudioManager.playButtonSound();
+                  openEditModal(index)
+                }}
                 style={notebookStyles.editButton}
               >
                 <FontAwesome name="edit" size={24} color="black" />
@@ -337,22 +352,25 @@ const PersonalTranslations = () => {
 
               {/* Delete Button */}
               <TouchableOpacity
-                onPress={() => deleteWord(index)}
-                style={notebookStyles.deleteButton}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  deleteWord(index)
+                }}
+                style={[notebookStyles.deleteButton, darkMode && notebookStyles.darkDeleteButton]}
               >
-                <FontAwesome name="trash" size={24} color="red" />
+                <FontAwesome name="trash" size={24} style={[notebookStyles.deleteIcon, darkMode && notebookStyles.darkDeleteIcon]} />
               </TouchableOpacity>
             </View>
           ))
         ) : (
           <Text>No personal vocabulary added.</Text>
         )}
-      </ScrollView>
+      </View>
 
       {/* Modal for Adding or Editing Words */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={notebookStyles.modalOverlay}>
-          <View style={notebookStyles.modalView}>
+          <View style={[notebookStyles.modalView, darkMode && notebookStyles.darkModalView]}>
             <Text style={notebookStyles.modalTitle}>
               {editIndex !== null ? "Edit Word" : "Add New Word"}
             </Text>
@@ -360,12 +378,12 @@ const PersonalTranslations = () => {
             <View style={notebookStyles.inputOutputContainer}>
               {/* Input Field */}
               <TextInput
-                style={notebookStyles.input}
+                style={[notebookStyles.input, darkMode && notebookStyles.darkInput]}
                 placeholder="Enter a word"
                 value={word}
                 onChangeText={setWord}
               />
-              <Text style={notebookStyles.output}>
+              <Text style={[notebookStyles.output, darkMode && notebookStyles.darkOutput]}>
                 {translation || "translation"}
               </Text>
             </View>
@@ -373,22 +391,31 @@ const PersonalTranslations = () => {
             {/* Buttons */}
             <View style={notebookStyles.buttonRow}>
               <Pressable
-                onPress={() => handleTranslation(word)}
-                style={notebookStyles.translateButton}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  handleTranslation(word)
+                }}
+                style={[notebookStyles.translateButton, darkMode && notebookStyles.darkTranslateButton]}
               >
-                <Text style={notebookStyles.buttonText}>Translate</Text>
+                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>Translate</Text>
               </Pressable>
               <TouchableOpacity
-                style={notebookStyles.cancelButton}
-                onPress={() => setModalVisible(false)}
+                style={[notebookStyles.cancelButton, darkMode && notebookStyles.darkCancelButton]}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  setModalVisible(false)
+                }}
               >
-                <Text style={notebookStyles.buttonText}>Cancel</Text>
+                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={notebookStyles.saveButton}
-                onPress={saveWord}
+                style={[notebookStyles.saveButton, darkMode && notebookStyles.darkSaveButton]}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  saveWord()
+                }}
               >
-                <Text style={notebookStyles.buttonText}>
+                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>
                   {editIndex !== null ? "Update" : "Save"}
                 </Text>
               </TouchableOpacity>
@@ -400,35 +427,213 @@ const PersonalTranslations = () => {
   );
 };
 
-const PersonalNotes = () => {};
+const PersonalNotes = () => {
+  const [notes, setNotes] = useState<string[]>([]);
+  const [note, setNote] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const { darkMode } = useTheme(); // Get Dark Mode from context
+
+  // Load saved notes when the component mounts
+  useEffect(() => {
+    const loadPersonalNotes = async () => {
+      try {
+        const savedNotes = await AsyncStorage.getItem("personalNotes");
+        if (savedNotes) {
+          setNotes(JSON.parse(savedNotes));
+        }
+      } catch (error) {
+        console.error("Error loading personal notes:", error);
+      }
+    };
+    loadPersonalNotes();
+  }, []);
+
+  // Function to save a new or edited word
+  const saveWord = async () => {
+    if (note.trim() === "") {
+      Alert.alert("Error", "Field must be filled.");
+      return;
+    }
+
+    let updatedNotes = [...notes];
+
+    if (editIndex !== null) {
+      // Editing existing word
+      updatedNotes[editIndex] = note;
+      setEditIndex(null);
+    } else {
+      // Adding a new word
+      updatedNotes.push(note);
+    }
+
+    try {
+      await AsyncStorage.setItem("personalNotes", JSON.stringify(updatedNotes));
+      setNotes(updatedNotes);
+      setNote(""); // Clear input fields
+      setModalVisible(false); // Close the modal
+    } catch (error) {
+      console.error("Error saving note:", error);
+    }
+  };
+
+  // Function to delete a word
+  const deleteWord = async (index: number) => {
+    const updatedNotes = notes.filter((_, i) => i !== index);
+    try {
+      await AsyncStorage.setItem("personalNotes", JSON.stringify(updatedNotes));
+      setNotes(updatedNotes);
+    } catch (error) {
+      console.error("Error deleting note:", error);
+    }
+  };
+
+  // Open edit modal with existing word data
+  const openEditModal = (index: number) => {
+    setNote(notes[index]);
+    setEditIndex(index);
+    setModalVisible(true);
+  };
+
+  return (
+    <View>
+      {/* Header with Add Button */}
+      <View style={notebookStyles.header}>
+        <Pressable
+          onPress={() => {
+            AudioManager.playButtonSound();
+            setModalVisible(true)
+          }}
+          style={[notebookStyles.addButton, darkMode && notebookStyles.darkAddButton]}
+        >
+          <Text style={[notebookStyles.addButtonText, darkMode && notebookStyles.darkAddButtonText]}>+ Add</Text>
+        </Pressable>
+      </View>
+
+      {/* Display Saved Notes with Edit & Delete */}
+      <ScrollView>
+        {notes.length > 0 ? (
+          notes.map((item, index) => (
+            <View style={notebookStyles.vocabItem} key={index}>
+              <Text style={notebookStyles.vocabText}>{item}</Text>
+
+              {/* Edit Button */}
+              <Pressable
+                onPress={() => { 
+                  AudioManager.playButtonSound();
+                  openEditModal(index)
+                }}
+                style={notebookStyles.editButton}
+              >
+                <FontAwesome name="edit" size={24} color="black" />
+              </Pressable>
+
+              {/* Delete Button */}
+              <Pressable
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  deleteWord(index)
+                }}
+                style={[notebookStyles.deleteButton, darkMode && notebookStyles.darkDeleteButton]}
+              >
+                <FontAwesome name="trash" size={24} style={[notebookStyles.deleteIcon, darkMode && notebookStyles.darkDeleteIcon]} />
+              </Pressable>
+            </View>
+          ))
+        ) : (
+          <Text>No personal notes added.</Text>
+        )}
+      </ScrollView>
+
+      {/*Modal to edit or add notes */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        style={{ height: "50%" }}
+      >
+        <View style={notebookStyles.modalOverlay}>
+          <View style={[notebookStyles.modalView, darkMode && notebookStyles.darkModalView]}>
+            <Text style={notebookStyles.modalTitle}>
+              {editIndex !== null ? "Edit Note" : "Add New Note"}
+            </Text>
+
+            {/* Input Field */}
+            <TextInput
+              style={[notebookStyles.input, darkMode && notebookStyles.darkInput]}
+              multiline={true}
+              placeholder="Enter your notes"
+              value={note}
+              onChangeText={setNote}
+            />
+
+            {/* Buttons */}
+            <View style={notebookStyles.buttonRow}>
+              <Pressable
+                style={[notebookStyles.cancelButton, darkMode && notebookStyles.darkCancelButton]}
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  setModalVisible(false)
+                }}
+              >
+                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>Cancel</Text>
+              </Pressable>
+              <Pressable 
+                style={[notebookStyles.saveButton, darkMode && notebookStyles.darkSaveButton]} 
+                onPress={() => {
+                  AudioManager.playButtonSound();
+                  saveWord()
+                }}
+              >
+                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>
+                  {editIndex !== null ? "Update" : "Save"}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+};
 
 const Personal = () => {
   const [currentSection, setCurrentSection] = useState("Translations");
+  const { darkMode } = useTheme(); // Get Dark Mode from context
+
   return (
-    <View style={notebookStyles.page}>
+    <View style={[notebookStyles.page, darkMode && notebookStyles.darkPage]}>
       <View style={notebookStyles.sections}>
         <Pressable
           style={
             currentSection == "Translations"
-              ? notebookStyles.selectedSectionHeader
-              : notebookStyles.sectionHeader
+              ? notebookStyles.selectedSectionHeader && notebookStyles.darkSelectedSectionHeader
+              : notebookStyles.sectionHeader && notebookStyles.darkSectionHeader
           }
-          onPress={() => setCurrentSection("Translations")}
+          onPress={() => {
+            AudioManager.playButtonSound()
+            setCurrentSection("Translations")
+          }}
         >
           <Text>Translations</Text>
         </Pressable>
         <Pressable
           style={
             currentSection == "Notes"
-              ? notebookStyles.selectedSectionHeader
-              : notebookStyles.sectionHeader
+              ? notebookStyles.selectedSectionHeader && notebookStyles.darkSelectedSectionHeader
+              : notebookStyles.sectionHeader && notebookStyles.darkSectionHeader
           }
-          onPress={() => setCurrentSection("Notes")}
+          onPress={() => {
+            AudioManager.playButtonSound();
+            setCurrentSection("Notes")
+          }}
         >
           <Text>Notes</Text>
         </Pressable>
       </View>
       {currentSection == "Translations" && <PersonalTranslations />}
+      {currentSection == "Notes" && <PersonalNotes />}
     </View>
   );
 };
@@ -436,38 +641,57 @@ const Personal = () => {
 const Notebook = ({ navigation }: RouterProps) => {
   const [currentTab, setCurrentTab] = useState("vocabulary");
   const [vocabulary, setVocabulary] = useState(initialVocab);
+  const { darkMode } = useTheme(); // Get Dark Mode from context
 
   return (
     <ImageBackground
-      source={require("../../assets/SettingsPage.png")}
+      source={
+        darkMode
+          ? require("../../assets/DarkModeBackground.jpg") // Dark mode image
+          : require("../../assets/homeScreen.png") // Light mode image
+      }
       resizeMode="cover"
-      style={styles.imgBackground}
+      style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply Dark Mode styles
     >
-      <Pressable onPress={() => navigation.goBack()}>
+      <Pressable onPress={() => { 
+        AudioManager.playButtonSound();
+        navigation.goBack()}}
+      >
         <Image
           style={styles.backButtonIcon}
-          source={require("../../assets/backArrow.png")}
+          source={
+            darkMode
+              ? require("../../assets/whiteBackArrow.png")
+              : require("../../assets/backArrow.png")
+          }
         />
       </Pressable>
+
       <View style={notebookStyles.screen}>
         <View style={notebookStyles.titleContainer}>
-          <Text style={notebookStyles.titleText}>Notebook</Text>
+          <Text style={[notebookStyles.titleText, darkMode && notebookStyles.darkTitleText]}>Notebook</Text>
         </View>
         <View style={notebookStyles.tabs}>
-          <Pressable
-            style={notebookStyles.tab}
-            onPress={() => setCurrentTab("vocabulary")}
+          <Pressable 
+            style={[notebookStyles.tab, darkMode && notebookStyles.darkTab]}
+            onPress={() => {
+              AudioManager.playButtonSound();
+              setCurrentTab("vocabulary")
+            }}
           >
             <Text style={notebookStyles.tabTitle}>Vocabulary</Text>
           </Pressable>
           <Pressable
-            style={notebookStyles.tab}
-            onPress={() => setCurrentTab("personal")}
+            style={[notebookStyles.tab, darkMode && notebookStyles.darkTab]}
+            onPress={() => {
+              AudioManager.playButtonSound();
+              setCurrentTab("personal")
+            }}
           >
             <Text style={notebookStyles.tabTitle}>Personal</Text>
           </Pressable>
         </View>
-        <View style={notebookStyles.folder}>
+        <View style={[notebookStyles.folder, darkMode && notebookStyles.darkFolder]}>
           {currentTab == "vocabulary" && <Vocabulary />}
           {currentTab == "personal" && <Personal></Personal>}
         </View>
@@ -488,12 +712,33 @@ const notebookStyles = StyleSheet.create({
     paddingTop: 1,
     paddingBottom: 5,
   },
+
+  //-------------
+  darkTitleText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 30,
+    marginBottom: 20,
+  },
   titleText: {
     color: "black",
     fontSize: 30,
+    marginBottom: 20,
   },
+  //--------------
+
   tabs: {
     flexDirection: "row",
+  },
+
+  //--------------
+  darkTab: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderColor: "darkgreen",
+    borderWidth: 5,
+    marginHorizontal: 20,
+    padding: 10,
   },
   tab: {
     borderTopLeftRadius: 20,
@@ -504,8 +749,21 @@ const notebookStyles = StyleSheet.create({
     marginLeft: 20,
     padding: 10,
   },
+  //--------------
+
   tabTitle: {
     fontSize: 18,
+  },
+
+  //-------------
+  darkFolder: {
+    backgroundColor: "darkgreen",
+    flex: 1,
+    padding: 10,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   folder: {
     backgroundColor: "green",
@@ -516,14 +774,37 @@ const notebookStyles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
+  //--------------
+
   sections: {
     flexDirection: "row",
+  },
+
+  //----------------
+  darkSectionHeader: {
+    borderRadius: 10,
+    backgroundColor: "#ccc",
+    padding: 8,
+    margin: 5,
+    maxHeight: 40,
   },
   sectionHeader: {
     borderRadius: 10,
     backgroundColor: "#ccc",
     padding: 8,
     margin: 5,
+    maxHeight: 40,
+  },
+  //----------------
+
+  //----------------
+  darkSelectedSectionHeader: {
+    borderRadius: 10,
+    backgroundColor: "rgb(241, 236, 215)",
+    padding: 8,
+    margin: 5,
+    borderWidth: 2,
+    borderColor: "#000",
     maxHeight: 40,
   },
   selectedSectionHeader: {
@@ -535,6 +816,86 @@ const notebookStyles = StyleSheet.create({
     borderColor: "#000",
     maxHeight: 40,
   },
+//-----------------
+
+  inputOutputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  //---------------
+  darkOutput: {
+    height: 40,
+    borderColor: "black",
+    borderWidth: 2,
+    marginLeft: 10,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderRadius: 5,
+    textAlignVertical: "center",
+    color: "gray",
+    flex: 1,
+    lineHeight: 40,
+  },
+  output: {
+    height: 40,
+    borderColor: "black",
+    borderWidth: 2,
+    marginLeft: 10,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    backgroundColor: "white",
+    borderRadius: 5,
+    textAlignVertical: "center",
+    color: "gray",
+    flex: 1,
+    lineHeight: 40,
+  },
+  //-------------------
+
+  //-------------------
+  darkInputNote: {
+    width: "80%",
+    borderColor: "black",
+    borderWidth: 2,
+    margin: 10,
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 30,
+    backgroundColor: "white",
+    borderRadius: 5,
+    textAlignVertical: "top",
+    flex: 1,
+    lineHeight: 20,
+  },
+  inputNote: {
+    width: "80%",
+    borderColor: "black",
+    borderWidth: 2,
+    margin: 10,
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 30,
+    backgroundColor: "white",
+    borderRadius: 5,
+    textAlignVertical: "top",
+    flex: 1,
+    lineHeight: 20,
+  },
+  //--------------------
+
+  //-----------
+  darkPage: {
+    backgroundColor: "rgb(241, 236, 215)",
+    flex: 1,
+    padding: 10,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
   page: {
     backgroundColor: "white",
     flex: 1,
@@ -544,6 +905,8 @@ const notebookStyles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
+  //----------
+
   vocabItem: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -560,10 +923,16 @@ const notebookStyles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
-  inputOutputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+
+  //----------------
+  darkInput: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    backgroundColor: "white",
+    borderRadius: 5,
   },
   input: {
     height: 40,
@@ -574,25 +943,40 @@ const notebookStyles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 5,
   },
-  output: {
-    height: 40,
-    borderColor: "black",
-    borderWidth: 2,
-    marginLeft: 10,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    backgroundColor: "white",
+  //------------------
+
+  //------------------
+  darkTranslateButton: {
+    backgroundColor: "darkblue",
+    padding: 10,
     borderRadius: 5,
-    textAlignVertical: "center",
-    color: "gray",
     flex: 1,
-    lineHeight: 40,
+    alignItems: "center",
+    marginRight: 5,
   },
+  translateButton: {
+    backgroundColor: "blue",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    alignItems: "center",
+    marginRight: 5,
+  },
+  //------------------
+
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
     marginBottom: 10,
+  },
+
+  //---------------
+  darkAddButton: {
+    backgroundColor: "darkgreen",
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 5,
   },
   addButton: {
     backgroundColor: "green",
@@ -600,16 +984,35 @@ const notebookStyles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 5,
   },
+  //---------------
+
+  //---------------
+  darkAddButtonText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   addButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
   },
+  //------------------
+
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+  },
+
+  //------------------
+  darkModalView: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "rgb(241, 236, 215)",
+    borderRadius: 10,
+    alignItems: "center",
   },
   modalView: {
     width: "80%",
@@ -618,6 +1021,8 @@ const notebookStyles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
   },
+  //-----------------
+
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
@@ -629,8 +1034,10 @@ const notebookStyles = StyleSheet.create({
     marginTop: 10,
     width: "100%",
   },
-  translateButton: {
-    backgroundColor: "blue",
+
+  //----------------
+  darkCancelButton: {
+    backgroundColor: "darkred",
     padding: 10,
     borderRadius: 5,
     flex: 1,
@@ -645,6 +1052,17 @@ const notebookStyles = StyleSheet.create({
     alignItems: "center",
     marginRight: 5,
   },
+  //-----------------
+
+  //-----------------
+  darkSaveButton: {
+    backgroundColor: "darkgreen",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    alignItems: "center",
+    marginLeft: 5,
+  },
   saveButton: {
     backgroundColor: "green",
     padding: 10,
@@ -653,11 +1071,28 @@ const notebookStyles = StyleSheet.create({
     alignItems: "center",
     marginLeft: 5,
   },
+  //----------------
+
+  //----------------
+  darkButtonText: {
+    color: "rgb(241, 236, 215)",
+    fontSize: 16,
+  },
   buttonText: {
     color: "white",
     fontSize: 16,
   },
+  //---------------
+
   editButton: {
+    padding: 5,
+    borderRadius: 5,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+
+  //---------------
+  darkDeleteButton: {
     padding: 5,
     borderRadius: 5,
     alignItems: "center",
@@ -669,6 +1104,16 @@ const notebookStyles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 5,
   },
+  //---------------
+
+  //---------------
+  deleteIcon: {
+    color: "red",
+  },
+  darkDeleteIcon: {
+    color: "darkred",
+  },
+  //---------------
 });
 
 export default Notebook;

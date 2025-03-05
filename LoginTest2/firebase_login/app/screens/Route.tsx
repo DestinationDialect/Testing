@@ -24,6 +24,8 @@ import unlockedHospitalIcon from "../../assets/unlockedHospitalIcon.png";
 import lockedHospitalIcon from "../../assets/lockedHospitalIcon.png";
 
 import { NavigationProp } from "@react-navigation/native";
+import { useTheme } from "./ThemeContext";
+import AudioManager from "./AudioManager";
 
 import styles from "./Styles";
 
@@ -33,11 +35,13 @@ import { useState, useEffect } from "react";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
-interface RouterProps {
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+export interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
-interface RouteItem {
+export interface RouteItem {
   id: number;
   title: string;
   unlockedIcon: string;
@@ -80,7 +84,7 @@ const iconMap: Record<IconKey, any> = {
   lockedHospitalIcon,
 };
 
-const initialRouteData: RouteItem[] = [
+export const initialRouteData: RouteItem[] = [
   {
     id: 1,
     title: "AirportScenario",
@@ -92,7 +96,7 @@ const initialRouteData: RouteItem[] = [
         title: "RestaurantScenario",
         unlockedIcon: "unlockedRestaurantIcon",
         lockedIcon: "lockedRestaurantIcon",
-        isUnlocked: true,
+        isUnlocked: false,
         level: 1,
       },
       {
@@ -151,7 +155,10 @@ const RouteItemComponent: React.FC<{
   const iconSource = iconMap[iconKey];
   return (
     <TouchableOpacity
-      onPress={() => item.isUnlocked && navigation.navigate(item.title)}
+      onPress={() => {
+        AudioManager.playButtonSound();
+        item.isUnlocked && navigation.navigate(item.title);
+      }}
     >
       <Image
         style={styles.scenarioButtonIcon}
@@ -227,6 +234,7 @@ const Route: React.FC<{
 
 const RouteScreen = ({ navigation }: RouterProps) => {
   const [routeData, setRouteData] = useState<RouteItem[]>(initialRouteData);
+  const { darkMode, toggleDarkMode } = useTheme();
 
   const unlockLevel = (id: number, data: RouteItem[]): RouteItem[] => {
     return data.map((item) => {
@@ -266,26 +274,14 @@ const RouteScreen = ({ navigation }: RouterProps) => {
 
   useEffect(() => {
     const getData = async () => {
-      const user = FIREBASE_AUTH.currentUser;
-      if (user) {
-        const user_id = user.uid;
-        const ref = doc(FIRESTORE_DB, "user_data", user_id);
-        const docSnap = await getDoc(ref);
-        const docData = docSnap.data();
-        let i = 1;
-        let updatedData = [...routeData];
-        console.log("user found");
-        if (docData) {
-          let scenarioID = docData[i];
-          while (scenarioID) {
-            if (scenarioID && scenarioID.unlocked == true) {
-              updatedData = unlockLevel(i, updatedData);
-            }
-            i = i + 1;
-            scenarioID = docData[i];
-          }
-          setRouteData(updatedData);
+      try {
+        const routeJSON = await AsyncStorage.getItem("routeData");
+        if (routeJSON != null) {
+          const route = JSON.parse(routeJSON);
+          setRouteData(route);
         }
+      } catch (error) {
+        console.error("Error retrieving route data: ", error);
       }
     };
     getData();
@@ -295,14 +291,27 @@ const RouteScreen = ({ navigation }: RouterProps) => {
 
   return (
     <ImageBackground
-      source={require("../../assets/routeScreen.png")}
+      source={
+        darkMode
+          ? require("../../assets/darkRoute.png") // Dark mode image
+          : require("../../assets/routeScreen.png") // Light mode image
+      }
       resizeMode="cover"
-      style={styles.imgBackground}
+      style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply Dark Mode styles
     >
-      <Pressable onPress={() => navigation.navigate("Home")}>
+      <Pressable
+        onPress={() => {
+          AudioManager.playButtonSound();
+          navigation.navigate("Home");
+        }}
+      >
         <Image
           style={styles.backButtonIcon}
-          source={require("../../assets/backArrow.png")}
+          source={
+            darkMode
+              ? require("../../assets/whiteBackArrow.png")
+              : require("../../assets/backArrow.png")
+          }
         />
       </Pressable>
       <Route data={routeData} navigation={navigation} />
