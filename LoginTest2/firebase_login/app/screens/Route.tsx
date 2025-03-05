@@ -24,7 +24,7 @@ import unlockedHospitalIcon from "../../assets/unlockedHospitalIcon.png";
 import lockedHospitalIcon from "../../assets/lockedHospitalIcon.png";
 
 import { NavigationProp } from "@react-navigation/native";
-import { useTheme } from "./ThemeContext"; 
+import { useTheme } from "./ThemeContext";
 import AudioManager from "./AudioManager";
 
 import styles from "./Styles";
@@ -35,11 +35,13 @@ import { useState, useEffect } from "react";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
-interface RouteItem {
+export interface RouteItem {
   id: number;
   title: string;
   unlockedIcon: string;
@@ -82,7 +84,7 @@ const iconMap: Record<IconKey, any> = {
   lockedHospitalIcon,
 };
 
-const initialRouteData: RouteItem[] = [
+export const initialRouteData: RouteItem[] = [
   {
     id: 1,
     title: "AirportScenario",
@@ -94,7 +96,7 @@ const initialRouteData: RouteItem[] = [
         title: "RestaurantScenario",
         unlockedIcon: "unlockedRestaurantIcon",
         lockedIcon: "lockedRestaurantIcon",
-        isUnlocked: true,
+        isUnlocked: false,
         level: 1,
       },
       {
@@ -155,7 +157,7 @@ const RouteItemComponent: React.FC<{
     <TouchableOpacity
       onPress={() => {
         AudioManager.playButtonSound();
-        item.isUnlocked && navigation.navigate(item.title)
+        item.isUnlocked && navigation.navigate(item.title);
       }}
     >
       <Image
@@ -272,28 +274,17 @@ const RouteScreen = ({ navigation }: RouterProps) => {
 
   useEffect(() => {
     const getData = async () => {
-      const user = FIREBASE_AUTH.currentUser;
-      if (user) {
-        const user_id = user.uid;
-        const ref = doc(FIRESTORE_DB, "user_data", user_id);
-        const docSnap = await getDoc(ref);
-        const docData = docSnap.data();
-        let i = 1;
-        let updatedData = [...routeData];
-        console.log("user found");
-        if (docData) {
-          let scenarioID = docData[i];
-          while (scenarioID) {
-            if (scenarioID && scenarioID.unlocked == true) {
-              updatedData = unlockLevel(i, updatedData);
-            }
-            i = i + 1;
-            scenarioID = docData[i];
-          }
-          setRouteData(updatedData);
+      try {
+        const routeJSON = await AsyncStorage.getItem("routeData");
+        if (routeJSON != null) {
+          const route = JSON.parse(routeJSON);
+          setRouteData(route);
         }
+      } catch (error) {
+        console.error("Error retrieving route data: ", error);
       }
     };
+
     getData();
     console.log(routeData);
     console.log(flattenedRouteData);
@@ -309,17 +300,18 @@ const RouteScreen = ({ navigation }: RouterProps) => {
       resizeMode="cover"
       style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply Dark Mode styles
     >
-      <Pressable 
+      <Pressable
         onPress={() => {
           AudioManager.playButtonSound();
-          navigation.navigate("Home")}}
-        >
+          navigation.navigate("Home");
+        }}
+      >
         <Image
           style={styles.backButtonIcon}
           source={
-            darkMode 
-            ? require("../../assets/whiteBackArrow.png")
-            : require("../../assets/backArrow.png")
+            darkMode
+              ? require("../../assets/whiteBackArrow.png")
+              : require("../../assets/backArrow.png")
           }
         />
       </Pressable>
