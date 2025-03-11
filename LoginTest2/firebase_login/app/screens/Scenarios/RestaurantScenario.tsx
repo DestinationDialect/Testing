@@ -18,6 +18,7 @@ import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
 import { useTheme } from "../ThemeContext";
 import AudioManager from "../AudioManager";
+import { updateStars } from "./AirportScenario";
 import { updateRoute, ScenarioNavigationProp } from "./AirportScenario";
 interface Language {
   name: string;
@@ -319,13 +320,19 @@ export default function RestaurantScenario() {
       await AsyncStorage.setItem("restaurantVocabulary", jsonVocab);
       console.log("vocab stored: ");
       const user = FIREBASE_AUTH.currentUser;
-          if (user) {
-            const user_id = user.uid;
-            await setDoc(doc(FIRESTORE_DB, "user_vocab_notebook", user_id), {
-              RestaurantScenario: {title: 'restaurantVocabulary', vocab: jsonVocab}
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(
+          doc(FIRESTORE_DB, "user_vocab_notebook", user_id),
+          {
+            RestaurantScenario: {
+              title: "restaurantVocabulary",
+              vocab: jsonVocab,
             },
-            { merge: true }); 
-          }
+          },
+          { merge: true }
+        );
+      }
     } catch (error) {
       console.error("Error storing vocab: ", error);
     }
@@ -359,6 +366,7 @@ export default function RestaurantScenario() {
               )
             : 0;
         const stars = averageScore / 30;
+        updateStars(2, stars);
         const user = FIREBASE_AUTH.currentUser;
         if (user) {
           const user_id = user.uid;

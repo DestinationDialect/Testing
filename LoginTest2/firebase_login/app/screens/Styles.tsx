@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "500",
     color: "rgb(241, 236, 215)",
-  }, 
+  },
   darkSectionHeaderText: {
     fontSize: 15,
     fontWeight: "600",
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "500",
     color: "rgb(241, 236, 215)",
-  }, 
+  },
   darkRowWrapper: {
     paddingLeft: 24,
     borderTopWidth: 2,
@@ -234,6 +234,11 @@ const styles = StyleSheet.create({
   scenarioButtonIcon: {
     height: 100,
     width: 100,
+    marginBottom: 5,
+    marginLeft: 20,
+    marginRight: 10,
+  },
+  scenarioButton: {
     marginBottom: 60,
     marginLeft: 20,
     marginRight: 10,
@@ -374,8 +379,8 @@ const styles = StyleSheet.create({
 
   //------------------
   darkSelectedLanguageText: {
-    color: "rgb(241, 236, 215)"
-  }, 
+    color: "rgb(241, 236, 215)",
+  },
   selectedLanguageText: {
     color: "white",
   },
@@ -385,7 +390,5 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
   },
-  
-  
 });
 export default styles;
