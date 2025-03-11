@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "react-native";
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
+import { doc, setDoc } from "firebase/firestore";
 
 // Create the context
 const ThemeContext = createContext({
@@ -31,7 +33,18 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const toggleDarkMode = async (value: boolean) => {
     setDarkMode(value);
     try {
-      await AsyncStorage.setItem("darkMode", value.toString());
+      let strValue = value.toString()
+      await AsyncStorage.setItem("darkMode", strValue);
+      const user = FIREBASE_AUTH.currentUser;
+        if (user) {
+          const user_id = user.uid;
+          await setDoc(
+            doc(FIRESTORE_DB, "user_settings", user_id), 
+            {
+              darkMode: strValue,
+            }, { merge: true }
+          )
+        }
     } catch (error) {
       console.error("Error saving dark mode preference:", error);
     }
