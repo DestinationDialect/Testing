@@ -30,12 +30,12 @@ const randomArrFunction = (arr) => {
 };
 
 const initialTermPairs = {
-  "Cat": "Gato",
-  "Mouse": "Raton",
-  "Hola": "Hello",
-  "Adios": "Goodbye",
+  Cat: "Gato",
+  Mouse: "Raton",
+  Hola: "Hello",
+  Adios: "Goodbye",
   "Por Favor": "Please",
-  "Gracias": "Thank you",
+  Gracias: "Thank you",
 };
 const gameCardsFunction = (terms) => {
   let termList = Object.entries(terms).flat();
@@ -231,38 +231,76 @@ const Matching = () => {
     <SafeAreaView style={matchingStyles.container}>
       <ImageBackground
         source={
-                darkMode
-                  ? require("../../../assets/DarkModeBackground.jpg") // Dark mode image
-                  : require("../../../assets/homeScreen.png") // Light mode image
-              }
+          darkMode
+            ? require("../../../assets/DarkModeBackground.jpg") // Dark mode image
+            : require("../../../assets/homeScreen.png") // Light mode image
+        }
         resizeMode="cover"
         style={styles.imgBackground}
       >
-        <Pressable onPress={() => { 
-                  AudioManager.playButtonSound(); 
-                  navigation.goBack()
-                }}>
-                <Image
-                  style={styles.backButtonIcon}
-                  source={
-                    darkMode
-                      ? require("../../../assets/whiteBackArrow.png")
-                      : require("../../../assets/backArrow.png")
-                  }
-                />
+        <Pressable
+          onPress={() => {
+            AudioManager.playButtonSound();
+            navigation.goBack();
+          }}
+        >
+          <Image
+            style={styles.backButtonIcon}
+            source={
+              darkMode
+                ? require("../../../assets/whiteBackArrow.png")
+                : require("../../../assets/backArrow.png")
+            }
+          />
         </Pressable>
         <View style={matchingStyles.container}>
-          <Text style={[matchingStyles.header1, darkMode && matchingStyles.darkHeader1]}>Memory Pair Game</Text>
-          <Text style={[matchingStyles.matchText, darkMode && matchingStyles.darkMatchText]}>{msg}</Text>
+          <Text
+            style={[
+              matchingStyles.header1,
+              darkMode && matchingStyles.darkHeader1,
+            ]}
+          >
+            Memory Pair Game
+          </Text>
+          <Text
+            style={[
+              matchingStyles.matchText,
+              darkMode && matchingStyles.darkMatchText,
+            ]}
+          >
+            {msg}
+          </Text>
           {gameWon ? (
-            <View style={[matchingStyles.winMessage, darkMode && matchingStyles.darkWinMessage]}>
+            <View
+              style={[
+                matchingStyles.winMessage,
+                darkMode && matchingStyles.darkWinMessage,
+              ]}
+            >
               {/* <View style={styles2.winMessageContent}></View> */}
-              <Text style={[matchingStyles.winText, darkMode && matchingStyles.darkWinText]}>Congratulations! You Won!</Text>
+              <Text
+                style={[
+                  matchingStyles.winText,
+                  darkMode && matchingStyles.darkWinText,
+                ]}
+              >
+                Congratulations! You Won!
+              </Text>
               <Pressable
                 onPress={() => setModalVisible(true)}
-                style={[matchingStyles.input, darkMode && matchingStyles.darkInput]}
+                style={[
+                  matchingStyles.input,
+                  darkMode && matchingStyles.darkInput,
+                ]}
               >
-                <Text style={[matchingStyles.buttonText, darkMode && matchingStyles.darkButtonText]}>Select Topic</Text>
+                <Text
+                  style={[
+                    matchingStyles.buttonText,
+                    darkMode && matchingStyles.darkButtonText,
+                  ]}
+                >
+                  Select Topic
+                </Text>
               </Pressable>
               <Pressable
                 onPress={() => {
@@ -281,20 +319,40 @@ const Matching = () => {
             <View style={{ alignItems: "center" }}>
               <Pressable
                 onPress={() => setModalVisible(true)}
-                style={[matchingStyles.input, darkMode && matchingStyles.darkInput]}
+                style={[
+                  matchingStyles.input,
+                  darkMode && matchingStyles.darkInput,
+                ]}
               >
-                <Text style={[matchingStyles.buttonText, darkMode && matchingStyles.darkButtonText]}>Select Topic</Text>
+                <Text
+                  style={[
+                    matchingStyles.buttonText,
+                    darkMode && matchingStyles.darkButtonText,
+                  ]}
+                >
+                  Select Topic
+                </Text>
               </Pressable>
               <ScrollView style={{ maxHeight: "60vh" }}>
                 <View style={matchingStyles.grid}>
                   {cards.map((card) => (
                     <TouchableOpacity
                       key={card.id}
-                      style={[styles2.card, darkMode && styles2.darkCard, card.isFlipped && styles2.cardFlipped, darkMode && styles2.darkCardIsFlipped]}
+                      style={[
+                        matchingStyles.card,
+                        darkMode && matchingStyles.darkCard,
+                        card.isFlipped && matchingStyles.cardFlipped,
+                        darkMode && matchingStyles.darkCardIsFlipped,
+                      ]}
                       onPress={() => cardClickFunction(card)}
                     >
                       {card.isFlipped ? (
-                        <Text style={[styles2.cardText, darkMode && styles2.darkCardText]}>
+                        <Text
+                          style={[
+                            matchingStyles.cardText,
+                            darkMode && matchingStyles.darkCardText,
+                          ]}
+                        >
                           {card.symbol}
                         </Text>
                       ) : null}
@@ -306,7 +364,9 @@ const Matching = () => {
           )}
           <Modal visible={modalVisible} transparent={true}>
             <View style={styles.modalOverlay}>
-              <View style={[styles.modalView, darkMode && styles.darkModalView]}>
+              <View
+                style={[styles.modalView, darkMode && styles.darkModalView]}
+              >
                 <Text style={styles.modalTitle}>
                   Select your flashcard topic
                 </Text>
@@ -351,17 +411,37 @@ const Matching = () => {
                       setMatches(0);
                       setModalVisible(false);
                     }}
-                    style={[matchingStyles.continueButton, darkMode && matchingStyles.darkContinueButton]}
+                    style={[
+                      matchingStyles.continueButton,
+                      darkMode && matchingStyles.darkContinueButton,
+                    ]}
                   >
-                    <Text style={[matchingStyles.buttonText, darkMode && matchingStyles.darkButtonText]}>Confirm</Text>
+                    <Text
+                      style={[
+                        matchingStyles.buttonText,
+                        darkMode && matchingStyles.darkButtonText,
+                      ]}
+                    >
+                      Confirm
+                    </Text>
                   </Pressable>
                   <Pressable
                     onPress={() => {
                       setModalVisible(false);
                     }}
-                    style={[matchingStyles.cancelButton, darkMode && matchingStyles.darkCancelButton]}
+                    style={[
+                      matchingStyles.cancelButton,
+                      darkMode && matchingStyles.darkCancelButton,
+                    ]}
                   >
-                    <Text style={[matchingStyles.buttonText, darkMode && matchingStyles.darkButtonText]}>Cancel</Text>
+                    <Text
+                      style={[
+                        matchingStyles.buttonText,
+                        darkMode && matchingStyles.darkButtonText,
+                      ]}
+                    >
+                      Cancel
+                    </Text>
                   </Pressable>
                 </View>
               </View>
@@ -387,159 +467,159 @@ const matchingStyles = StyleSheet.create({
     resizeMode: "cover",
   },
   darkHeader1: {
-      fontSize: 36,
-      marginBottom: 10,
-      color: "rgb(241, 236, 215)",
-    },
-    header1: {
-      fontSize: 36,
-      marginBottom: 10,
-      color: "black",
-    },
+    fontSize: 36,
+    marginBottom: 10,
+    color: "rgb(241, 236, 215)",
+  },
+  header1: {
+    fontSize: 36,
+    marginBottom: 10,
+    color: "black",
+  },
   darkMatchText: {
-      fontSize: 18,
-      color: "rgb(241, 236, 215)",
-    },
-    matchText: {
-      fontSize: 18,
-      color: 'black',
-    },
+    fontSize: 18,
+    color: "rgb(241, 236, 215)",
+  },
+  matchText: {
+    fontSize: 18,
+    color: "black",
+  },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
   },
-   darkCard: {
-      width: 90,
-      height: 90,
-      margin: 10,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'darkgreen',
-      borderRadius: 10,
-      borderWidth: 2,
-      borderColor: 'rgb(241, 236, 215)',
-    },
-    card: {
-      width: 90,
-      height: 90,
-      margin: 10,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'green',
-      borderRadius: 10,
-      borderWidth: 2,
-      borderColor: 'white',
-    },
+  darkCard: {
+    width: 90,
+    height: 90,
+    margin: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "darkgreen",
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "rgb(241, 236, 215)",
+  },
+  card: {
+    width: 90,
+    height: 90,
+    margin: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "green",
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "white",
+  },
   darkCardFlipped: {
-      backgroundColor: '#d8a208',
-    },
-    cardFlipped: {
-      backgroundColor: '#ffc82c',
-    },
-    //-----------------
+    backgroundColor: "#d8a208",
+  },
+  cardFlipped: {
+    backgroundColor: "#ffc82c",
+  },
+  //-----------------
 
-    //-----------------
-    darkCardText: {
-      fontSize: 20,
-      color: 'white',
-      fontWeight: 'bold',
-    },
-    cardText: {
-      fontSize: 20,
-      color: 'white',
-      fontWeight: 'bold',
-    },
-    //-----------------
+  //-----------------
+  darkCardText: {
+    fontSize: 20,
+    color: "white",
+    fontWeight: "bold",
+  },
+  cardText: {
+    fontSize: 20,
+    color: "white",
+    fontWeight: "bold",
+  },
+  //-----------------
 
-    //-----------------
-    darkWinMessage: {
-      position: 'absolute',
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',
-      width: '100%',
-      height: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1,
-      margin: 0,
-      padding: 0,
-    },
-    winMessage: {
-      position: 'absolute',
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',
-      width: '100%',
-      height: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1,
-      margin: 0,
-      padding: 0,
-    },
+  //-----------------
+  darkWinMessage: {
+    position: "absolute",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+    margin: 0,
+    padding: 0,
+  },
+  winMessage: {
+    position: "absolute",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+    margin: 0,
+    padding: 0,
+  },
   darkWinText: {
-      fontSize: 36,
-      color: 'rgb(241, 236, 215)',
-    },
-    winText: {
-      fontSize: 36,
-      color: 'white',
-    },
+    fontSize: 36,
+    color: "rgb(241, 236, 215)",
+  },
+  winText: {
+    fontSize: 36,
+    color: "white",
+  },
   darkInput: {
-      borderWidth: 2, 
-      borderColor: "rgb(241, 236, 215)", 
-      padding: 9, 
-      width: 100, 
-      textAlign: "center", 
-      borderRadius: 5, 
-      marginBottom: 10,
-      backgroundColor: "darkgreen",
-      color: "rgb(241, 236, 215)",
-    },
-    input: { 
-      borderWidth: 2, 
-      borderColor: "white", 
-      padding: 10, 
-      width: 100, 
-      textAlign: "center", 
-      borderRadius: 5, 
-      marginBottom: 10,
-      backgroundColor: "green",
-      color: "white",
-    },
+    borderWidth: 2,
+    borderColor: "rgb(241, 236, 215)",
+    padding: 9,
+    width: 100,
+    textAlign: "center",
+    borderRadius: 5,
+    marginBottom: 10,
+    backgroundColor: "darkgreen",
+    color: "rgb(241, 236, 215)",
+  },
+  input: {
+    borderWidth: 2,
+    borderColor: "white",
+    padding: 10,
+    width: 100,
+    textAlign: "center",
+    borderRadius: 5,
+    marginBottom: 10,
+    backgroundColor: "green",
+    color: "white",
+  },
   darkButtonText: {
-      color: "rgb(241, 236, 215)", 
-      fontWeight: "bold" 
-    },
-    buttonText: { 
-      color: "white", 
-      fontWeight: "bold" 
-    },
+    color: "rgb(241, 236, 215)",
+    fontWeight: "bold",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
   darkCancelButton: {
-      marginTop: 20,
-      backgroundColor: "darkred",
-      padding: 10,
-      borderRadius: 5,
-    },
-    cancelButton: {
-      marginTop: 20,
-      backgroundColor: "red",
-      padding: 10,
-      borderRadius: 5,
-    },
-    //-------------------
+    marginTop: 20,
+    backgroundColor: "darkred",
+    padding: 10,
+    borderRadius: 5,
+  },
+  cancelButton: {
+    marginTop: 20,
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
+  },
+  //-------------------
 
-    //-------------------
-    darkContinueButton: {
-      marginTop: 20,
-      backgroundColor: "darkgreen",
-      padding: 10,
-      borderRadius: 5,
-    },
-    continueButton: {
-      marginTop: 20,
-      backgroundColor: "green",
-      padding: 10,
-      borderRadius: 5,
-    },
+  //-------------------
+  darkContinueButton: {
+    marginTop: 20,
+    backgroundColor: "darkgreen",
+    padding: 10,
+    borderRadius: 5,
+  },
+  continueButton: {
+    marginTop: 20,
+    backgroundColor: "green",
+    padding: 10,
+    borderRadius: 5,
+  },
 });
 
 export default Matching;

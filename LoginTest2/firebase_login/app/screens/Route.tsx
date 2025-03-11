@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   Pressable,
+  StyleSheet,
 } from "react-native";
 
 import unlockedAirportIcon from "../../assets/unlockedAirportIcon.png";
@@ -23,9 +24,12 @@ import lockedFarmersMarketIcon from "../../assets/lockedFarmersMarketIcon.png";
 import unlockedHospitalIcon from "../../assets/unlockedHospitalIcon.png";
 import lockedHospitalIcon from "../../assets/lockedHospitalIcon.png";
 
+import star from "../../assets/star.png";
+
 import { NavigationProp } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
 import AudioManager from "./AudioManager";
+import { StarData } from "./Login"; // import interface to store number of stars for each level
 
 import styles from "./Styles";
 
@@ -148,7 +152,9 @@ export const initialRouteData: RouteItem[] = [
 const RouteItemComponent: React.FC<{
   item: RouteItem;
   navigation: NavigationProp<any, any>;
-}> = ({ item, navigation }) => {
+  stars: number;
+  darkMode: boolean;
+}> = ({ item, navigation, stars, darkMode }) => {
   const iconKey = item.isUnlocked
     ? (item.unlockedIcon as IconKey)
     : (item.lockedIcon as IconKey);
@@ -159,12 +165,30 @@ const RouteItemComponent: React.FC<{
         AudioManager.playButtonSound();
         item.isUnlocked && navigation.navigate(item.title);
       }}
+      style={styles.scenarioButton}
     >
       <Image
         style={styles.scenarioButtonIcon}
         source={iconSource}
         resizeMode="contain"
       />
+      {item.isUnlocked && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={[routeStyles.starText, darkMode && routeStyles.darkStarText]}
+          >
+            {(Number.isInteger(stars) && stars.toFixed(0)) ||
+              (!Number.isInteger(stars) && stars.toFixed(1))}
+          </Text>
+          <Image source={star} style={{ height: 20, width: 20, margin: 5 }} />
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
@@ -203,9 +227,19 @@ const groupByLevel = (data: RouteItem[]): Record<number, RouteItem[]> => {
 const Route: React.FC<{
   data: RouteItem[];
   navigation: NavigationProp<any, any>;
-}> = ({ data, navigation }) => {
+  stars: StarData[];
+  darkMode: boolean;
+}> = ({ data, navigation, stars, darkMode }) => {
   const groupedData = groupByLevel(data);
   const levels = Object.keys(groupedData);
+  const findStars = (id: number) => {
+    const levelStars = stars.find((starItem) => starItem.id === id);
+    if (levelStars) {
+      return levelStars.stars;
+    } else {
+      return 0;
+    }
+  };
   return (
     <FlatList
       data={levels}
@@ -224,6 +258,8 @@ const Route: React.FC<{
               key={item.id}
               item={item}
               navigation={navigation}
+              stars={findStars(item.id)}
+              darkMode={darkMode}
             />
           ))}
         </View>
@@ -234,6 +270,8 @@ const Route: React.FC<{
 
 const RouteScreen = ({ navigation }: RouterProps) => {
   const [routeData, setRouteData] = useState<RouteItem[]>(initialRouteData);
+  const [stars, setStars] = useState<StarData[]>([]);
+  const [totalStars, setTotalStars] = useState(0);
   const { darkMode, toggleDarkMode } = useTheme();
 
   const unlockLevel = (id: number, data: RouteItem[]): RouteItem[] => {
@@ -273,7 +311,7 @@ const RouteScreen = ({ navigation }: RouterProps) => {
   };
 
   useEffect(() => {
-    const getData = async () => {
+    const getRouteData = async () => {
       try {
         const routeJSON = await AsyncStorage.getItem("routeData");
         if (routeJSON != null) {
@@ -284,9 +322,18 @@ const RouteScreen = ({ navigation }: RouterProps) => {
         console.error("Error retrieving route data: ", error);
       }
     };
-    getData();
-    console.log(routeData);
-    console.log(flattenedRouteData);
+    const getStarData = async () => {
+      try {
+        const starJSON = await AsyncStorage.getItem("stars");
+        if (starJSON != null) {
+          setStars(JSON.parse(starJSON));
+        }
+      } catch (error) {
+        console.error("Error retrieving star data: ", error);
+      }
+    };
+    getRouteData();
+    getStarData();
   }, []);
 
   return (
@@ -314,9 +361,27 @@ const RouteScreen = ({ navigation }: RouterProps) => {
           }
         />
       </Pressable>
-      <Route data={routeData} navigation={navigation} />
+      <Route
+        data={routeData}
+        navigation={navigation}
+        stars={stars}
+        darkMode={darkMode}
+      />
     </ImageBackground>
   );
 };
+
+const routeStyles = StyleSheet.create({
+  starText: {
+    color: "black",
+    fontSize: 18,
+    margin: 5,
+  },
+  darkStarText: {
+    color: "white",
+    fontSize: 18,
+    margin: 5,
+  },
+});
 
 export default RouteScreen;
