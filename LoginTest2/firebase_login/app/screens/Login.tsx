@@ -18,6 +18,11 @@ import styles from "./Styles";
 import { flattenedRouteData, initialRouteData, RouteItem } from "./Route";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+export interface StarData {
+  id: number;
+  stars: number;
+}
+
 const availableLanguages = ["English", "Spanish", "French", "German"];
 
 const Login = () => {
@@ -29,8 +34,20 @@ const Login = () => {
   const [newLanguage, setNewLanguage] = useState("");
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [stars, setStars] = useState([{ id: 0, stars: 0 }]);
   const auth = FIREBASE_AUTH;
 
+  // stores stars in async storage
+  const storeStars = async (stars: StarData[]) => {
+    try {
+      await AsyncStorage.setItem("stars", JSON.stringify(stars));
+      console.log("stars: ", stars);
+    } catch (error) {
+      console.error("Error storing stars in AsyncStorage: ", error);
+    }
+  };
+
+  // stores languages in async storage
   const asyncLanguageStorage = async (firstL: string, newL: string) => {
     try {
       await AsyncStorage.setItem("originLanguage", firstL);
@@ -41,6 +58,7 @@ const Login = () => {
     }
   };
 
+  // unlocks level with id matching id parameter
   const unlockLevel = (id: number, data: RouteItem[]): RouteItem[] => {
     return data.map((item) => {
       if (item.id === id) {
@@ -53,6 +71,7 @@ const Login = () => {
     });
   };
 
+  // gets route data from database on log in, updates stars for each level
   const getRouteData = async () => {
     const user = FIREBASE_AUTH.currentUser;
     if (user) {
@@ -65,18 +84,23 @@ const Login = () => {
       console.log("user found");
       if (docData) {
         let scenarioID = docData[i];
+        let updatedStars: StarData[] = [];
         while (scenarioID) {
           if (scenarioID && scenarioID.unlocked == true) {
             updatedData = unlockLevel(i, updatedData);
           }
+          updatedStars.push({ id: i, stars: scenarioID.stars });
           i = i + 1;
           scenarioID = docData[i];
         }
+        console.log("updatedStars: ", updatedStars);
+        storeStars(updatedStars);
         return updatedData;
       }
     }
   };
 
+  // sets route data in async storage on sign up or log in
   const setRouteData = async (storedRouteData: RouteItem[]) => {
     const routeData = JSON.stringify(storedRouteData);
     try {
@@ -88,7 +112,6 @@ const Login = () => {
 
   const setLanguage = async () => {
     // function to fetch user languages from database and save in async storage on sign in
-    // replace language setting with database call data
     const user = FIREBASE_AUTH.currentUser;
     let firstL = "English";
     let newL = "Spanish";
@@ -107,6 +130,7 @@ const Login = () => {
     asyncLanguageStorage(firstL, newL);
   };
 
+  // stores notebook data in async storage
   const asyncNotebookStorage = async (title: string, notes: string) => {
     try {
       await AsyncStorage.setItem(title, notes);
@@ -114,57 +138,63 @@ const Login = () => {
     } catch (error) {
       console.error("Error storing languages in AsyncStorage:", error);
     } finally {
-      console.log(
-        "Title: ",
-        title,
-        "Notebook JSON: ",
-        notes
-      );
+      console.log("Title: ", title, "Notebook JSON: ", notes);
     }
   };
 
+  // gets notebook data from database
   const setNotebook = async () => {
     const user = FIREBASE_AUTH.currentUser;
-      if (user) {
-        const user_id = user.uid;
-        const ref = doc(FIRESTORE_DB, "user_vocab_notebook", user_id);
-        const docSnap = await getDoc(ref);
-        const docData = docSnap.data();
-        console.log("user found");
-        if (docData) {
-          Object.keys(docData).forEach((key) => {
-            const note = docData[key];
-            if (note && note.title && note.vocab) {
-              asyncNotebookStorage(note.title, note.vocab);
-            }
-          });
-        }
-        const refP = doc(FIRESTORE_DB, "user_personal_notebook", user_id);
-        const docSnapP = await getDoc(refP);
-        const docDataP = docSnapP.data();
-        console.log("Personal Notebook Step 1");
-        if (docDataP) {
-          let updatedVocab = [];
-          console.log('Personal Notebook step 2');
-          let i = 0;
-          while(docDataP.Vocab[i]) {
-            console.log('Personal Notebook step 3');
-            if (docDataP.Vocab[i] && docDataP.Vocab[i].learnedText && docDataP.Vocab[i].translation) {
-              console.log('Personal Notebook step 4');
-              updatedVocab.push({
-                learnedText: docDataP.Vocab[i].learnedText,
-                translation: docDataP.Vocab[i].translation,
-              });
-              console.log(docDataP.Vocab[i].learnedText, docDataP.Vocab[i].translation );
-            }
-            i++;
+    if (user) {
+      const user_id = user.uid;
+      const ref = doc(FIRESTORE_DB, "user_vocab_notebook", user_id);
+      const docSnap = await getDoc(ref);
+      const docData = docSnap.data();
+      console.log("user found");
+      if (docData) {
+        Object.keys(docData).forEach((key) => {
+          const note = docData[key];
+          if (note && note.title && note.vocab) {
+            asyncNotebookStorage(note.title, note.vocab);
           }
-          await AsyncStorage.setItem("personalVocab", JSON.stringify(updatedVocab));
-        }
-        
+        });
       }
+      const refP = doc(FIRESTORE_DB, "user_personal_notebook", user_id);
+      const docSnapP = await getDoc(refP);
+      const docDataP = docSnapP.data();
+      console.log("Personal Notebook Step 1");
+      if (docDataP) {
+        let updatedVocab = [];
+        console.log("Personal Notebook step 2");
+        let i = 0;
+        while (docDataP.Vocab[i]) {
+          console.log("Personal Notebook step 3");
+          if (
+            docDataP.Vocab[i] &&
+            docDataP.Vocab[i].learnedText &&
+            docDataP.Vocab[i].translation
+          ) {
+            console.log("Personal Notebook step 4");
+            updatedVocab.push({
+              learnedText: docDataP.Vocab[i].learnedText,
+              translation: docDataP.Vocab[i].translation,
+            });
+            console.log(
+              docDataP.Vocab[i].learnedText,
+              docDataP.Vocab[i].translation
+            );
+          }
+          i++;
+        }
+        await AsyncStorage.setItem(
+          "personalVocab",
+          JSON.stringify(updatedVocab)
+        );
+      }
+    }
   };
 
+  // function called when user clicks log in, fetches all user data and stores in async
   const signIn = async () => {
     setLoading(true);
     try {
@@ -198,6 +228,7 @@ const Login = () => {
         const user_id = user.uid;
         await setDoc(doc(FIRESTORE_DB, "user_data", user_id), {});
         let i = 0;
+        let updatedStars: StarData[] = [];
         while (flattenedRouteData[i]) {
           setDoc(
             doc(FIRESTORE_DB, "user_data", user_id),
@@ -210,8 +241,11 @@ const Login = () => {
             },
             { merge: true }
           );
+          updatedStars.push({ id: flattenedRouteData[i].id, stars: 0 });
           i = i + 1;
         }
+        setStars(updatedStars);
+        storeStars(updatedStars);
         await setDoc(doc(FIRESTORE_DB, "user_language", user_id), {
           firstLanguage: firstLanguage,
           newLanguage: newLanguage,
@@ -235,6 +269,8 @@ const Login = () => {
 
       // stores initial route data in async
       setRouteData(initialRouteData);
+
+      // stores number of stars
 
       // close Modal
       setLanguageModalVisible(false);

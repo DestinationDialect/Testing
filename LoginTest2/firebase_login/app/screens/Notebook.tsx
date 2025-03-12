@@ -786,7 +786,7 @@ const notebookStyles = StyleSheet.create({
     backgroundColor: "#ccc",
     padding: 8,
     margin: 5,
-    maxHeight: 40,
+    maxHeight: 40,    
   },
   sectionHeader: {
     borderRadius: 10,

@@ -20,6 +20,7 @@ import { useTheme } from "../ThemeContext";
 import AudioManager from "../AudioManager";
 import { RouteItem } from "../Route";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StarData } from "../Login";
 
 interface Language {
   name: string;
@@ -153,6 +154,38 @@ export const updateRoute = async (id: number) => {
     }
   } catch (error) {
     console.error("Error storing updated route data: ", error);
+  }
+};
+
+// gets star data from async to update it
+const getStars = async () => {
+  try {
+    const JSONstars = await AsyncStorage.getItem("stars");
+    if (JSONstars) {
+      const stars = JSON.parse(JSONstars);
+      return stars;
+    }
+  } catch (error) {
+    console.error("Error getting stars from async: ", error);
+  }
+};
+
+// updates stars in async on scenario completion
+export const updateStars = async (id: number, stars: number) => {
+  const starData: StarData[] = await getStars();
+  if (starData) {
+    let updatedStarData = starData.map((item) => {
+      if (item.id === id) {
+        return { ...item, stars: stars };
+      }
+      return item;
+    });
+    try {
+      await AsyncStorage.setItem("stars", JSON.stringify(updatedStarData));
+      console.log(updatedStarData);
+    } catch (error) {
+      console.error("error storing star data in async: ", error);
+    }
   }
 };
 
@@ -339,13 +372,16 @@ export default function AirportScenario() {
       await AsyncStorage.setItem("airportVocabulary", jsonVocab);
       console.log("vocab stored: ");
       const user = FIREBASE_AUTH.currentUser;
-          if (user) {
-            const user_id = user.uid;
-            await setDoc(doc(FIRESTORE_DB, "user_vocab_notebook", user_id), {
-              AirportScenario: {title: 'airportVocabulary', vocab: jsonVocab}
-            },
-            { merge: true }); 
-          }
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(
+          doc(FIRESTORE_DB, "user_vocab_notebook", user_id),
+          {
+            AirportScenario: { title: "airportVocabulary", vocab: jsonVocab },
+          },
+          { merge: true }
+        );
+      }
     } catch (error) {
       console.error("Error storing vocab: ", error);
     }
@@ -379,6 +415,7 @@ export default function AirportScenario() {
               )
             : 0;
         const stars = averageScore / 30;
+        updateStars(1, stars);
         const user = FIREBASE_AUTH.currentUser;
         if (user) {
           const user_id = user.uid;

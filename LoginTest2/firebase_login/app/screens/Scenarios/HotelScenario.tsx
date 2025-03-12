@@ -18,6 +18,7 @@ import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
 import { useTheme } from "../ThemeContext";
 import AudioManager from "../AudioManager";
+import { updateStars } from "./AirportScenario";
 import { updateRoute, ScenarioNavigationProp } from "./AirportScenario";
 interface Language {
   name: string;
@@ -306,13 +307,16 @@ export default function HotelScenario() {
       await AsyncStorage.setItem("hotelVocabulary", jsonVocab);
       console.log("vocab stored: ");
       const user = FIREBASE_AUTH.currentUser;
-          if (user) {
-            const user_id = user.uid;
-            await setDoc(doc(FIRESTORE_DB, "user_vocab_notebook", user_id), {
-              HotelScenario: {title: 'hotelVocabulary', vocab: jsonVocab}
-            },
-            { merge: true }); 
-          }
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(
+          doc(FIRESTORE_DB, "user_vocab_notebook", user_id),
+          {
+            HotelScenario: { title: "hotelVocabulary", vocab: jsonVocab },
+          },
+          { merge: true }
+        );
+      }
     } catch (error) {
       console.error("Error storing vocab: ", error);
     }
@@ -346,6 +350,7 @@ export default function HotelScenario() {
               )
             : 0;
         const stars = averageScore / 30;
+        updateStars(3, stars);
         const user = FIREBASE_AUTH.currentUser;
         if (user) {
           const user_id = user.uid;

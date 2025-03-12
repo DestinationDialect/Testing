@@ -18,6 +18,7 @@ import { translateText } from "../../../translate";
 import { Vocab } from "../Notebook";
 import { useTheme } from "../ThemeContext";
 import AudioManager from "../AudioManager";
+import { updateStars } from "./AirportScenario";
 import { updateRoute, ScenarioNavigationProp } from "./AirportScenario";
 interface Language {
   name: string;
@@ -314,13 +315,16 @@ export default function HospitalScenario() {
       await AsyncStorage.setItem("hospitalVocabulary", jsonVocab);
       console.log("vocab stored: ");
       const user = FIREBASE_AUTH.currentUser;
-          if (user) {
-            const user_id = user.uid;
-            await setDoc(doc(FIRESTORE_DB, "user_vocab_notebook", user_id), {
-              HospitalScenario: {title: 'hospitalVocabulary', vocab: jsonVocab}
-            },
-            { merge: true }); 
-          }
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(
+          doc(FIRESTORE_DB, "user_vocab_notebook", user_id),
+          {
+            HospitalScenario: { title: "hospitalVocabulary", vocab: jsonVocab },
+          },
+          { merge: true }
+        );
+      }
     } catch (error) {
       console.error("Error storing vocab: ", error);
     }
@@ -354,6 +358,7 @@ export default function HospitalScenario() {
               )
             : 0;
         const stars = averageScore / 30;
+        updateStars(7, stars);
         const user = FIREBASE_AUTH.currentUser;
         if (user) {
           const user_id = user.uid;
