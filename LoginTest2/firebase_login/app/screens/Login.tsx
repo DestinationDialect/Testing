@@ -125,6 +125,9 @@ const Login = () => {
         firstL = docData.firstLanguage;
         newL = docData.newLanguage;
       }
+      await AsyncStorage.setItem('originLanguage', firstL);
+      await AsyncStorage.setItem('newLanguage', newL);
+      
     }
     // store data from variables in async storage
     asyncLanguageStorage(firstL, newL);
@@ -162,19 +165,15 @@ const Login = () => {
       const refP = doc(FIRESTORE_DB, "user_personal_notebook", user_id);
       const docSnapP = await getDoc(refP);
       const docDataP = docSnapP.data();
-      console.log("Personal Notebook Step 1");
       if (docDataP) {
         let updatedVocab = [];
-        console.log("Personal Notebook step 2");
         let i = 0;
         while (docDataP.Vocab[i]) {
-          console.log("Personal Notebook step 3");
           if (
             docDataP.Vocab[i] &&
             docDataP.Vocab[i].learnedText &&
             docDataP.Vocab[i].translation
           ) {
-            console.log("Personal Notebook step 4");
             updatedVocab.push({
               learnedText: docDataP.Vocab[i].learnedText,
               translation: docDataP.Vocab[i].translation,
@@ -194,6 +193,28 @@ const Login = () => {
     }
   };
 
+  const setSettings = async () => {
+    const user = FIREBASE_AUTH.currentUser;
+    if (user) {
+      const user_id = user.uid;
+      const ref = doc(FIRESTORE_DB, "user_settings", user_id);
+      const docSnap = await getDoc(ref);
+      const docData = docSnap.data();
+      console.log("user found");
+      if (docData) {
+        if (docData.darkMode && docData.backgroundMusic && docData.buttonSound) {
+          let dm = docData.darkMode;
+          let bm = docData.backgroundMusic;
+          let bs = docData.buttonSound;
+          await AsyncStorage.setItem("darkMode", dm);
+          await AsyncStorage.setItem("backgroundMusic", bm);
+          await AsyncStorage.setItem("originLanguage", bs);
+          console.log(' darkMode: ' + dm +  ' backgroundMusic: ' + bm + ' buttonSound: ' +bs);
+        }
+      }
+    }
+  }
+
   // function called when user clicks log in, fetches all user data and stores in async
   const signIn = async () => {
     setLoading(true);
@@ -202,6 +223,7 @@ const Login = () => {
       console.log(response);
       setLanguage();
       setNotebook();
+      setSettings();
       const routeData = await getRouteData();
       if (routeData) {
         setRouteData(routeData);
