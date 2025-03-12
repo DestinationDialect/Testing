@@ -267,6 +267,17 @@ const styles = StyleSheet.create({
   scenarioText: {
     color: "white",
   },
+  speakerIcon: {
+    height: 20,
+    width: 20,
+  },
+  speakerButton: {
+    borderColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 5,
+    marginHorizontal: 5,
+  },
   //--modal styles--
   modalOverlay: {
     flex: 1,

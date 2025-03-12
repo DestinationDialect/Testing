@@ -20,6 +20,8 @@ import { useTheme } from "../ThemeContext";
 import AudioManager from "../AudioManager";
 import { updateStars } from "./AirportScenario";
 import { updateRoute, ScenarioNavigationProp } from "./AirportScenario";
+import styles from "../Styles";
+import speaker from "../../../assets/speaker.png";
 interface Language {
   name: string;
   tag: string;
@@ -422,17 +424,30 @@ export default function RestaurantScenario() {
       : 0;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={restaurantStyles.container}>
       <Modal visible={isVisible} transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalView, darkMode && styles.darkModalView]}>
-            <Text style={styles.score}>You got {averageScore / 30} stars!</Text>
+        <View style={restaurantStyles.modalOverlay}>
+          <View
+            style={[
+              restaurantStyles.modalView,
+              darkMode && restaurantStyles.darkModalView,
+            ]}
+          >
+            <Text style={restaurantStyles.score}>
+              You got {averageScore / 30} stars!
+            </Text>
             <Pressable
               onPress={() => setVisible(false)}
-              style={[styles.closeButton, darkMode && styles.darkCloseButton]}
+              style={[
+                restaurantStyles.closeButton,
+                darkMode && restaurantStyles.darkCloseButton,
+              ]}
             >
               <Text
-                style={[styles.buttonText, darkMode && styles.darkButtonText]}
+                style={[
+                  restaurantStyles.buttonText,
+                  darkMode && restaurantStyles.darkButtonText,
+                ]}
               >
                 Review Lesson
               </Text>
@@ -442,41 +457,75 @@ export default function RestaurantScenario() {
       </Modal>
       <ImageBackground
         source={require("../../../assets/insideRestaurant.png")}
-        style={styles.imageBackground}
+        style={restaurantStyles.imageBackground}
         resizeMode="cover"
       >
         <Pressable onPress={() => navigation.replace("Route")}>
           <Image
-            style={styles.backButtonIcon}
+            style={restaurantStyles.backButtonIcon}
             source={require("../../../assets/backArrow.png")}
           />
         </Pressable>
       </ImageBackground>
-      <View style={[styles.overlay, darkMode && styles.darkOverlay]}>
+      <View
+        style={[
+          restaurantStyles.overlay,
+          darkMode && restaurantStyles.darkOverlay,
+        ]}
+      >
         {!loading ? ( //view encasing what displays once page and translation loads
           <View>
-            <Text style={[styles.question, darkMode && styles.darkQuestion]}>
-              {dialogue[currentquestionindex].question}
-            </Text>
+            <View style={{ flexDirection: "row" }}>
+              <Pressable
+                onPress={() => speak(dialogue[currentquestionindex].question)}
+                style={styles.speakerButton}
+              >
+                <Image source={speaker} style={styles.speakerIcon} />
+              </Pressable>
+              <Text
+                style={[
+                  restaurantStyles.question,
+                  darkMode && restaurantStyles.darkQuestion,
+                ]}
+              >
+                {dialogue[currentquestionindex].question}
+              </Text>
+            </View>
             {dialogue[currentquestionindex].options.map((option, index) => (
               //<View style={styles.option}>
-              <Pressable key={index} onPress={() => checkAnswer(option)}>
-                <Text
-                  style={[
-                    styles.option,
-                    option === dialogue[currentquestionindex].correctAnswer &&
-                    isCorrect
-                      ? [
-                          styles.correctAnswer,
-                          darkMode && styles.darkCorrectAnswer,
-                        ]
-                      : [styles.option, darkMode && styles.darkOption],
-                  ]}
+              <View
+                style={{
+                  flexDirection: "row",
+                }}
+              >
+                <Pressable
+                  onPress={() =>
+                    speak(dialogue[currentquestionindex].options[index])
+                  }
+                  style={styles.speakerButton}
                 >
-                  {option}
-                </Text>
-              </Pressable>
-              //</View>
+                  <Image source={speaker} style={styles.speakerIcon} />
+                </Pressable>
+                <Pressable key={index} onPress={() => checkAnswer(option)}>
+                  <Text
+                    style={[
+                      restaurantStyles.option,
+                      option === dialogue[currentquestionindex].correctAnswer &&
+                      isCorrect
+                        ? [
+                            restaurantStyles.correctAnswer,
+                            darkMode && restaurantStyles.darkCorrectAnswer,
+                          ]
+                        : [
+                            restaurantStyles.option,
+                            darkMode && restaurantStyles.darkOption,
+                          ],
+                    ]}
+                  >
+                    {option}
+                  </Text>
+                </Pressable>
+              </View>
             ))}
           </View>
         ) : (
@@ -488,9 +537,17 @@ export default function RestaurantScenario() {
             AudioManager.playButtonSound();
             nextQuestion();
           }}
-          style={[styles.nextButton, darkMode && styles.darkNextButton]}
+          style={[
+            restaurantStyles.nextButton,
+            darkMode && restaurantStyles.darkNextButton,
+          ]}
         >
-          <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>
+          <Text
+            style={[
+              restaurantStyles.buttonText,
+              darkMode && restaurantStyles.darkButtonText,
+            ]}
+          >
             Next Question
           </Text>
         </Pressable>
@@ -499,7 +556,7 @@ export default function RestaurantScenario() {
   );
 }
 
-const styles = StyleSheet.create({
+const restaurantStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
@@ -568,7 +625,7 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     marginHorizontal: 5,
     fontSize: 20,
-    paddingLeft: 10,
+    paddingHorizontal: 10,
   },
   option: {
     color: "white",
@@ -579,7 +636,7 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     marginHorizontal: 5,
     fontSize: 20,
-    paddingLeft: 10,
+    paddingHorizontal: 10,
   },
   //-----------------
 
@@ -591,6 +648,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "green",
     color: "rgb(241, 236, 215)",
+    paddingHorizontal: 10,
   },
   correctAnswer: {
     borderWidth: 3,
@@ -599,6 +657,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "chartreuse",
     color: "white",
+    paddingHorizontal: 10,
   },
   //--------------------
 
