@@ -183,7 +183,7 @@ const Matching = () => {
 
       if (updatedSelectedCards.length === 2) {
         const [firstCard, secondCard] = updatedSelectedCards;
-        currentTermPairs = handleTopic(topic);
+        const currentTermPairs = handleTopic(topic);
         const isMatch =
           currentTermPairs[firstCard.symbol] === secondCard.symbol ||
           currentTermPairs[secondCard.symbol] === firstCard.symbol;
@@ -206,7 +206,7 @@ const Matching = () => {
           }, 1000);
         }
       }
-    }
+    } 
   };
 
   const winGameFunction = () => {
@@ -256,7 +256,7 @@ const Matching = () => {
           <Text style={[matchingStyles.matchText, darkMode && matchingStyles.darkMatchText]}>{msg}</Text>
           {gameWon ? (
             <View style={[matchingStyles.winMessage, darkMode && matchingStyles.darkWinMessage]}>
-              {/* <View style={styles2.winMessageContent}></View> */}
+              {/* <View style={matchingStyles.winMessageContent}></View> */}
               <Text style={[matchingStyles.winText, darkMode && matchingStyles.darkWinText]}>Congratulations! You Won!</Text>
               <Pressable
                 onPress={() => setModalVisible(true)}
@@ -290,11 +290,11 @@ const Matching = () => {
                   {cards.map((card) => (
                     <TouchableOpacity
                       key={card.id}
-                      style={[styles2.card, darkMode && styles2.darkCard, card.isFlipped && styles2.cardFlipped, darkMode && styles2.darkCardIsFlipped]}
+                      style={[matchingStyles.card, darkMode && matchingStyles.darkCard, card.isFlipped && matchingStyles.cardFlipped, darkMode && matchingStyles.darkCardIsFlipped]}
                       onPress={() => cardClickFunction(card)}
                     >
                       {card.isFlipped ? (
-                        <Text style={[styles2.cardText, darkMode && styles2.darkCardText]}>
+                        <Text style={[matchingStyles.cardText, darkMode && matchingStyles.darkCardText]}>
                           {card.symbol}
                         </Text>
                       ) : null}
@@ -441,12 +441,12 @@ const matchingStyles = StyleSheet.create({
 
     //-----------------
     darkCardText: {
-      fontSize: 20,
+      fontSize: 15,
       color: 'white',
       fontWeight: 'bold',
     },
     cardText: {
-      fontSize: 20,
+      fontSize: 15,
       color: 'white',
       fontWeight: 'bold',
     },
