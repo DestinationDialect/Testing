@@ -152,7 +152,7 @@ export default function Settings() {
         {
           firstLanguage: firstLanguage,
           newLanguage: newLanguage,
-        },
+        }, 
       )
     }
   };
@@ -166,31 +166,46 @@ export default function Settings() {
   });
 
   useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const savedButtonSound = await AsyncStorage.getItem("buttonSound");
-        const savedBackgroundMusic = await AsyncStorage.getItem("backgroundMusic");
-        const savedFirstLanguage = await AsyncStorage.getItem("originLanguage");
-        const savedNewLanguage = await AsyncStorage.getItem("newLanguage");
-  
-        setForm((prevState) => ({
-          ...prevState,
-          buttonSound: savedButtonSound === "true",
-          backgroundMusic: savedBackgroundMusic === "true",
-        }));
-  
-        if (savedFirstLanguage && savedNewLanguage) {
-          setFirstLanguage(savedFirstLanguage);
-          setNewLanguage(savedNewLanguage);
-        }
-      } catch (error) {
-        console.error("Error loading settings from AsyncStorage:", error);
-      }
-    };
-  
     loadSettings();
 
   }, []);  
+
+  const loadSettings = async () => {
+    try {
+      const savedButtonSound = await AsyncStorage.getItem("buttonSound");
+      const savedBackgroundMusic = await AsyncStorage.getItem("backgroundMusic");
+      const savedFirstLanguage = await AsyncStorage.getItem("originLanguage");
+      const savedNewLanguage = await AsyncStorage.getItem("newLanguage");
+
+      setForm((prevState) => ({
+        ...prevState,
+        buttonSound: savedButtonSound === "true",
+        backgroundMusic: savedBackgroundMusic === "true",
+      }));
+
+      if (savedFirstLanguage && savedNewLanguage) {
+        setFirstLanguage(savedFirstLanguage);
+        setNewLanguage(savedNewLanguage);
+      }
+    } catch (error) {
+      console.error("Error loading settings from AsyncStorage:", error);
+    }
+  };
+
+  const storeSetting = async (setting: string, value: string) => {
+    const user = FIREBASE_AUTH.currentUser;
+    if (user) {
+      const user_id = user.uid;
+      await setDoc(
+        doc(FIRESTORE_DB, "user_settings", user_id), 
+        {
+          [setting]: value,
+        }, { merge: true }
+      )
+    }
+  }
+
+
 
   return (
     <ImageBackground
@@ -329,7 +344,9 @@ export default function Settings() {
                             // Handle Audio Toggles
                             if (id === "backgroundMusic") {
                               setForm((prevState) => ({ ...prevState, backgroundMusic: value }));
+                              storeSetting('backgroundMusic', value.toString());
                               AsyncStorage.setItem("backgroundMusic", value.toString()).then(() => {
+                                
                                 if (value) {
                                   AudioManager.playBackgroundMusic();
                                 } else {
@@ -339,6 +356,7 @@ export default function Settings() {
                             }                            
                             
                             if (id === "buttonSound") {
+                              storeSetting('buttonSound', value.toString());
                               setForm((prevState) => ({ ...prevState, buttonSound: value }));
                               AsyncStorage.setItem("buttonSound", value.toString());
                             }                            

@@ -20,7 +20,9 @@ import { useTheme } from "../ThemeContext";
 import AudioManager from "../AudioManager";
 import { RouteItem } from "../Route";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StarData } from "../Login";
+import { StarData } from "../Login"; // interface for type of star data array of objects
+import speaker from "../../../assets/speaker.png";
+import styles from "../Styles";
 
 interface Language {
   name: string;
@@ -471,17 +473,30 @@ export default function AirportScenario() {
       : 0;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={airportStyles.container}>
       <Modal visible={isVisible} transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalView, darkMode && styles.darkModalView]}>
-            <Text style={styles.score}>You got {averageScore / 30} stars!</Text>
+        <View style={airportStyles.modalOverlay}>
+          <View
+            style={[
+              airportStyles.modalView,
+              darkMode && airportStyles.darkModalView,
+            ]}
+          >
+            <Text style={airportStyles.score}>
+              You got {averageScore / 30} stars!
+            </Text>
             <Pressable
               onPress={() => setVisible(false)}
-              style={[styles.closeButton, darkMode && styles.darkCloseButton]}
+              style={[
+                airportStyles.closeButton,
+                darkMode && airportStyles.darkCloseButton,
+              ]}
             >
               <Text
-                style={[styles.buttonText, darkMode && styles.darkButtonText]}
+                style={[
+                  airportStyles.buttonText,
+                  darkMode && airportStyles.darkButtonText,
+                ]}
               >
                 Review Lesson
               </Text>
@@ -491,40 +506,71 @@ export default function AirportScenario() {
       </Modal>
       <ImageBackground
         source={require("../../../assets/airport.png")}
-        style={styles.imageBackground}
+        style={airportStyles.imageBackground}
         resizeMode="cover"
       >
         <Pressable onPress={() => navigation.replace("Route")}>
           <Image
-            style={styles.backButtonIcon}
+            style={airportStyles.backButtonIcon}
             source={require("../../../assets/backArrow.png")}
           />
         </Pressable>
       </ImageBackground>
-      <View style={[styles.overlay, darkMode && styles.darkOverlay]}>
+      <View
+        style={[airportStyles.overlay, darkMode && airportStyles.darkOverlay]}
+      >
         {!loading ? ( //view encasing what displays once page and translation loads
           <View>
-            <Text style={[styles.question, darkMode && styles.darkQuestion]}>
-              {dialogue[currentquestionindex].question}
-            </Text>
-            {dialogue[currentquestionindex].options.map((option, index) => (
-              <Pressable key={index} onPress={() => checkAnswer(option)}>
-                <Text
-                  style={[
-                    styles.option,
-                    option === dialogue[currentquestionindex].correctAnswer &&
-                    isCorrect
-                      ? [
-                          styles.correctAnswer,
-                          darkMode && styles.darkCorrectAnswer,
-                        ]
-                      : [styles.option, darkMode && styles.darkOption],
-                  ]}
-                >
-                  {option}
-                </Text>
+            <View style={{ flexDirection: "row" }}>
+              <Pressable
+                onPress={() => speak(dialogue[currentquestionindex].question)}
+                style={styles.speakerButton}
+              >
+                <Image source={speaker} style={styles.speakerIcon} />
               </Pressable>
-              //</View>
+              <Text
+                style={[
+                  airportStyles.question,
+                  darkMode && airportStyles.darkQuestion,
+                ]}
+              >
+                {dialogue[currentquestionindex].question}
+              </Text>
+            </View>
+            {dialogue[currentquestionindex].options.map((option, index) => (
+              <View
+                style={{
+                  flexDirection: "row",
+                }}
+              >
+                <Pressable
+                  onPress={() =>
+                    speak(dialogue[currentquestionindex].options[index])
+                  }
+                  style={styles.speakerButton}
+                >
+                  <Image source={speaker} style={styles.speakerIcon} />
+                </Pressable>
+                <Pressable key={index} onPress={() => checkAnswer(option)}>
+                  <Text
+                    style={[
+                      airportStyles.option,
+                      option === dialogue[currentquestionindex].correctAnswer &&
+                      isCorrect
+                        ? [
+                            airportStyles.correctAnswer,
+                            darkMode && airportStyles.darkCorrectAnswer,
+                          ]
+                        : [
+                            airportStyles.option,
+                            darkMode && airportStyles.darkOption,
+                          ],
+                    ]}
+                  >
+                    {option}
+                  </Text>
+                </Pressable>
+              </View>
             ))}
           </View>
         ) : (
@@ -536,9 +582,17 @@ export default function AirportScenario() {
             AudioManager.playButtonSound();
             nextQuestion();
           }}
-          style={[styles.nextButton, darkMode && styles.darkNextButton]}
+          style={[
+            airportStyles.nextButton,
+            darkMode && airportStyles.darkNextButton,
+          ]}
         >
-          <Text style={[styles.buttonText, darkMode && styles.darkButtonText]}>
+          <Text
+            style={[
+              airportStyles.buttonText,
+              darkMode && airportStyles.darkButtonText,
+            ]}
+          >
             Next Question
           </Text>
         </Pressable>
@@ -547,7 +601,7 @@ export default function AirportScenario() {
   );
 }
 
-export const styles = StyleSheet.create({
+export const airportStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
@@ -616,7 +670,7 @@ export const styles = StyleSheet.create({
     marginVertical: 4,
     marginHorizontal: 5,
     fontSize: 20,
-    paddingLeft: 10,
+    paddingHorizontal: 10,
   },
   option: {
     color: "white",
@@ -627,7 +681,7 @@ export const styles = StyleSheet.create({
     marginVertical: 4,
     marginHorizontal: 5,
     fontSize: 20,
-    paddingLeft: 10,
+    paddingHorizontal: 10,
   },
   //-----------------
 
@@ -639,6 +693,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "green",
     color: "rgb(241, 236, 215)",
+    paddingHorizontal: 10,
   },
   correctAnswer: {
     borderWidth: 3,
@@ -647,6 +702,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: "chartreuse",
     color: "white",
+    paddingHorizontal: 10,
   },
   //--------------------
 
