@@ -17,7 +17,7 @@ import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from "react";
 import { NavigationProp } from "@react-navigation/native";
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from "@expo/vector-icons";
 import { translateText } from "../../translate";
 import { languages } from "./Scenarios/RestaurantScenario";
 import { setDoc, doc } from "firebase/firestore";
@@ -68,7 +68,8 @@ const Vocabulary = () => {
   const [currentSection, setCurrentSection] = useState("Airport");
   // storing vocabulary array of objects for each scenario section
   const [airportVocabulary, setAirportVocabulary] = useState(initialVocab);
-  const [restaurantVocabulary, setRestaurantVocabulary] = useState(initialVocab);
+  const [restaurantVocabulary, setRestaurantVocabulary] =
+    useState(initialVocab);
   const [hotelVocabulary, setHotelVocabulary] = useState(initialVocab);
   const [museumVocabulary, setMuseumVocabulary] = useState(initialVocab);
   const [zooVocabulary, setZooVocabulary] = useState(initialVocab);
@@ -123,18 +124,25 @@ const Vocabulary = () => {
 
   return (
     <View style={[notebookStyles.page, darkMode && notebookStyles.darkPage]}>
-      <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={notebookStyles.sections}>
+      <ScrollView
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
+        style={[notebookStyles.sections]}
+      >
         {scenarioVocabs.map((item, index) => (
           <Pressable
             key={index}
             style={
               item == currentSection
-                ? notebookStyles.selectedSectionHeader && notebookStyles.darkSelectedSectionHeader
-                : notebookStyles.sectionHeader && notebookStyles.darkSectionHeader
+                ? notebookStyles.selectedSectionHeader &&
+                  notebookStyles.darkSelectedSectionHeader
+                : notebookStyles.sectionHeader &&
+                  notebookStyles.darkSectionHeader
             }
-            onPress={() => { 
+            onPress={() => {
               AudioManager.playButtonSound();
-              setCurrentSection(item)}}
+              setCurrentSection(item);
+            }}
           >
             <Text>{item}</Text>
           </Pressable>
@@ -277,13 +285,16 @@ const PersonalTranslations = () => {
       setTranslation("");
       setModalVisible(false); // Close the modal
       const user = FIREBASE_AUTH.currentUser;
-        if (user) {
-          const user_id = user.uid;
-          await setDoc(doc(FIRESTORE_DB, "user_personal_notebook", user_id), {
-            Vocab: updatedVocab
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(
+          doc(FIRESTORE_DB, "user_personal_notebook", user_id),
+          {
+            Vocab: updatedVocab,
           },
-          { merge: true }); 
-        }
+          { merge: true }
+        );
+      }
     } catch (error) {
       console.error("Error saving word:", error);
     }
@@ -296,13 +307,16 @@ const PersonalTranslations = () => {
       await AsyncStorage.setItem("personalVocab", JSON.stringify(updatedVocab));
       setPersonalVocab(updatedVocab);
       const user = FIREBASE_AUTH.currentUser;
-        if (user) {
-          const user_id = user.uid;
-          await setDoc(doc(FIRESTORE_DB, "user_personal_notebook", user_id), {
-            Vocab: updatedVocab
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(
+          doc(FIRESTORE_DB, "user_personal_notebook", user_id),
+          {
+            Vocab: updatedVocab,
           },
-          { merge: true }); 
-        }
+          { merge: true }
+        );
+      }
     } catch (error) {
       console.error("Error deleting word:", error);
     }
@@ -323,11 +337,21 @@ const PersonalTranslations = () => {
         <TouchableOpacity
           onPress={() => {
             AudioManager.playButtonSound();
-            setModalVisible(true)
+            setModalVisible(true);
           }}
-          style={[notebookStyles.addButton, darkMode && notebookStyles.darkAddButton]}
+          style={[
+            notebookStyles.addButton,
+            darkMode && notebookStyles.darkAddButton,
+          ]}
         >
-          <Text style={[notebookStyles.addButtonText, darkMode && notebookStyles.darkButtonText]}>+ Add</Text>
+          <Text
+            style={[
+              notebookStyles.addButtonText,
+              darkMode && notebookStyles.darkButtonText,
+            ]}
+          >
+            + Add
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -341,9 +365,9 @@ const PersonalTranslations = () => {
 
               {/* Edit Button */}
               <TouchableOpacity
-                onPress={() => { 
+                onPress={() => {
                   AudioManager.playButtonSound();
-                  openEditModal(index)
+                  openEditModal(index);
                 }}
                 style={notebookStyles.editButton}
               >
@@ -354,11 +378,21 @@ const PersonalTranslations = () => {
               <TouchableOpacity
                 onPress={() => {
                   AudioManager.playButtonSound();
-                  deleteWord(index)
+                  deleteWord(index);
                 }}
-                style={[notebookStyles.deleteButton, darkMode && notebookStyles.darkDeleteButton]}
+                style={[
+                  notebookStyles.deleteButton,
+                  darkMode && notebookStyles.darkDeleteButton,
+                ]}
               >
-                <FontAwesome name="trash" size={24} style={[notebookStyles.deleteIcon, darkMode && notebookStyles.darkDeleteIcon]} />
+                <FontAwesome
+                  name="trash"
+                  size={24}
+                  style={[
+                    notebookStyles.deleteIcon,
+                    darkMode && notebookStyles.darkDeleteIcon,
+                  ]}
+                />
               </TouchableOpacity>
             </View>
           ))
@@ -370,7 +404,12 @@ const PersonalTranslations = () => {
       {/* Modal for Adding or Editing Words */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={notebookStyles.modalOverlay}>
-          <View style={[notebookStyles.modalView, darkMode && notebookStyles.darkModalView]}>
+          <View
+            style={[
+              notebookStyles.modalView,
+              darkMode && notebookStyles.darkModalView,
+            ]}
+          >
             <Text style={notebookStyles.modalTitle}>
               {editIndex !== null ? "Edit Word" : "Add New Word"}
             </Text>
@@ -378,12 +417,20 @@ const PersonalTranslations = () => {
             <View style={notebookStyles.inputOutputContainer}>
               {/* Input Field */}
               <TextInput
-                style={[notebookStyles.input, darkMode && notebookStyles.darkInput]}
+                style={[
+                  notebookStyles.input,
+                  darkMode && notebookStyles.darkInput,
+                ]}
                 placeholder="Enter a word"
                 value={word}
                 onChangeText={setWord}
               />
-              <Text style={[notebookStyles.output, darkMode && notebookStyles.darkOutput]}>
+              <Text
+                style={[
+                  notebookStyles.output,
+                  darkMode && notebookStyles.darkOutput,
+                ]}
+              >
                 {translation || "translation"}
               </Text>
             </View>
@@ -393,29 +440,57 @@ const PersonalTranslations = () => {
               <Pressable
                 onPress={() => {
                   AudioManager.playButtonSound();
-                  handleTranslation(word)
+                  handleTranslation(word);
                 }}
-                style={[notebookStyles.translateButton, darkMode && notebookStyles.darkTranslateButton]}
+                style={[
+                  notebookStyles.translateButton,
+                  darkMode && notebookStyles.darkTranslateButton,
+                ]}
               >
-                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>Translate</Text>
+                <Text
+                  style={[
+                    notebookStyles.buttonText,
+                    darkMode && notebookStyles.darkButtonText,
+                  ]}
+                >
+                  Translate
+                </Text>
               </Pressable>
               <TouchableOpacity
-                style={[notebookStyles.cancelButton, darkMode && notebookStyles.darkCancelButton]}
+                style={[
+                  notebookStyles.cancelButton,
+                  darkMode && notebookStyles.darkCancelButton,
+                ]}
                 onPress={() => {
                   AudioManager.playButtonSound();
-                  setModalVisible(false)
+                  setModalVisible(false);
                 }}
               >
-                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>Cancel</Text>
+                <Text
+                  style={[
+                    notebookStyles.buttonText,
+                    darkMode && notebookStyles.darkButtonText,
+                  ]}
+                >
+                  Cancel
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[notebookStyles.saveButton, darkMode && notebookStyles.darkSaveButton]}
+                style={[
+                  notebookStyles.saveButton,
+                  darkMode && notebookStyles.darkSaveButton,
+                ]}
                 onPress={() => {
                   AudioManager.playButtonSound();
-                  saveWord()
+                  saveWord();
                 }}
               >
-                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>
+                <Text
+                  style={[
+                    notebookStyles.buttonText,
+                    darkMode && notebookStyles.darkButtonText,
+                  ]}
+                >
                   {editIndex !== null ? "Update" : "Save"}
                 </Text>
               </TouchableOpacity>
@@ -503,11 +578,21 @@ const PersonalNotes = () => {
         <Pressable
           onPress={() => {
             AudioManager.playButtonSound();
-            setModalVisible(true)
+            setModalVisible(true);
           }}
-          style={[notebookStyles.addButton, darkMode && notebookStyles.darkAddButton]}
+          style={[
+            notebookStyles.addButton,
+            darkMode && notebookStyles.darkAddButton,
+          ]}
         >
-          <Text style={[notebookStyles.addButtonText, darkMode && notebookStyles.darkAddButtonText]}>+ Add</Text>
+          <Text
+            style={[
+              notebookStyles.addButtonText,
+              darkMode && notebookStyles.darkAddButtonText,
+            ]}
+          >
+            + Add
+          </Text>
         </Pressable>
       </View>
 
@@ -520,9 +605,9 @@ const PersonalNotes = () => {
 
               {/* Edit Button */}
               <Pressable
-                onPress={() => { 
+                onPress={() => {
                   AudioManager.playButtonSound();
-                  openEditModal(index)
+                  openEditModal(index);
                 }}
                 style={notebookStyles.editButton}
               >
@@ -533,11 +618,21 @@ const PersonalNotes = () => {
               <Pressable
                 onPress={() => {
                   AudioManager.playButtonSound();
-                  deleteWord(index)
+                  deleteWord(index);
                 }}
-                style={[notebookStyles.deleteButton, darkMode && notebookStyles.darkDeleteButton]}
+                style={[
+                  notebookStyles.deleteButton,
+                  darkMode && notebookStyles.darkDeleteButton,
+                ]}
               >
-                <FontAwesome name="trash" size={24} style={[notebookStyles.deleteIcon, darkMode && notebookStyles.darkDeleteIcon]} />
+                <FontAwesome
+                  name="trash"
+                  size={24}
+                  style={[
+                    notebookStyles.deleteIcon,
+                    darkMode && notebookStyles.darkDeleteIcon,
+                  ]}
+                />
               </Pressable>
             </View>
           ))
@@ -554,14 +649,22 @@ const PersonalNotes = () => {
         style={{ height: "50%" }}
       >
         <View style={notebookStyles.modalOverlay}>
-          <View style={[notebookStyles.modalView, darkMode && notebookStyles.darkModalView]}>
+          <View
+            style={[
+              notebookStyles.modalView,
+              darkMode && notebookStyles.darkModalView,
+            ]}
+          >
             <Text style={notebookStyles.modalTitle}>
               {editIndex !== null ? "Edit Note" : "Add New Note"}
             </Text>
 
             {/* Input Field */}
             <TextInput
-              style={[notebookStyles.input, darkMode && notebookStyles.darkInput]}
+              style={[
+                notebookStyles.input,
+                darkMode && notebookStyles.darkInput,
+              ]}
               multiline={true}
               placeholder="Enter your notes"
               value={note}
@@ -571,22 +674,40 @@ const PersonalNotes = () => {
             {/* Buttons */}
             <View style={notebookStyles.buttonRow}>
               <Pressable
-                style={[notebookStyles.cancelButton, darkMode && notebookStyles.darkCancelButton]}
+                style={[
+                  notebookStyles.cancelButton,
+                  darkMode && notebookStyles.darkCancelButton,
+                ]}
                 onPress={() => {
                   AudioManager.playButtonSound();
-                  setModalVisible(false)
+                  setModalVisible(false);
                 }}
               >
-                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>Cancel</Text>
+                <Text
+                  style={[
+                    notebookStyles.buttonText,
+                    darkMode && notebookStyles.darkButtonText,
+                  ]}
+                >
+                  Cancel
+                </Text>
               </Pressable>
-              <Pressable 
-                style={[notebookStyles.saveButton, darkMode && notebookStyles.darkSaveButton]} 
+              <Pressable
+                style={[
+                  notebookStyles.saveButton,
+                  darkMode && notebookStyles.darkSaveButton,
+                ]}
                 onPress={() => {
                   AudioManager.playButtonSound();
-                  saveWord()
+                  saveWord();
                 }}
               >
-                <Text style={[notebookStyles.buttonText, darkMode && notebookStyles.darkButtonText]}>
+                <Text
+                  style={[
+                    notebookStyles.buttonText,
+                    darkMode && notebookStyles.darkButtonText,
+                  ]}
+                >
                   {editIndex !== null ? "Update" : "Save"}
                 </Text>
               </Pressable>
@@ -608,12 +729,13 @@ const Personal = () => {
         <Pressable
           style={
             currentSection == "Translations"
-              ? notebookStyles.selectedSectionHeader && notebookStyles.darkSelectedSectionHeader
+              ? notebookStyles.selectedSectionHeader &&
+                notebookStyles.darkSelectedSectionHeader
               : notebookStyles.sectionHeader && notebookStyles.darkSectionHeader
           }
           onPress={() => {
-            AudioManager.playButtonSound()
-            setCurrentSection("Translations")
+            AudioManager.playButtonSound();
+            setCurrentSection("Translations");
           }}
         >
           <Text>Translations</Text>
@@ -621,12 +743,13 @@ const Personal = () => {
         <Pressable
           style={
             currentSection == "Notes"
-              ? notebookStyles.selectedSectionHeader && notebookStyles.darkSelectedSectionHeader
+              ? notebookStyles.selectedSectionHeader &&
+                notebookStyles.darkSelectedSectionHeader
               : notebookStyles.sectionHeader && notebookStyles.darkSectionHeader
           }
           onPress={() => {
             AudioManager.playButtonSound();
-            setCurrentSection("Notes")
+            setCurrentSection("Notes");
           }}
         >
           <Text>Notes</Text>
@@ -653,9 +776,11 @@ const Notebook = ({ navigation }: RouterProps) => {
       resizeMode="cover"
       style={[styles.imgBackground, darkMode && styles.darkImgBackground]} // Apply Dark Mode styles
     >
-      <Pressable onPress={() => { 
-        AudioManager.playButtonSound();
-        navigation.goBack()}}
+      <Pressable
+        onPress={() => {
+          AudioManager.playButtonSound();
+          navigation.goBack();
+        }}
       >
         <Image
           style={styles.backButtonIcon}
@@ -669,14 +794,21 @@ const Notebook = ({ navigation }: RouterProps) => {
 
       <View style={notebookStyles.screen}>
         <View style={notebookStyles.titleContainer}>
-          <Text style={[notebookStyles.titleText, darkMode && notebookStyles.darkTitleText]}>Notebook</Text>
+          <Text
+            style={[
+              notebookStyles.titleText,
+              darkMode && notebookStyles.darkTitleText,
+            ]}
+          >
+            Notebook
+          </Text>
         </View>
         <View style={notebookStyles.tabs}>
-          <Pressable 
+          <Pressable
             style={[notebookStyles.tab, darkMode && notebookStyles.darkTab]}
             onPress={() => {
               AudioManager.playButtonSound();
-              setCurrentTab("vocabulary")
+              setCurrentTab("vocabulary");
             }}
           >
             <Text style={notebookStyles.tabTitle}>Vocabulary</Text>
@@ -685,13 +817,15 @@ const Notebook = ({ navigation }: RouterProps) => {
             style={[notebookStyles.tab, darkMode && notebookStyles.darkTab]}
             onPress={() => {
               AudioManager.playButtonSound();
-              setCurrentTab("personal")
+              setCurrentTab("personal");
             }}
           >
             <Text style={notebookStyles.tabTitle}>Personal</Text>
           </Pressable>
         </View>
-        <View style={[notebookStyles.folder, darkMode && notebookStyles.darkFolder]}>
+        <View
+          style={[notebookStyles.folder, darkMode && notebookStyles.darkFolder]}
+        >
           {currentTab == "vocabulary" && <Vocabulary />}
           {currentTab == "personal" && <Personal></Personal>}
         </View>
@@ -816,7 +950,7 @@ const notebookStyles = StyleSheet.create({
     borderColor: "#000",
     maxHeight: 40,
   },
-//-----------------
+  //-----------------
 
   inputOutputContainer: {
     flexDirection: "row",
