@@ -21,7 +21,8 @@ import AudioManager from "../AudioManager";
 import { updateStars } from "./AirportScenario";
 import { updateRoute, ScenarioNavigationProp } from "./AirportScenario";
 import styles from "../Styles";
-import speaker from "../../../assets/speaker.png";
+import FeatherIcon from "react-native-vector-icons/Feather";
+//import speaker from "../../../assets/speaker.png";
 interface Language {
   name: string;
   tag: string;
@@ -464,12 +465,14 @@ export default function HospitalScenario() {
       >
         {!loading ? ( //view encasing what displays once page and translation loads
           <View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={hospitalStyles.questionContainer}>
               <Pressable
                 onPress={() => speak(dialogue[currentquestionindex].question)}
-                style={styles.speakerButton}
               >
-                <Image source={speaker} style={styles.speakerIcon} />
+                <FeatherIcon style={[hospitalStyles.featherIcon, darkMode && hospitalStyles.darkFeatherIcon]}
+                    name="volume-2"
+                    size={22}
+                  />
               </Pressable>
               <Text
                 style={[
@@ -481,21 +484,21 @@ export default function HospitalScenario() {
               </Text>
             </View>
             {dialogue[currentquestionindex].options.map((option, index) => (
-              //<View style={styles.option}>
-              <View
-                style={{
-                  flexDirection: "row",
-                }}
-              >
+              <View key={index} style={hospitalStyles.optionContainer}>
                 <Pressable
                   onPress={() =>
                     speak(dialogue[currentquestionindex].options[index])
                   }
-                  style={styles.speakerButton}
                 >
-                  <Image source={speaker} style={styles.speakerIcon} />
+                  <FeatherIcon style={[hospitalStyles.featherIcon, darkMode && hospitalStyles.darkFeatherIcon]}
+                    name="volume-2"
+                    size={22}
+                  />
                 </Pressable>
-                <Pressable key={index} onPress={() => checkAnswer(option)}>
+                <Pressable 
+                  onPress={() => checkAnswer(option)}
+                  style={hospitalStyles.optionButton}
+                >
                   <Text
                     style={[
                       hospitalStyles.option,
@@ -552,6 +555,19 @@ export const hospitalStyles = StyleSheet.create({
     alignItems: "center",
   },
 
+  questionContainer: {
+    flexDirection: "row",  // Ensures the speaker and text are in a row
+    alignItems: "center",  // Centers the speaker button and text vertically
+    marginBottom: 5,  // Adds spacing below the question
+  },
+
+  optionContainer: {
+    flexDirection: "row",  // Align elements in a row
+    alignItems: "center",  // Center vertically
+    justifyContent: "space-between",  
+    marginVertical: 5,  // Add spacing
+  },
+
   //---------------
   darkOverlay: {
     paddingVertical: 50,
@@ -587,6 +603,21 @@ export const hospitalStyles = StyleSheet.create({
     resizeMode: "cover",
   },
 
+  //----------------
+  darkFeatherIcon: {
+    color: "rgb(241, 236, 215)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 5,
+  },
+  featherIcon: {
+    color: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 5,
+  },
+  //----------------
+  
   //----------------
   darkQuestion: {
     color: "rgb(241, 236, 215)",
@@ -628,6 +659,10 @@ export const hospitalStyles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   //-----------------
+
+  optionButton: {
+    flex: 1
+  },
 
   //-----------------
   darkCorrectAnswer: {

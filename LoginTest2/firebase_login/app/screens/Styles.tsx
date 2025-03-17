@@ -271,13 +271,6 @@ const styles = StyleSheet.create({
     height: 20,
     width: 20,
   },
-  speakerButton: {
-    borderColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 5,
-    marginHorizontal: 5,
-  },
   //--modal styles--
   modalOverlay: {
     flex: 1,
