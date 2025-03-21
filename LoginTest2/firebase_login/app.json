@@ -6,7 +6,6 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "icon": "./assets/DD.ico",
     "splash": {
       "image": "./assets/DD.png",
       "resizeMode": "contain",
@@ -20,6 +19,8 @@
         "backgroundColor": "#ffffff"
       }
     },
-    "web": {}
+    "web": {
+      "favicon": "./assets/DD.png"
+    }
   }
 }
