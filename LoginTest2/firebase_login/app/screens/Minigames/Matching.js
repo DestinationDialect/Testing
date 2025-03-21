@@ -183,7 +183,7 @@ const Matching = () => {
 
       if (updatedSelectedCards.length === 2) {
         const [firstCard, secondCard] = updatedSelectedCards;
-        currentTermPairs = handleTopic(topic);
+        const currentTermPairs = handleTopic(topic);
         const isMatch =
           currentTermPairs[firstCard.symbol] === secondCard.symbol ||
           currentTermPairs[secondCard.symbol] === firstCard.symbol;
@@ -206,7 +206,7 @@ const Matching = () => {
           }, 1000);
         }
       }
-    }
+    } 
   };
 
   const winGameFunction = () => {
@@ -316,7 +316,11 @@ const Matching = () => {
               </Pressable>
             </View>
           ) : (
-            <View style={{ alignItems: "center" }}>
+            <View style={{ 
+              alignItems: "center", 
+              flex: 1,
+              width: "100%",
+              height: "100%" }}>
               <Pressable
                 onPress={() => setModalVisible(true)}
                 style={[

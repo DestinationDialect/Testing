@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 3,
     backgroundColor: "white",
-    alignItems: "center",
+    //alignItems: "center",
   },
   container: {
     paddingVertical: 24,
@@ -270,13 +270,6 @@ const styles = StyleSheet.create({
   speakerIcon: {
     height: 20,
     width: 20,
-  },
-  speakerButton: {
-    borderColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 5,
-    marginHorizontal: 5,
   },
   //--modal styles--
   modalOverlay: {

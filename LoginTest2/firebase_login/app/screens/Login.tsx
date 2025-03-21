@@ -9,7 +9,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -36,6 +36,32 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [stars, setStars] = useState([{ id: 0, stars: 0 }]);
   const auth = FIREBASE_AUTH;
+
+  // set vocab items to empty string on login mount, before user logs in
+  useEffect(() => {
+    const clearAsync = async (itemName: string) => {
+      try {
+        await AsyncStorage.removeItem(itemName);
+        console.log(`${itemName} storage cleared`);
+      } catch (error) {
+        console.error(`Error clearing async item ${itemName}:`, error);
+      }
+    };
+    // removing vocabulary from async because they are only set on login, not sign up
+    clearAsync("airportVocabulary");
+    clearAsync("farmerVocabulary");
+    clearAsync("restaurantVocabulary");
+    clearAsync("hotelVocabulary");
+    clearAsync("museumVocabulary");
+    clearAsync("zooVocabulary");
+    clearAsync("hospitalVocabulary");
+    clearAsync("personalVocab");
+    clearAsync("personalNotes");
+    // removing settings from async because they are only set on login, not sign up
+    clearAsync("darkMode");
+    clearAsync("backgroundMusic");
+    clearAsync("buttonSound");
+  }, []);
 
   // stores stars in async storage
   const storeStars = async (stars: StarData[]) => {
@@ -125,9 +151,8 @@ const Login = () => {
         firstL = docData.firstLanguage;
         newL = docData.newLanguage;
       }
-      await AsyncStorage.setItem('originLanguage', firstL);
-      await AsyncStorage.setItem('newLanguage', newL);
-      
+      await AsyncStorage.setItem("originLanguage", firstL);
+      await AsyncStorage.setItem("newLanguage", newL);
     }
     // store data from variables in async storage
     asyncLanguageStorage(firstL, newL);
@@ -159,6 +184,7 @@ const Login = () => {
           const note = docData[key];
           if (note && note.title && note.vocab) {
             asyncNotebookStorage(note.title, note.vocab);
+            console.log(`${note.title}: ${note.vocab}`);
           }
         });
       }
@@ -202,18 +228,29 @@ const Login = () => {
       const docData = docSnap.data();
       console.log("user found");
       if (docData) {
-        if (docData.darkMode && docData.backgroundMusic && docData.buttonSound) {
+        if (
+          docData.darkMode &&
+          docData.backgroundMusic &&
+          docData.buttonSound
+        ) {
           let dm = docData.darkMode;
           let bm = docData.backgroundMusic;
           let bs = docData.buttonSound;
           await AsyncStorage.setItem("darkMode", dm);
           await AsyncStorage.setItem("backgroundMusic", bm);
-          await AsyncStorage.setItem("originLanguage", bs);
-          console.log(' darkMode: ' + dm +  ' backgroundMusic: ' + bm + ' buttonSound: ' +bs);
+          await AsyncStorage.setItem("buttonSound", bs);
+          console.log(
+            " darkMode: " +
+              dm +
+              " backgroundMusic: " +
+              bm +
+              " buttonSound: " +
+              bs
+          );
         }
       }
     }
-  }
+  };
 
   // function called when user clicks log in, fetches all user data and stores in async
   const signIn = async () => {
