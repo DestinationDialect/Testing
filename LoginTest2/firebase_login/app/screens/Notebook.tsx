@@ -548,6 +548,17 @@ const PersonalNotes = () => {
       setNotes(updatedNotes);
       setNote(""); // Clear input fields
       setModalVisible(false); // Close the modal
+      const user = FIREBASE_AUTH.currentUser;
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(
+          doc(FIRESTORE_DB, "user_personal_notebook_untranslated", user_id),
+          {
+            Notes: updatedNotes,
+          },
+          { merge: true }
+        );
+      }
     } catch (error) {
       console.error("Error saving note:", error);
     }
@@ -559,6 +570,17 @@ const PersonalNotes = () => {
     try {
       await AsyncStorage.setItem("personalNotes", JSON.stringify(updatedNotes));
       setNotes(updatedNotes);
+      const user = FIREBASE_AUTH.currentUser;
+      if (user) {
+        const user_id = user.uid;
+        await setDoc(
+          doc(FIRESTORE_DB, "user_personal_notebook_untranslated", user_id),
+          {
+            Notes: updatedNotes,
+          },
+          { merge: true }
+        );
+      }
     } catch (error) {
       console.error("Error deleting note:", error);
     }
