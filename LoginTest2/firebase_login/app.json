@@ -1,15 +1,16 @@
 {
   "expo": {
     "newArchEnabled": true,
-    "name": "firebase_login",
-    "slug": "firebase_login",
+    "name": "Destination_Dialect",
+    "slug": "Destination_Dialect",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/DD.ico",
     "splash": {
-      "image": "./assets/routeScreen.png",
+      "image": "./assets/DD.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#008000"
     },
     "ios": {
       "supportsTablet": true
