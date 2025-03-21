@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Modal } from "react-native";
+import { Image, StyleSheet, Modal, Platform } from "react-native";
 import {
   Text,
   SafeAreaView,
@@ -192,7 +192,9 @@ export default function MuseumScenario() {
 
   const speak = (text: string) => {
     Speech.stop();
-    Speech.speak(text, { language: languages[learningLanguage].tag });
+    Speech.speak(text, {
+      language: languages[learningLanguage].tag,
+    });
   };
 
   // convert array of question objects to array of strings
@@ -466,7 +468,11 @@ export default function MuseumScenario() {
               <Pressable
                 onPress={() => speak(dialogue[currentquestionindex].question)}
               >
-                <FeatherIcon style={[museumStyles.featherIcon, darkMode && museumStyles.darkFeatherIcon]}
+                <FeatherIcon
+                  style={[
+                    museumStyles.featherIcon,
+                    darkMode && museumStyles.darkFeatherIcon,
+                  ]}
                   name="volume-2"
                   size={22}
                 />
@@ -487,12 +493,16 @@ export default function MuseumScenario() {
                     speak(dialogue[currentquestionindex].options[index])
                   }
                 >
-                  <FeatherIcon style={[museumStyles.featherIcon, darkMode && museumStyles.darkFeatherIcon]}
+                  <FeatherIcon
+                    style={[
+                      museumStyles.featherIcon,
+                      darkMode && museumStyles.darkFeatherIcon,
+                    ]}
                     name="volume-2"
                     size={22}
                   />
                 </Pressable>
-                <Pressable 
+                <Pressable
                   onPress={() => checkAnswer(option)}
                   style={museumStyles.optionButton}
                 >
@@ -546,16 +556,16 @@ export const museumStyles = StyleSheet.create({
   },
 
   questionContainer: {
-    flexDirection: "row",  // Ensures the speaker and text are in a row
-    alignItems: "center",  // Centers the speaker button and text vertically
-    marginBottom: 5,  // Adds spacing below the question
+    flexDirection: "row", // Ensures the speaker and text are in a row
+    alignItems: "center", // Centers the speaker button and text vertically
+    marginBottom: 5, // Adds spacing below the question
   },
 
   optionContainer: {
-    flexDirection: "row",  // Align elements in a row
-    alignItems: "center",  // Center vertically
-    justifyContent: "space-between",  
-    marginVertical: 5,  // Add spacing
+    flexDirection: "row", // Align elements in a row
+    alignItems: "center", // Center vertically
+    justifyContent: "space-between",
+    marginVertical: 5, // Add spacing
   },
 
   //---------------
@@ -607,7 +617,7 @@ export const museumStyles = StyleSheet.create({
     padding: 5,
   },
   //----------------
-  
+
   //----------------
   darkQuestion: {
     color: "rgb(241, 236, 215)",
@@ -651,7 +661,7 @@ export const museumStyles = StyleSheet.create({
   //-----------------
 
   optionButton: {
-    flex: 1
+    flex: 1,
   },
 
   //-----------------
