@@ -351,7 +351,10 @@ const Matching = () => {
                           style={[
                             matchingStyles.cardText,
                             darkMode && matchingStyles.darkCardText,
+                            { fontSize: card.symbol.length > 10 ? 8 : 20 }
                           ]}
+                          numberOfLines={3}
+                          ellipsizeMode="tail"
                         >
                           {card.symbol}
                         </Text>
