@@ -14,6 +14,8 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
 import AudioManager from "./AudioManager";
+import { FIRESTORE_DB, FIREBASE_AUTH } from "../../FirebaseConfig";
+import { setDoc, doc } from "firebase/firestore";
 
 export default function ContactUs() {
   const navigation = useNavigation();
@@ -25,7 +27,7 @@ export default function ContactUs() {
   const [message, setMessage] = useState("");
 
   // Function to handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     if (!name || !email || !message) {
       Alert.alert("Error", "Please fill out all fields before submitting.");
       return;
@@ -33,6 +35,24 @@ export default function ContactUs() {
 
     // Simulating form submission
     Alert.alert("Success", "Your message has been sent!");
+    const user = FIREBASE_AUTH.currentUser;
+    
+    if (user) {
+      const user_id = user.uid;
+      const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, ""); // Removes special characters
+      const unique_id = `${user_id}_${timestamp}`;
+      await setDoc(
+        doc(FIRESTORE_DB, "contact_us", timestamp),
+        {
+          [unique_id]: {
+            Name: name,
+            Email: email,
+            Message: message
+          }
+        },
+        { merge: true }
+      );
+    }
     setName("");
     setEmail("");
     setMessage("");
