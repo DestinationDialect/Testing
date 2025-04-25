@@ -244,7 +244,7 @@ import {
             style={[flashStyles.toggleButton, darkMode && flashStyles.darkToggleButton]}
             onPress={toggleViewMode}
           >
-            <Text style={flashStyles.buttonText}>
+            <Text style={[flashStyles.buttonText, darkMode && flashStyles.darkButtonText]}>
               Switch to {viewMode === "list" ? "Single Card View" : "List View"}
             </Text>
           </TouchableOpacity>
@@ -278,11 +278,11 @@ import {
                         );
                       }}
                     >
-                      <FeatherIcon name="arrow-left" size={30} color="white" />
+                      <FeatherIcon name="arrow-left" size={30} style={[flashStyles.arrows, darkMode && flashStyles.darkArrows]} />
                     </TouchableOpacity>
 
                     {/* Flashcard Counter (Current Card / Total Cards) */}
-                    <Text style={flashStyles.counterText}>
+                    <Text style={[flashStyles.counterText, darkMode && flashStyles.darkCounterText]}>
                       {flashcards.length > 0 ? `${currentIndex + 1} / ${flashcards.length}` : "0 / 0"}
                     </Text>
 
@@ -295,7 +295,7 @@ import {
                         );
                       }}
                     >
-                      <FeatherIcon name="arrow-right" size={30} color="white" />
+                      <FeatherIcon name="arrow-right" size={30} style={[flashStyles.arrows, darkMode && flashStyles.darkArrows]} />
                     </TouchableOpacity>
                   </View>
                 </>
@@ -425,6 +425,15 @@ import {
     },
     //-----------------
 
+    //-----------------
+    arrows: {
+      color: "black"
+    },
+    darkArrows: {
+      color: "rgb(241, 236, 215)"
+    },
+    //-----------------
+
     navButtons: {
       flexDirection: "row",
       alignItems: "center",
@@ -435,11 +444,19 @@ import {
     navButton: {
       padding: 10,
     },
+
+    //----------------
     counterText: {
       fontSize: 20,
       fontWeight: "bold",
-      color: "white",
+      color: "black",
     },
+    darkCounterText: {
+      fontSize: 20,
+      fontWeight: "bold",
+      color: "rgb(241, 236, 215)",
+    }, 
+    //----------------
 
     //--------------
     darkLabel: {

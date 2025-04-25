@@ -308,9 +308,9 @@ export default function AirportScenario() {
       }
       // speak question on render and every time question index changes, after language is stored
       // and dialogue is translated
-      if (languageStored && translated) {
-        speak(dialogue[currentquestionindex].question);
-      }
+      // if (languageStored && translated) {
+      //   speak(dialogue[currentquestionindex].question);
+      // }
     };
     setLanguageAndSpeak();
   }, [currentquestionindex, languageStored, translated]);
@@ -392,7 +392,7 @@ export default function AirportScenario() {
 
   const checkAnswer = (pressedOption: string) => {
     setselectedOption(pressedOption);
-    speak(pressedOption); // speaks the selected answer
+    //speak(pressedOption); // speaks the selected answer
     const isAnswerCorrect =
       dialogue[currentquestionindex].correctAnswer === pressedOption;
     setisCorrect(isAnswerCorrect);
