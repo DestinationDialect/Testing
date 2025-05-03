@@ -346,7 +346,7 @@ const Matching = () => {
                         matchingStyles.card,
                         darkMode && matchingStyles.darkCard,
                         card.isFlipped && matchingStyles.cardFlipped,
-                        darkMode && matchingStyles.darkCardIsFlipped,
+                        darkMode && matchingStyles.darkCardFlipped,
                       ]}
                       onPress={() => cardClickFunction(card)}
                     >
@@ -355,9 +355,9 @@ const Matching = () => {
                           style={[
                             matchingStyles.cardText,
                             darkMode && matchingStyles.darkCardText,
-                            { fontSize: card.symbol.length > 10 ? 8 : 20 }
+                            { fontSize: card.symbol.length > 30 ? 8 : 15 }
                           ]}
-                          numberOfLines={3}
+                          numberOfLines={9}
                           ellipsizeMode="tail"
                         >
                           {card.symbol}

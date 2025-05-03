@@ -45,7 +45,7 @@ export default function Flashcard({ flashcard }) {
 
   return (
     <TouchableOpacity onPress={flipCard}>
-      <View style={[styles.cardContainer, darkMode && styles.darkCardContainer]}>
+      <View style={[styles.cardContainer]}>
         <Animated.View style={[styles.card, darkMode && styles.darkCard, frontAnimatedStyle, !flip && { zIndex: 1 }]}>
           <Text style={[styles.text, darkMode && styles.darkText]}>{flashcard.question}</Text>
         </Animated.View>
@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     elevation: 5, 
     borderColor: "rgb(241, 236, 215)",
     borderWidth: 2,
+    padding: 5, 
   },
   card: { 
     width: 250, 
@@ -97,6 +98,7 @@ const styles = StyleSheet.create({
     elevation: 5, 
     borderColor: "white",
     borderWidth: 2,
+    padding: 5,
   },
   //----------------
 
